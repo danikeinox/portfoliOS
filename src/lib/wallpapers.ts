@@ -1,0 +1,19 @@
+export const DEFAULT_WALLPAPERS = [
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Dusk-Dark-2-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Sky-Light-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Sky-Light-2-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Sky-Dark-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Sky-Dark-2-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Shadow-Light-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Shadow-Light-2-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Shadow-Dark-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Shadow-Dark-2-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Halo-Light-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Halo-Light-2-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Halo-Dark-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Halo-Dark-2-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Dusk-Light-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Dusk-Light-2-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Dusk-Dark-scaled.jpg',
+  'https://cdn.osxdaily.com/wp-content/uploads/2025/07/iOS-26-Wallpaper-Dusk-Dark-2-1-scaled.jpg'
+];

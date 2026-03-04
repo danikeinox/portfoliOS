@@ -1,0 +1,37 @@
+{
+    "PROJECTS": [
+        {
+            "title": "Portfolio Website",
+            "description": "The new version of my personal portfolio, designed with a modern, iOS-inspired aesthetic and built with Next.js and Tailwind CSS.",
+            "image": {
+                "imageUrl": "https://picsum.photos/seed/project1/600/400",
+                "imageHint": "website design"
+            },
+            "githubUrl": "https://github.com/danikeinox",
+            "liveUrl": "#",
+            "tags": ["Next.js", "React", "Tailwind CSS", "TypeScript"]
+        },
+        {
+            "title": "E-commerce Platform",
+            "description": "A full-featured e-commerce site with a custom CMS, payment gateway integration, and a user-friendly interface for both customers and administrators.",
+             "image": {
+                "imageUrl": "https://picsum.photos/seed/project2/600/400",
+                "imageHint": "online store"
+            },
+            "githubUrl": "https://github.com/danikeinox",
+            "liveUrl": "#",
+            "tags": ["Node.js", "Express", "MongoDB", "React"]
+        },
+        {
+            "title": "Cybersecurity Dashboard",
+            "description": "A real-time dashboard for monitoring network threats, visualizing security alerts, and generating incident reports.",
+             "image": {
+                "imageUrl": "https://picsum.photos/seed/project3/600/400",
+                "imageHint": "data dashboard"
+            },
+            "githubUrl": "https://github.com/danikeinox",
+            "liveUrl": "#",
+            "tags": ["Python", "Flask", "D3.js", "WebSockets"]
+        }
+    ]
+}

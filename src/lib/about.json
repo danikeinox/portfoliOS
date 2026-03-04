@@ -1,0 +1,29 @@
+
+{
+  "name": "Daniel Cabrera",
+  "age": 24,
+  "profileImage": {
+    "url": "https://picsum.photos/seed/profile/150/150",
+    "aiHint": "male portrait"
+  },
+  "titleKey": "about.page.title",
+  "locationKey": "about.page.location",
+  "experienceValueKey": "about.page.experienceValue",
+  "experienceTitleKey": "about.page.experienceTitle",
+  "ageTitleKey": "about.page.ageTitle",
+  "bioTitleKey": "about.page.bioTitle",
+  "bioKey": "about.page.bio",
+  "skillsTitleKey": "about.page.skillsTitle",
+  "skills": [
+    { "name": "React", "icon": "Code" },
+    { "name": "Next.js", "icon": "AppWindow" },
+    { "name": "TypeScript", "icon": "FileCode" },
+    { "name": "Node.js", "icon": "Server" },
+    { "name": "Firebase", "icon": "Database" },
+    { "name": "Tailwind CSS", "icon": "Wind" },
+    { "name": "Cybersecurity", "icon": "ShieldCheck" },
+    { "name": "Python", "icon": "Code" },
+    { "name": "MySQL", "icon": "Database" },
+    { "name": "Luau", "icon": "Code" }
+  ]
+}

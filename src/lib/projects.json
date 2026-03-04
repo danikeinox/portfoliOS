@@ -1,0 +1,109 @@
+
+{
+  "projects": [
+    {
+      "id": "businfy",
+      "titleKey": "projects.businfy.title",
+      "descriptionShortKey": "projects.businfy.descriptionShort",
+      "descriptionLongKey": "projects.businfy.descriptionLong",
+      "tags": ["Next.js", "React", "JavaScript"],
+      "mainImage": {
+        "imageUrl": "https://picsum.photos/seed/businfy/600/400",
+        "imageHint": "business platform dashboard"
+      },
+      "gallery": [
+        { "imageUrl": "https://picsum.photos/seed/businfy-g1/800/450", "imageHint": "signup form" },
+        { "imageUrl": "https://picsum.photos/seed/businfy-g2/800/450", "imageHint": "dashboard analytics" }
+      ],
+      "githubUrl": "https://github.com/danikeinox",
+      "liveUrl": "#"
+    },
+    {
+      "id": "book-manager",
+      "titleKey": "projects.bookManager.title",
+      "descriptionShortKey": "projects.bookManager.descriptionShort",
+      "descriptionLongKey": "projects.bookManager.descriptionLong",
+      "tags": ["Python", "Tkinter", "MySQL"],
+      "mainImage": {
+        "imageUrl": "https://picsum.photos/seed/book-manager/600/400",
+        "imageHint": "desktop application interface"
+      },
+      "gallery": [],
+      "githubUrl": "https://github.com/danikeinox",
+      "liveUrl": null
+    },
+    {
+      "id": "ai-podcast-generator",
+      "titleKey": "projects.aiPodcast.title",
+      "descriptionShortKey": "projects.aiPodcast.descriptionShort",
+      "descriptionLongKey": "projects.aiPodcast.descriptionLong",
+      "tags": ["TypeScript", "Next.js", "Node.js"],
+      "mainImage": {
+        "imageUrl": "https://picsum.photos/seed/ai-podcast/600/400",
+        "imageHint": "ai audio waveform"
+      },
+      "gallery": [
+        { "imageUrl": "https://picsum.photos/seed/ai-podcast-g1/800/450", "imageHint": "podcast creation interface" },
+        { "imageUrl": "https://picsum.photos/seed/ai-podcast-g2/800/450", "imageHint": "podcast library" }
+      ],
+      "githubUrl": "https://github.com/danikeinox",
+      "liveUrl": "#"
+    },
+    {
+      "id": "resuma",
+      "titleKey": "projects.resuma.title",
+      "descriptionShortKey": "projects.resuma.descriptionShort",
+      "descriptionLongKey": "projects.resuma.descriptionLong",
+      "tags": ["TypeScript", "Next.js", "Node.js"],
+      "mainImage": {
+        "imageUrl": "https://picsum.photos/seed/resuma/600/400",
+        "imageHint": "ai resume analysis"
+      },
+      "gallery": [],
+      "githubUrl": null,
+      "liveUrl": "#"
+    },
+    {
+      "id": "roblox-experience",
+      "titleKey": "projects.roblox.title",
+      "descriptionShortKey": "projects.roblox.descriptionShort",
+      "descriptionLongKey": "projects.roblox.descriptionLong",
+      "tags": ["TypeScript", "Luau", "Roblox DataStore"],
+      "mainImage": {
+        "imageUrl": "https://picsum.photos/seed/roblox/600/400",
+        "imageHint": "multiplayer game world"
+      },
+      "gallery": [],
+      "githubUrl": null,
+      "liveUrl": "#"
+    },
+    {
+      "id": "phanteum-network",
+      "titleKey": "projects.phanteum.title",
+      "descriptionShortKey": "projects.phanteum.descriptionShort",
+      "descriptionLongKey": "projects.phanteum.descriptionLong",
+      "tags": ["TypeScript", "Next.js", "Node.js"],
+      "mainImage": {
+        "imageUrl": "https://picsum.photos/seed/phanteum/600/400",
+        "imageHint": "fantasy game server"
+      },
+      "gallery": [],
+      "githubUrl": null,
+      "liveUrl": "#"
+    },
+    {
+      "id": "hytale-store",
+      "titleKey": "projects.hytaleStore.title",
+      "descriptionShortKey": "projects.hytaleStore.descriptionShort",
+      "descriptionLongKey": "projects.hytaleStore.descriptionLong",
+      "tags": ["TypeScript", "Next.js", "Node.js"],
+      "mainImage": {
+        "imageUrl": "https://picsum.photos/seed/hytale-store/600/400",
+        "imageHint": "game web store"
+      },
+      "gallery": [],
+      "githubUrl": null,
+      "liveUrl": "#"
+    }
+  ]
+}
