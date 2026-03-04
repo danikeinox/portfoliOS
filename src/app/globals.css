@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    color: white;
+    background-color: #000; /* Add fallback color to prevent white bar */
+    /* The background property is now managed by use-wallpaper.tsx */
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+    overscroll-behavior: none; /* Prevent bounce effect */
+    transition: background-image 0.5s ease-in-out; /* Add a smooth transition */
+    overflow: hidden; /* Prevent global scrolling */
+    height: 100vh; /* Fill the full screen height to avoid white bars */
+  }
+
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+@layer utilities {
+  @keyframes jiggle {
+    0% {
+      transform: rotate(-1deg);
+    }
+    50% {
+      transform: rotate(1deg);
+    }
+  }
+
+  .jiggle {
+    animation: jiggle 0.2s infinite ease-in-out;
+  }
+}
+
+/* This targets the Embla viewport to allow vertical gestures to pass through to dnd-kit on mobile */
+.home-carousel > .overflow-hidden {
+    touch-action: pan-x;
+}

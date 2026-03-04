@@ -1,0 +1,15 @@
+'use client';
+import Portfolio from "@/components/apps/Portfolio";
+
+const PortfolioApp = () => {
+    return (
+       <div className="text-black dark:text-white bg-transparent h-full w-full flex flex-col pt-10">
+         <div className="flex-1 overflow-y-auto">
+           <Portfolio />
+         </div>
+
+       </div>
+    );
+};
+
+export default PortfolioApp;
