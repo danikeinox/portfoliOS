@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- Helper Functions ---
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // --- Blog Posts ---
+    // Anyone can read blog posts, but they can only be written server-side.
+    match /blog/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // --- Testimonials ---
+    // Anyone can read testimonials.
+    // Authenticated users can create testimonials with validation.
+    // No one can update or delete testimonials.
+    match /testimonials/{testimonialId} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() >= 2
+                    && request.resource.data.message is string
+                    && request.resource.data.message.size() >= 10;
+      allow update, delete: if false;
+    }
+     match /testimonials {
+      allow list: if true;
+    }
+
+    // --- Notes ---
+    // For this public app, anyone can read, create, update, and delete any note.
+    match /notes/{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

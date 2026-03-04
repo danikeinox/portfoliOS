@@ -1,0 +1,133 @@
+{
+  "entities": {
+    "Note": {
+      "title": "Note",
+      "description": "A user-created note.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "drawing": {
+          "type": "string",
+          "description": "A base64 encoded data URL of the drawing."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "title",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "BlogPost": {
+      "title": "Blog Post",
+      "description": "A blog post entry.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "title",
+        "content",
+        "author",
+        "createdAt"
+      ]
+    },
+    "Testimonial": {
+      "title": "Testimonial",
+      "description": "A user-submitted testimonial.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "name",
+        "message",
+        "createdAt"
+      ]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Basic user profile information.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        }
+      }
+    }
+  },
+  "auth": {
+    "providers": [
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "/notes/{noteId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Note"
+      },
+      "description": "Stores public, anonymous notes."
+    },
+    "/blog/{postId}": {
+      "schema": {
+        "$ref": "#/backend/entities/BlogPost"
+      },
+      "description": "Stores blog posts, publicly readable."
+    },
+    "/testimonials/{testimonialId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Testimonial"
+      },
+      "description": "Stores public testimonials, anyone can create."
+    }
+  }
+}
