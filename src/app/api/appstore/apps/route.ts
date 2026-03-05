@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     ownerId: request.nextUrl.searchParams.get("ownerId") ?? undefined,
     category: request.nextUrl.searchParams.get("category") ?? undefined,
     status: request.nextUrl.searchParams.get("status") ?? undefined,
+    sort: request.nextUrl.searchParams.get("sort") ?? undefined,
     limit: request.nextUrl.searchParams.get("limit") ?? undefined,
   });
 
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const { ownerId, category, status, limit } = parsed.data;
+  const { ownerId, category, status, sort, limit } = parsed.data;
 
   try {
     let query: FirebaseFirestore.Query = adminDb.collection(
@@ -51,10 +52,8 @@ export async function GET(request: NextRequest) {
       query = query.where("status", "==", status);
     }
 
-    const snapshot = await query
-      .orderBy("updatedAt", "desc")
-      .limit(limit)
-      .get();
+    const orderField = sort === "downloads" ? "downloadCount" : "updatedAt";
+    const snapshot = await query.orderBy(orderField, "desc").limit(limit).get();
     const apps = snapshot.docs.map((doc) => mapApp(doc.data(), doc.id));
 
     return ok({ apps, count: apps.length });
@@ -126,9 +125,13 @@ export async function POST(request: NextRequest) {
       description: payload.description,
       category: payload.category,
       categoryLower: payload.category.toLocaleLowerCase("es-ES"),
+      categories: payload.categories,
       status: payload.status,
       tags: payload.tags,
       iconUrl: payload.iconUrl ?? "",
+      screenshotsUrls: payload.screenshotsUrls,
+      externalUrl: payload.externalUrl,
+      downloadCount: 0,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });

@@ -15,6 +15,29 @@ function asCode(error: unknown): string {
   return "UNKNOWN_ERROR";
 }
 
+export async function GET(
+  _request: NextRequest,
+  context: { params: { appId: string } },
+) {
+  const { appId } = context.params;
+  if (!appId) {
+    return fail("INVALID_APP_ID", "App id is required", 400);
+  }
+
+  try {
+    const appDoc = await adminDb.collection(APPSTORE_COLLECTIONS.apps).doc(appId).get();
+
+    if (!appDoc.exists) {
+      return fail("APP_NOT_FOUND", "App not found", 404);
+    }
+
+    return ok(mapApp(appDoc.data()!, appId));
+  } catch (error) {
+    console.error("get app detail error:", error);
+    return fail("GET_APP_DETAIL_ERROR", "Unexpected error fetching app detail", 500);
+  }
+}
+
 export async function PATCH(
   request: NextRequest,
   context: { params: { appId: string } },
@@ -85,9 +108,14 @@ export async function PATCH(
               categoryLower: payload.category.toLocaleLowerCase("es-ES"),
             }
           : {}),
+        ...(payload.categories ? { categories: payload.categories } : {}),
         ...(payload.status ? { status: payload.status } : {}),
         ...(payload.tags ? { tags: payload.tags } : {}),
         ...(payload.iconUrl !== undefined ? { iconUrl: payload.iconUrl } : {}),
+        ...(payload.screenshotsUrls
+          ? { screenshotsUrls: payload.screenshotsUrls }
+          : {}),
+        ...(payload.externalUrl ? { externalUrl: payload.externalUrl } : {}),
         updatedAt: FieldValue.serverTimestamp(),
       },
       { merge: true },
