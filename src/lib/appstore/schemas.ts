@@ -38,7 +38,21 @@ const categorySchema = z
     "Category contains invalid characters",
   );
 
-export const appCreateSchema = z.object({
+const categoriesSchema = z
+  .array(categorySchema)
+  .min(1, "At least one category is required")
+  .max(5, "You can add up to 5 categories")
+  .transform((values) => {
+    const deduped = new Set<string>();
+    for (const value of values) {
+      deduped.add(value);
+    }
+    return [...deduped].slice(0, 5);
+  });
+
+const screenshotsSchema = z.array(z.string().url().max(300)).max(8).default([]);
+
+const appCreatePayloadSchema = z.object({
   title: z
     .string()
     .min(2)
@@ -49,7 +63,8 @@ export const appCreateSchema = z.object({
     .min(10)
     .max(1200)
     .transform((value) => normalizeWhitespace(value)),
-  category: categorySchema,
+  category: categorySchema.optional(),
+  categories: categoriesSchema,
   status: z.enum(["draft", "published"]).default("draft"),
   tags: z
     .array(
@@ -62,10 +77,34 @@ export const appCreateSchema = z.object({
     .max(8)
     .default([]),
   iconUrl: z.string().url().max(300).optional(),
+  screenshotsUrls: screenshotsSchema,
+  externalUrl: z.string().url().max(300),
 });
 
-export const appUpdateSchema = appCreateSchema
+export const appCreateSchema = appCreatePayloadSchema.transform((payload) => {
+  const category = payload.category ?? payload.categories[0];
+  return {
+    ...payload,
+    category,
+  };
+});
+
+export const appUpdateSchema = appCreatePayloadSchema
   .partial()
+  .transform((payload) => {
+    if (payload.category) {
+      return payload;
+    }
+
+    if (payload.categories && payload.categories.length > 0) {
+      return {
+        ...payload,
+        category: payload.categories[0],
+      };
+    }
+
+    return payload;
+  })
   .refine((value) => Object.keys(value).length > 0, {
     message: "At least one field is required",
   });
@@ -81,6 +120,7 @@ export const appListQuerySchema = z.object({
       "Invalid category filter",
     ),
   status: z.enum(["draft", "published"]).optional(),
+  sort: z.enum(["recent", "downloads"]).default("recent"),
   limit: z.coerce.number().int().min(1).max(50).default(20),
 });
 

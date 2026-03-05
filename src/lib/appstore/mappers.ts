@@ -44,9 +44,17 @@ export function mapApp(data: DocumentData, id: string): AppStoreApp {
     description: data.description,
     category: data.category,
     categoryLower: data.categoryLower,
+    categories: Array.isArray(data.categories)
+      ? data.categories
+      : [data.category].filter((value) => typeof value === "string"),
     status: data.status,
     tags: Array.isArray(data.tags) ? data.tags : [],
     iconUrl: data.iconUrl,
+    screenshotsUrls: Array.isArray(data.screenshotsUrls)
+      ? data.screenshotsUrls
+      : [],
+    externalUrl: typeof data.externalUrl === "string" ? data.externalUrl : "",
+    downloadCount: typeof data.downloadCount === "number" ? data.downloadCount : 0,
     createdAt: toIsoString(data.createdAt),
     updatedAt: toIsoString(data.updatedAt),
   };

@@ -48,9 +48,13 @@ export type AppStoreApp = {
   description: string;
   category: string;
   categoryLower: string;
+  categories: string[];
   status: "draft" | "published";
   tags: string[];
   iconUrl?: string;
+  screenshotsUrls: string[];
+  externalUrl: string;
+  downloadCount: number;
   createdAt: string;
   updatedAt: string;
 };

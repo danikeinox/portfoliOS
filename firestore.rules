@@ -88,9 +88,18 @@ service cloud.firestore {
         && validText(request.resource.data.description, 10, 1200)
         && validCategory(request.resource.data.category)
         && request.resource.data.categoryLower is string
+        && request.resource.data.categories is list
+        && request.resource.data.categories.size() >= 1
+        && request.resource.data.categories.size() <= 5
+        && validCategory(request.resource.data.categories[0])
         && request.resource.data.status in ['draft', 'published']
         && request.resource.data.tags is list
-        && request.resource.data.tags.size() <= 8;
+        && request.resource.data.tags.size() <= 8
+        && request.resource.data.screenshotsUrls is list
+        && request.resource.data.screenshotsUrls.size() <= 8
+        && request.resource.data.externalUrl is string
+        && request.resource.data.externalUrl.size() >= 8
+        && request.resource.data.externalUrl.size() <= 300;
       allow update: if request.auth != null
         && resource.data.ownerId == request.auth.uid
         && request.resource.data.ownerId == resource.data.ownerId
@@ -99,9 +108,18 @@ service cloud.firestore {
         && validText(request.resource.data.description, 10, 1200)
         && validCategory(request.resource.data.category)
         && request.resource.data.categoryLower is string
+        && request.resource.data.categories is list
+        && request.resource.data.categories.size() >= 1
+        && request.resource.data.categories.size() <= 5
+        && validCategory(request.resource.data.categories[0])
         && request.resource.data.status in ['draft', 'published']
         && request.resource.data.tags is list
-        && request.resource.data.tags.size() <= 8;
+        && request.resource.data.tags.size() <= 8
+        && request.resource.data.screenshotsUrls is list
+        && request.resource.data.screenshotsUrls.size() <= 8
+        && request.resource.data.externalUrl is string
+        && request.resource.data.externalUrl.size() >= 8
+        && request.resource.data.externalUrl.size() <= 300;
       allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
     }
 
