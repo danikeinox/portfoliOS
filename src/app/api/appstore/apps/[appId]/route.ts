@@ -135,3 +135,42 @@ export async function PATCH(
     return fail("UPDATE_APP_ERROR", "Unexpected error updating app", 500);
   }
 }
+
+export async function POST(
+  _request: NextRequest,
+  context: { params: { appId: string } },
+) {
+  const { appId } = context.params;
+
+  if (!appId) {
+    return fail("INVALID_APP_ID", "App id is required", 400);
+  }
+
+  try {
+    const appRef = adminDb.collection(APPSTORE_COLLECTIONS.apps).doc(appId);
+    const appDoc = await appRef.get();
+
+    if (!appDoc.exists) {
+      return fail("APP_NOT_FOUND", "App not found", 404);
+    }
+
+    await appRef.set(
+      {
+        downloadCount: FieldValue.increment(1),
+        downloadsCount: FieldValue.increment(1),
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+
+    const updatedDoc = await appRef.get();
+    return ok(mapApp(updatedDoc.data()!, appId));
+  } catch (error) {
+    console.error("install app error:", error);
+    return fail(
+      "INSTALL_APP_ERROR",
+      "Unexpected error installing app",
+      500,
+    );
+  }
+}

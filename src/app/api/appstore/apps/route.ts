@@ -132,6 +132,7 @@ export async function POST(request: NextRequest) {
       screenshotsUrls: payload.screenshotsUrls,
       externalUrl: payload.externalUrl,
       downloadCount: 0,
+      downloadsCount: 0,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
