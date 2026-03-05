@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { Globe } from 'lucide-react';
-import type { App } from '@/lib/apps';
+import { Globe } from "lucide-react";
+import type { App } from "@/lib/apps";
 
-export const INSTALLED_APPS_STORAGE_KEY = 'installedApps.v1';
-export const INSTALLED_APPS_UPDATED_EVENT = 'installed-apps-updated';
+export const INSTALLED_APPS_STORAGE_KEY = "installedApps.v1";
+export const INSTALLED_APPS_UPDATED_EVENT = "installed-apps-updated";
 
 export type InstalledAppRecord = {
   id: string;
@@ -19,11 +19,11 @@ export function toInstalledSlug(appId: string): string {
 }
 
 export function fromInstalledSlug(slug: string): string | null {
-  if (!slug.startsWith('installed-')) {
+  if (!slug.startsWith("installed-")) {
     return null;
   }
 
-  return slug.slice('installed-'.length) || null;
+  return slug.slice("installed-".length) || null;
 }
 
 function parseStoredApps(raw: string | null): InstalledAppRecord[] {
@@ -40,10 +40,10 @@ function parseStoredApps(raw: string | null): InstalledAppRecord[] {
     return parsed.filter((item) => {
       return (
         item &&
-        typeof item.id === 'string' &&
-        typeof item.name === 'string' &&
-        typeof item.iconUrl === 'string' &&
-        typeof item.externalUrl === 'string'
+        typeof item.id === "string" &&
+        typeof item.name === "string" &&
+        typeof item.iconUrl === "string" &&
+        typeof item.externalUrl === "string"
       );
     });
   } catch {
@@ -52,7 +52,7 @@ function parseStoredApps(raw: string | null): InstalledAppRecord[] {
 }
 
 export function getInstalledAppRecords(): InstalledAppRecord[] {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return [];
   }
 
@@ -73,8 +73,10 @@ export function getInstalledAppBySlug(slug: string): InstalledAppRecord | null {
   return getInstalledAppById(appId);
 }
 
-export function saveInstalledApp(record: Omit<InstalledAppRecord, 'installedAt'>) {
-  if (typeof window === 'undefined') {
+export function saveInstalledApp(
+  record: Omit<InstalledAppRecord, "installedAt">,
+) {
+  if (typeof window === "undefined") {
     return;
   }
 
@@ -92,7 +94,7 @@ export function saveInstalledApp(record: Omit<InstalledAppRecord, 'installedAt'>
 }
 
 export function removeInstalledApp(appId: string) {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return;
   }
 
@@ -107,10 +109,10 @@ export function toInstalledAppEntry(record: InstalledAppRecord): App {
     id: toInstalledSlug(record.id),
     title: record.name,
     icon: Globe,
-    bgColor: '#0A84FF',
-    color: 'white',
+    bgColor: "#0A84FF",
+    color: "white",
     href: `/app/${toInstalledSlug(record.id)}`,
-    category: 'Utilities',
+    category: "Utilities",
   };
 }
 

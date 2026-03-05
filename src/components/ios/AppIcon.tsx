@@ -19,9 +19,9 @@ import {
 import React, { ComponentType, forwardRef } from 'react';
 import { useI18n } from '@/hooks/use-i18n';
 import { useNotifications } from '@/hooks/use-notifications';
-import { 
-    Phone, Video, StickyNote, Image as ImageIcon, Camera, Settings, Map, Tv, Podcast, 
-    Newspaper, MessageCircle, Music, Compass, Linkedin, Github, User, FolderOpen, Youtube, Wrench, MessagesSquare, Mail, Rss, CalendarDays, Clock
+import {
+  Phone, Video, StickyNote, Image as ImageIcon, Camera, Settings, Map, Tv, Podcast,
+  Newspaper, MessageCircle, Music, Compass, Linkedin, Github, User, FolderOpen, Youtube, Wrench, MessagesSquare, Mail, Rss, CalendarDays, Clock
 } from 'lucide-react';
 import { SiAppstore, SiSpotify } from 'react-icons/si';
 import CalendarIcon from './CalendarIcon';
@@ -60,26 +60,26 @@ export const systemIconMapping: { [key: string]: { icon: GenericIcon, bgColor?: 
 type GenericIcon = ComponentType<any> | IconType;
 
 interface AppIconProps {
-    app: App;
-    isDock?: boolean;
-    isJiggleMode: boolean;
-    onRemove?: () => void;
-    action?: 'navigate' | 'addToHomeScreen';
-    onAddToHomeScreen?: (appId: string) => void;
-    isDragging?: boolean;
-    style?: React.CSSProperties;
+  app: App;
+  isDock?: boolean;
+  isJiggleMode: boolean;
+  onRemove?: () => void;
+  action?: 'navigate' | 'addToHomeScreen';
+  onAddToHomeScreen?: (appId: string) => void;
+  isDragging?: boolean;
+  style?: React.CSSProperties;
 }
 
-const AppIcon = forwardRef<HTMLDivElement, AppIconProps>(({ 
-    app, 
-    isDock = false, 
-    isJiggleMode, 
-    onRemove, 
-    action = 'navigate', 
-    onAddToHomeScreen, 
-    isDragging,
-    style,
-    ...props
+const AppIcon = forwardRef<HTMLDivElement, AppIconProps>(({
+  app,
+  isDock = false,
+  isJiggleMode,
+  onRemove,
+  action = 'navigate',
+  onAddToHomeScreen,
+  isDragging,
+  style,
+  ...props
 }, ref) => {
   const { t } = useI18n();
   const { getNotificationCountForApp } = useNotifications();
@@ -92,10 +92,10 @@ const AppIcon = forwardRef<HTMLDivElement, AppIconProps>(({
   const Icon = systemStyle.icon || app.icon;
   const bgColor = systemStyle.bgColor || app.bgColor || '#1c1c1e';
   const color = systemStyle.color || app.color || 'white';
-  
+
   const iconSizeClass = isDock ? 'w-16 h-16 md:w-16 md:h-16' : 'w-16 h-16';
   const textSizeClass = isDock ? 'text-sm mt-2 hidden' : 'text-xs mt-1';
-  
+
   const isNavigable = !isJiggleMode && action === 'navigate';
   const href = isNavigable ? (app.href || `/app/${app.id}`) : '#';
   const title = installedApp ? installedApp.name : (app.title.startsWith('app.') ? t(app.title) : app.title);
@@ -105,7 +105,7 @@ const AppIcon = forwardRef<HTMLDivElement, AppIconProps>(({
       e.preventDefault();
       e.stopPropagation();
     }
-    
+
     if (action === 'addToHomeScreen') {
       e.preventDefault();
       onAddToHomeScreen?.(app.id);
@@ -120,61 +120,61 @@ const AppIcon = forwardRef<HTMLDivElement, AppIconProps>(({
 
   const handleRemove = () => {
     if (onRemove) {
-        onRemove();
+      onRemove();
     }
   }
 
   return (
-    <div 
-        ref={ref} 
-        style={style} 
-        className={cn(
-            "flex flex-col items-center relative transition-opacity", 
-            isDragging && 'opacity-30'
-        )} 
-        draggable="false" 
-        onContextMenu={(e) => e.preventDefault()} 
-        onClick={handleContainerClick}
-        {...props}
+    <div
+      ref={ref}
+      style={style}
+      className={cn(
+        "flex flex-col items-center relative transition-opacity",
+        isDragging && 'opacity-30'
+      )}
+      draggable="false"
+      onContextMenu={(e) => e.preventDefault()}
+      onClick={handleContainerClick}
+      {...props}
     >
       {isJiggleMode && onRemove && (
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <button 
+            <button
               aria-label={t('deleteApp.title', { appTitle: title })}
-                onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
               className="absolute -top-2 -left-5 w-5 h-5 bg-neutral-500 rounded-full flex items-center justify-center border border-black/10 z-10 animate-in fade-in zoom-in-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
-                <Minus size={14} color="white" />
+              <Minus size={14} color="white" />
             </button>
           </AlertDialogTrigger>
           <AlertDialogContent className="bg-neutral-800/80 backdrop-blur-xl border-none rounded-2xl text-white w-[270px]">
-              <AlertDialogHeader className="items-center space-y-1">
-                  <AlertDialogTitle className="font-semibold">{t('deleteApp.title', {appTitle: title})}</AlertDialogTitle>
-                  <AlertDialogDescription className="text-sm text-center">
-                      {t('deleteApp.description')}
-                  </AlertDialogDescription>
-              </AlertDialogHeader>
-              <div className="flex flex-col -mx-6 -mb-6 mt-4">
-                  <AlertDialogAction onClick={handleRemove} className="w-full rounded-none justify-center bg-transparent text-red-500 hover:bg-neutral-700/70 border-t border-neutral-500/30 h-11 text-base font-normal">
-                      {t('delete')}
-                  </AlertDialogAction>
-                  <AlertDialogCancel className="w-full rounded-none justify-center bg-transparent text-blue-500 hover:bg-neutral-700/70 border-t border-neutral-500/30 mt-0 h-11 text-base font-semibold">
-                      {t('cancel')}
-                  </AlertDialogCancel>
-              </div>
+            <AlertDialogHeader className="items-center space-y-1">
+              <AlertDialogTitle className="font-semibold">{t('deleteApp.title', { appTitle: title })}</AlertDialogTitle>
+              <AlertDialogDescription className="text-sm text-center">
+                {t('deleteApp.description')}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="flex flex-col -mx-6 -mb-6 mt-4">
+              <AlertDialogAction onClick={handleRemove} className="w-full rounded-none justify-center bg-transparent text-red-500 hover:bg-neutral-700/70 border-t border-neutral-500/30 h-11 text-base font-normal">
+                {t('delete')}
+              </AlertDialogAction>
+              <AlertDialogCancel className="w-full rounded-none justify-center bg-transparent text-blue-500 hover:bg-neutral-700/70 border-t border-neutral-500/30 mt-0 h-11 text-base font-semibold">
+                {t('cancel')}
+              </AlertDialogCancel>
+            </div>
           </AlertDialogContent>
         </AlertDialog>
       )}
-      <Link 
-        href={href} 
-        className="flex flex-col items-center text-center no-underline text-white group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40 rounded-xl" 
-        title={title} 
+      <Link
+        href={href}
+        className="flex flex-col items-center text-center no-underline text-white group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40 rounded-xl"
+        title={title}
         aria-label={title}
-        onClick={handleIconClick} 
+        onClick={handleIconClick}
         draggable="false"
       >
         <div
@@ -185,14 +185,14 @@ const AppIcon = forwardRef<HTMLDivElement, AppIconProps>(({
           )}
           style={{ backgroundColor: bgColor }}
         >
-           {installedApp?.iconUrl ? (
-             <Image src={installedApp.iconUrl} alt={title} fill className="object-cover" />
-           ) : app.id === 'calendar' ? (
-             <CalendarIcon />
+          {installedApp?.iconUrl ? (
+            <Image src={installedApp.iconUrl} alt={title} fill className="object-cover" />
+          ) : app.id === 'calendar' ? (
+            <CalendarIcon />
           ) : (
-             <Icon style={{ color }} className="w-[55%] h-[55%]" />
+            <Icon style={{ color }} className="w-[55%] h-[55%]" />
           )}
-          
+
           {notificationCount > 0 && (
             <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-black/10">
               {notificationCount}

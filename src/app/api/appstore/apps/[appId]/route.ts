@@ -167,10 +167,6 @@ export async function POST(
     return ok(mapApp(updatedDoc.data()!, appId));
   } catch (error) {
     console.error("install app error:", error);
-    return fail(
-      "INSTALL_APP_ERROR",
-      "Unexpected error installing app",
-      500,
-    );
+    return fail("INSTALL_APP_ERROR", "Unexpected error installing app", 500);
   }
 }
