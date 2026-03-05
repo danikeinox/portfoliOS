@@ -2,11 +2,11 @@
 import Clock from "@/components/apps/Clock";
 
 const ClockApp = () => {
-    return (
-       <div className="bg-white dark:bg-black text-black dark:text-white h-full w-full flex flex-col pt-10">
-         <Clock />
-       </div>
-    );
+  return (
+    <div className="bg-white text-black dark:bg-black dark:text-white h-full w-full flex flex-col py-10">
+      <Clock />
+    </div>
+  );
 };
 
 export default ClockApp;

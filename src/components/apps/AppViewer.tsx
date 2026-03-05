@@ -34,25 +34,26 @@ const TvApp = dynamic(() => import('@/components/apps-developed/TvApp'), { loadi
 const PodcastsApp = dynamic(() => import('@/components/apps-developed/PodcastsApp'), { loading: LoadingDark, ssr: false });
 const AppStoreApp = dynamic(() => import('@/components/apps-developed/AppStoreApp'), { loading: LoadingLight, ssr: false });
 const NewsApp = dynamic(() => import('@/components/apps-developed/NewsApp'), { loading: LoadingLight, ssr: false });
-const WeatherApp = dynamic(() => import('@/components/apps/Weather'), { loading: LoadingDark, ssr: false });
+const WeatherApp = dynamic(() => import('@/components/apps-developed/WeatherApp'), { loading: LoadingDark, ssr: false });
 
 // 1. NUEVA FUNCIÓN: Decide si la app necesita un tema forzado
 const getForceTheme = (slug: string): 'light' | 'dark' | undefined => {
     switch (slug) {
-        case 'spotify':
-        case 'camera':
-        case 'podcasts':
-        case 'tv':
+        case 'spotify': break;
+        case 'camera': break;
+        case 'podcasts': break;
+        case 'tv': break;
         case 'facetime':
-            return 'dark';
-         case 'safari':
-         case 'about':
-         case 'calendar':
-         case 'appstore':
-         case 'news':
-         case 'phone':
-         case 'maps':
-             return 'light';
+            return 'dark'; break;
+        case 'safari': break;
+        case 'about': break;
+        case 'calendar': break;
+        case 'appstore': break;
+        case 'news': break;
+        case 'phone': break;
+        case 'maps':
+            return 'light'; break;
+            break; break;
         default:
             return undefined; // Undefined significa: "respeta el tema general del SO"
     }
@@ -61,29 +62,51 @@ const getForceTheme = (slug: string): 'light' | 'dark' | undefined => {
 const getHomeBarBackgroundClass = (slug: string): string | undefined => {
     switch (slug) {
         case 'spotify':
+            break;
         case 'camera':
+            break;
         case 'facetime':
+            break;
         case 'tv':
+            break;
         case 'podcasts':
             return 'bg-black';
+            break;
         case 'about':
+            return 'bg-neutral-200/60 dark:bg-[#3A3A3C]';
+            break;
         case 'safari':
             return 'bg-neutral-200/60 dark:bg-[#3A3A3C]';
+            break;
         case 'calendar':
+            return 'bg-[#F2F2F7] dark:bg-[#1C1C1E]';
+            break;
         case 'maps':
+            break;
         case 'phone':
+            break;
         case 'news':
-            return 'bg-white';
+            break;
         case 'notes':
             return 'bg-[#F2F2F7] dark:bg-black';
+            break;
         case 'clock':
+            return 'bg-white dark:bg-[#1C1C1E]';
+            break;
         case 'blog':
+            break;
         case 'photos':
+            return 'bg-neutral-100/80 dark:bg-neutral-900/80';
+            break;
         case 'services':
+            break;
         case 'messages':
+            break;
         case 'contact':
+            break;
         case 'testimonials':
             return 'bg-[#F2F2F7] dark:bg-black';
+            break;
         default:
             return undefined;
     }
@@ -101,7 +124,7 @@ const AppViewer = ({ slug }: { slug: string }) => {
     const appTitle = app ? t(app.title) : 'App';
 
     const renderApp = () => {
-         switch (slug) {
+        switch (slug) {
             case 'portfolio': return <PortfolioApp />;
             case 'about': return <AboutApp />;
             case 'settings': return <SettingsApp />;
@@ -117,11 +140,7 @@ const AppViewer = ({ slug }: { slug: string }) => {
             case 'youtube': return <YoutubeApp />;
             case 'calendar': return <CalendarApp />;
             case 'clock': return <ClockApp />;
-            case 'weather': return (
-                <div className="h-full w-full bg-black text-white flex flex-col pt-10">
-                    <WeatherApp />
-                </div>
-            );
+            case 'weather': return <WeatherApp />;
             case 'maps': return <MapsApp />;
             case 'facetime': return <FaceTimeApp />;
             case 'phone': return <PhoneApp />;

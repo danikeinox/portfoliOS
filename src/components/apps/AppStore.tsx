@@ -25,7 +25,9 @@ const AppStore = () => {
                         <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] font-semibold uppercase">{dateString}</p>
                         <h1 className="text-4xl font-bold tracking-tight">{t('appstore.today')}</h1>
                     </div>
-                    <Image src="https://picsum.photos/seed/profile/80/80" width={40} height={40} alt="Profile" className="rounded-full" data-ai-hint="male portrait" />
+                    <div className="h-10 w-10 relative">
+                        <Image src="https://s6.imgcdn.dev/Yrcy4v.png" fill alt="Profile" className="rounded-full" data-ai-hint="male portrait" />
+                    </div>
                 </div>
 
                 <div className="relative rounded-xl overflow-hidden mb-8 border border-neutral-200 dark:border-[#38383A] bg-white dark:bg-[#1C1C1E]">
@@ -41,7 +43,7 @@ const AppStore = () => {
                     {mockApps.map((app, index) => (
                         <div key={app.id} className="border-b border-neutral-200 dark:border-[#38383A] last:border-none ml-4 py-4 pr-4">
                             <div className="flex items-center gap-4">
-                                <Image src={app.icon} alt={app.name} width={100} height={100} className="w-20 h-20 rounded-2xl bg-neutral-200" data-ai-hint={app.aiHint}/>
+                                <Image src={app.icon} alt={app.name} width={100} height={100} className="w-20 h-20 rounded-2xl bg-neutral-200" data-ai-hint={app.aiHint} />
                                 <div className="flex-1">
                                     <h3 className="font-bold text-lg">{app.name}</h3>
                                     <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{app.category}</p>

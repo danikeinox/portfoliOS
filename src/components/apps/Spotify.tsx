@@ -185,7 +185,7 @@ const Spotify = () => {
     };
 
     const renderContent = () => {
-        switch(activeSection) {
+        switch (activeSection) {
             case 'home': return <HomeContent onPlayTrack={playTrack} />;
             case 'search': return <SearchContent onPlayTrack={playTrack} />;
             case 'library': return <LibraryContent onPlayTrack={playTrack} />;
@@ -236,17 +236,17 @@ const Spotify = () => {
                 </div>
             )}
 
-            <div className="flex-shrink-0 bg-gradient-to-t from-black via-black/80 to-black/0">
-                <div className="flex justify-around items-center h-16 pt-2 pb-1 text-neutral-400">
-                     <button onClick={() => setActiveSection('home')} className={cn("flex flex-col items-center gap-1 transition-colors", activeSection === 'home' ? 'text-white' : 'hover:text-white')}>
+            <div className="flex-shrink-0 bg-gradient-to-t from-black via-black/80 to-black/0 pb-[max(env(safe-area-inset-bottom),8px)]">
+                <div className="flex items-center h-16 pt-2 text-neutral-400">
+                    <button onClick={() => setActiveSection('home')} className={cn("flex-1 flex flex-col items-center justify-center gap-1 transition-colors", activeSection === 'home' ? 'text-white' : 'hover:text-white')}>
                         <Home size={24} />
                         <span className="text-xs font-semibold">{t('spotify.home')}</span>
                     </button>
-                    <button onClick={() => setActiveSection('search')} className={cn("flex flex-col items-center gap-1 transition-colors", activeSection === 'search' ? 'text-white' : 'hover:text-white')}>
+                    <button onClick={() => setActiveSection('search')} className={cn("flex-1 flex flex-col items-center justify-center gap-1 transition-colors", activeSection === 'search' ? 'text-white' : 'hover:text-white')}>
                         <Search size={24} />
                         <span className="text-xs font-semibold">{t('spotify.search')}</span>
                     </button>
-                    <button onClick={() => setActiveSection('library')} className={cn("flex flex-col items-center gap-1 transition-colors", activeSection === 'library' ? 'text-white' : 'hover:text-white')}>
+                    <button onClick={() => setActiveSection('library')} className={cn("flex-1 flex flex-col items-center justify-center gap-1 transition-colors", activeSection === 'library' ? 'text-white' : 'hover:text-white')}>
                         <ListMusic size={24} />
                         <span className="text-xs font-semibold">{t('spotify.library')}</span>
                     </button>
@@ -303,7 +303,7 @@ const HomeContent = ({ onPlayTrack }: { onPlayTrack: (track: SpotifyPreviewTrack
     return (
         <div className="bg-gradient-to-b from-green-900/50 via-black to-black p-4 space-y-8 min-h-full">
             <h1 className="text-3xl font-bold text-white mt-4">{t('spotify.home')}</h1>
-            
+
             <div className="flex flex-col justify-center items-center">
                 {isNowPlayingLoading ? <LoadingSpinner /> : nowPlayingError ? <ErrorDisplay message={nowPlayingError} /> : nowPlaying?.isPlaying ? (
                     <div className="group w-full max-w-sm bg-neutral-900/50 hover:bg-neutral-800/80 transition-all rounded-xl p-4 flex flex-col items-center text-center border border-neutral-800 hover:border-neutral-700">
@@ -340,7 +340,7 @@ const HomeContent = ({ onPlayTrack }: { onPlayTrack: (track: SpotifyPreviewTrack
 
             <div>
                 <h2 className="text-2xl font-bold text-white mb-4">Recently Played</h2>
-                 {isRecentLoading ? <LoadingSpinner /> : recentError ? <ErrorDisplay message={recentError} /> : (
+                {isRecentLoading ? <LoadingSpinner /> : recentError ? <ErrorDisplay message={recentError} /> : (
                     <div className="grid grid-cols-2 gap-4">
                         {recentlyPlayed?.items?.map((item: any, index: number) => {
                             const track = item.track;
@@ -359,7 +359,7 @@ const HomeContent = ({ onPlayTrack }: { onPlayTrack: (track: SpotifyPreviewTrack
                             );
                         })}
                     </div>
-                 )}
+                )}
             </div>
         </div>
     );
@@ -371,9 +371,9 @@ const SearchContent = ({ onPlayTrack }: { onPlayTrack: (track: SpotifyPreviewTra
     const trimmedQuery = query.trim();
     const { data: searchData, isLoading, error, refetch } = useSpotifyData('search', { q: trimmedQuery });
     const { data: recommendations, isLoading: isRecLoading, error: recError } = useSpotifyData('recommendations');
-    
+
     useEffect(() => {
-        if(trimmedQuery) {
+        if (trimmedQuery) {
             const handler = setTimeout(() => {
                 refetch();
             }, 500);
@@ -396,29 +396,29 @@ const SearchContent = ({ onPlayTrack }: { onPlayTrack: (track: SpotifyPreviewTra
                         {searchData.tracks.items.map((track: any, index: number) => {
                             const previewTrack = createPreviewTrackFromTrack(track);
                             return (
-                             <button
-                                key={`${track.id ?? track.name}-${index}`}
-                                disabled={!previewTrack}
-                                onClick={() => previewTrack && onPlayTrack(previewTrack)}
-                                className="w-full text-left flex items-center gap-4 p-2 hover:bg-neutral-800 rounded-md disabled:opacity-60"
-                             >
-                                <Image src={getTrackImage(track, `search-track-${index}`)} alt={getTrackTitle(track)} width={48} height={48} className="rounded-md" />
-                                <div className="truncate">
-                                    <p className="font-semibold truncate">{getTrackTitle(track)}</p>
-                                    <p className="text-sm text-neutral-400 truncate">{getArtistNames(track)}</p>
-                                </div>
-                            </button>
+                                <button
+                                    key={`${track.id ?? track.name}-${index}`}
+                                    disabled={!previewTrack}
+                                    onClick={() => previewTrack && onPlayTrack(previewTrack)}
+                                    className="w-full text-left flex items-center gap-4 p-2 hover:bg-neutral-800 rounded-md disabled:opacity-60"
+                                >
+                                    <Image src={getTrackImage(track, `search-track-${index}`)} alt={getTrackTitle(track)} width={48} height={48} className="rounded-md" />
+                                    <div className="truncate">
+                                        <p className="font-semibold truncate">{getTrackTitle(track)}</p>
+                                        <p className="text-sm text-neutral-400 truncate">{getArtistNames(track)}</p>
+                                    </div>
+                                </button>
                             );
                         })}
                     </div>
                 </div>
             )}
-             {searchData?.playlists?.items?.length > 0 && (
+            {searchData?.playlists?.items?.length > 0 && (
                 <div>
                     <h3 className="text-xl font-bold mb-3">Playlists</h3>
                     <div className="space-y-2">
                         {searchData.playlists.items.map((playlist: any, index: number) => (
-                             <div key={`${playlist.id ?? playlist.name}-${index}`} className="flex items-center gap-4 p-2 hover:bg-neutral-800 rounded-md">
+                            <div key={`${playlist.id ?? playlist.name}-${index}`} className="flex items-center gap-4 p-2 hover:bg-neutral-800 rounded-md">
                                 <Image src={getPlaylistImage(playlist, `search-playlist-${index}`)} alt={playlist?.name ?? 'Playlist'} width={48} height={48} className="rounded-md" />
                                 <div className="truncate">
                                     <p className="font-semibold truncate">{playlist?.name ?? 'Untitled playlist'}</p>
@@ -436,7 +436,7 @@ const SearchContent = ({ onPlayTrack }: { onPlayTrack: (track: SpotifyPreviewTra
         <div className="space-y-6">
             <div>
                 <h3 className="text-xl font-bold mb-3">Browse all</h3>
-                 <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                     {genreCategories.map(cat => (
                         <div key={cat.name} className={cn("h-24 rounded-lg p-3 font-bold text-lg overflow-hidden relative", cat.color)}>
                             <span>{cat.name}</span>
@@ -445,21 +445,21 @@ const SearchContent = ({ onPlayTrack }: { onPlayTrack: (track: SpotifyPreviewTra
                 </div>
             </div>
             {isRecLoading ? <LoadingSpinner /> : recError ? <ErrorDisplay message={recError} /> : recommendations?.tracks?.length > 0 && (
-                 <div>
+                <div>
                     <h3 className="text-xl font-bold mb-3">You might like</h3>
                     <div className="grid grid-cols-2 gap-4">
                         {recommendations.tracks.slice(0, 4).map((track: any, index: number) => {
                             const previewTrack = createPreviewTrackFromTrack(track);
                             return (
-                            <button
-                                key={`${track.id ?? track.name}-${index}`}
-                                disabled={!previewTrack}
-                                onClick={() => previewTrack && onPlayTrack(previewTrack)}
-                                className="w-full text-left space-y-2 disabled:opacity-60"
-                            >
-                                <Image src={getTrackImage(track, `rec-${index}`)} alt={getTrackTitle(track)} width={200} height={200} className="rounded-lg aspect-square object-cover" />
-                                <p className="font-semibold text-sm truncate">{getTrackTitle(track)}</p>
-                            </button>
+                                <button
+                                    key={`${track.id ?? track.name}-${index}`}
+                                    disabled={!previewTrack}
+                                    onClick={() => previewTrack && onPlayTrack(previewTrack)}
+                                    className="w-full text-left space-y-2 disabled:opacity-60"
+                                >
+                                    <Image src={getTrackImage(track, `rec-${index}`)} alt={getTrackTitle(track)} width={200} height={200} className="rounded-lg aspect-square object-cover" />
+                                    <p className="font-semibold text-sm truncate">{getTrackTitle(track)}</p>
+                                </button>
                             );
                         })}
                     </div>
@@ -470,10 +470,10 @@ const SearchContent = ({ onPlayTrack }: { onPlayTrack: (track: SpotifyPreviewTra
 
     return (
         <div className="p-4 bg-black min-h-full">
-             <h1 className="text-3xl font-bold text-white mt-4 mb-4">{t('spotify.search')}</h1>
+            <h1 className="text-3xl font-bold text-white mt-4 mb-4">{t('spotify.search')}</h1>
             <div className="relative mb-6">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
-                <Input 
+                <Input
                     placeholder="What do you want to listen to?"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
@@ -491,10 +491,10 @@ const LibraryContent = ({ onPlayTrack }: { onPlayTrack: (track: SpotifyPreviewTr
     const { data: savedTracks, isLoading: isTracksLoading, error: tracksError } = useSpotifyData('saved-tracks');
 
     return (
-         <div className="p-4 bg-black min-h-full space-y-8">
+        <div className="p-4 bg-black min-h-full space-y-8">
             <h1 className="text-3xl font-bold text-white mt-4">{t('spotify.library')}</h1>
 
-             <div>
+            <div>
                 <h2 className="text-xl font-bold mb-3">Playlists</h2>
                 {isPlaylistsLoading ? <LoadingSpinner /> : playlistsError ? <ErrorDisplay message={playlistsError} /> : (
                     <div className="space-y-2">
@@ -511,8 +511,8 @@ const LibraryContent = ({ onPlayTrack }: { onPlayTrack: (track: SpotifyPreviewTr
                 )}
             </div>
 
-            <Separator className="bg-neutral-800"/>
-            
+            <Separator className="bg-neutral-800" />
+
             <div>
                 <h2 className="text-xl font-bold mb-3">Liked Songs</h2>
                 {isTracksLoading ? <LoadingSpinner /> : tracksError ? <ErrorDisplay message={tracksError} /> : (
@@ -528,10 +528,10 @@ const LibraryContent = ({ onPlayTrack }: { onPlayTrack: (track: SpotifyPreviewTr
                                     onClick={() => previewTrack && onPlayTrack(previewTrack)}
                                     className="w-full text-left flex items-center gap-4 p-2 hover:bg-neutral-800 rounded-md disabled:opacity-60"
                                 >
-                                        <Image src={getTrackImage(track, `saved-${index}`)} alt={getTrackTitle(track)} width={56} height={56} className="rounded-md" />
+                                    <Image src={getTrackImage(track, `saved-${index}`)} alt={getTrackTitle(track)} width={56} height={56} className="rounded-md" />
                                     <div className="truncate">
-                                            <p className="font-semibold truncate">{getTrackTitle(track)}</p>
-                                            <p className="text-sm text-neutral-400 truncate">{getArtistNames(track)}</p>
+                                        <p className="font-semibold truncate">{getTrackTitle(track)}</p>
+                                        <p className="text-sm text-neutral-400 truncate">{getArtistNames(track)}</p>
                                     </div>
                                 </button>
                             );

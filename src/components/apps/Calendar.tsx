@@ -7,12 +7,12 @@ import { Button } from '@/components/ui/button';
 import { useGoogleCalendar, type CalendarEvent } from '@/hooks/use-google-calendar';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
 } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -52,23 +52,30 @@ const Calendar = () => {
     useEffect(() => {
         fetchEvents();
     }, [fetchEvents]);
-    
+
     const getAvailableSlots = useCallback((date: Date, existingEvents: CalendarEvent[]) => {
         const workingHours = { start: 9.5, end: 16.5 }; // 9:30 to 16:30
         const slotDuration = 30; // minutes
         const slots: string[] = [];
         const today = new Date();
         const isToday = date.getFullYear() === today.getFullYear() &&
-                      date.getMonth() === today.getMonth() &&
-                      date.getDate() === today.getDate();
+            date.getMonth() === today.getMonth() &&
+            date.getDate() === today.getDate();
 
         const dayOfWeek = date.getDay();
         if (dayOfWeek === 0 || dayOfWeek === 6) return []; // No weekends
 
         const eventsOnDate = existingEvents.filter(event => {
-            const eventStart = new Date(event.start.dateTime || event.start.date);
-            const eventEnd = new Date(event.end.dateTime || event.end.date);
-            
+            const startSource = event.start.dateTime || event.start.date;
+            const endSource = event.end.dateTime || event.end.date || startSource;
+
+            if (!startSource || !endSource) {
+                return false;
+            }
+
+            const eventStart = new Date(startSource);
+            const eventEnd = new Date(endSource);
+
             if (event.start.date) {
                 const [s_year, s_month, s_day] = event.start.date.split('-').map(Number);
                 eventStart.setFullYear(s_year, s_month - 1, s_day);
@@ -77,14 +84,14 @@ const Calendar = () => {
                 if (event.end.date) {
                     const [e_year, e_month, e_day] = event.end.date.split('-').map(Number);
                     eventEnd.setFullYear(e_year, e_month - 1, e_day);
-                    eventEnd.setHours(0,0,0,0);
+                    eventEnd.setHours(0, 0, 0, 0);
                     // For all-day events, the end date is exclusive, so we don't subtract 1
                 } else {
                     // if no end date, it's a single all-day event
-                     eventEnd.setTime(eventStart.getTime() + 24 * 60 * 60 * 1000 -1);
+                    eventEnd.setTime(eventStart.getTime() + 24 * 60 * 60 * 1000 - 1);
                 }
             }
-            
+
             const selectedDayStart = new Date(date);
             selectedDayStart.setHours(0, 0, 0, 0);
 
@@ -93,7 +100,7 @@ const Calendar = () => {
 
             return eventStart < selectedDayEnd && eventEnd > selectedDayStart;
         });
-        
+
         const hasAllDayEvent = eventsOnDate.some(event => event.start.date);
         if (hasAllDayEvent) {
             return [];
@@ -129,10 +136,10 @@ const Calendar = () => {
     const form = useForm<EventFormValues>({
         resolver: zodResolver(eventFormSchema),
         defaultValues: {
-          summary: '',
-          description: '',
-          guestEmail: '',
-          time: '',
+            summary: '',
+            description: '',
+            guestEmail: '',
+            time: '',
         },
     });
 
@@ -141,7 +148,7 @@ const Calendar = () => {
             const slots = getAvailableSlots(selectedDate, events);
             setAvailableSlots(slots);
             if (form.getValues('time') && !slots.includes(form.getValues('time'))) {
-                 form.resetField('time');
+                form.resetField('time');
             }
         }
     }, [selectedDate, events, isLoading, getAvailableSlots, form]);
@@ -149,53 +156,53 @@ const Calendar = () => {
 
     const handleCreateEvent = async (values: EventFormValues) => {
         const { time, ...rest } = values;
-        
+
         const year = selectedDate.getFullYear();
         const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
         const day = String(selectedDate.getDate()).padStart(2, '0');
         const startDateTime = new Date(`${year}-${month}-${day}T${time}:00`);
 
         try {
-          const response = await fetch('/api/create-event', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              ...rest,
-              startDateTime: startDateTime.toISOString(),
-            }),
-          });
+            const response = await fetch('/api/create-event', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...rest,
+                    startDateTime: startDateTime.toISOString(),
+                }),
+            });
 
-          const result = await response.json();
+            const result = await response.json();
 
-          if (!response.ok) {
-            throw new Error(result.details || result.error || 'Failed to create event');
-          }
+            if (!response.ok) {
+                throw new Error(result.details || result.error || 'Failed to create event');
+            }
 
-          toast({
-            title: t('calendar.eventCreated.title'),
-            description: t('calendar.eventCreated.description'),
-            duration: 10000,
-            action: (
-              <ToastAction altText={t('calendar.eventCreated.action')} asChild>
-                <a href={result.event.htmlLink} target="_blank" rel="noopener noreferrer">
-                  {t('calendar.eventCreated.action')}
-                </a>
-              </ToastAction>
-            ),
-          });
+            toast({
+                title: t('calendar.eventCreated.title'),
+                description: t('calendar.eventCreated.description'),
+                duration: 10000,
+                action: (
+                    <ToastAction altText={t('calendar.eventCreated.action')} asChild>
+                        <a href={result.event.htmlLink} target="_blank" rel="noopener noreferrer">
+                            {t('calendar.eventCreated.action')}
+                        </a>
+                    </ToastAction>
+                ),
+            });
 
-          setCreateModalOpen(false);
-          form.reset();
-          fetchEvents(true);
+            setCreateModalOpen(false);
+            form.reset();
+            fetchEvents(true);
         } catch (err: any) {
-          toast({
-            variant: 'destructive',
-            title: t('form.error'),
-            description: err.message,
-          });
+            toast({
+                variant: 'destructive',
+                title: t('form.error'),
+                description: err.message,
+            });
         }
     };
-    
+
     const monthName = currentDate.toLocaleString(locale, { month: 'long' });
     const year = currentDate.getFullYear();
 
@@ -228,9 +235,16 @@ const Calendar = () => {
 
     const getEventsForDate = (date: Date) => {
         return events.filter(event => {
-            const eventStart = new Date(event.start.dateTime || event.start.date);
-            const eventEnd = new Date(event.end.dateTime || event.end.date);
-            
+            const startSource = event.start.dateTime || event.start.date;
+            const endSource = event.end.dateTime || event.end.date || startSource;
+
+            if (!startSource || !endSource) {
+                return false;
+            }
+
+            const eventStart = new Date(startSource);
+            const eventEnd = new Date(endSource);
+
             if (event.start.date) {
                 const [s_year, s_month, s_day] = event.start.date.split('-').map(Number);
                 eventStart.setFullYear(s_year, s_month - 1, s_day);
@@ -239,7 +253,7 @@ const Calendar = () => {
                 if (event.end.date) {
                     const [e_year, e_month, e_day] = event.end.date.split('-').map(Number);
                     eventEnd.setFullYear(e_year, e_month - 1, e_day);
-                    eventEnd.setHours(0,0,0,0);
+                    eventEnd.setHours(0, 0, 0, 0);
                     eventEnd.setTime(eventEnd.getTime() - 1);
                 }
             }
@@ -255,10 +269,10 @@ const Calendar = () => {
     };
 
     const selectedDayEvents = getEventsForDate(selectedDate);
-    
+
     const weekDays = locale.startsWith('es')
-      ? ['L', 'M', 'X', 'J', 'V', 'S', 'D']
-      : ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+        ? ['L', 'M', 'X', 'J', 'V', 'S', 'D']
+        : ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
     const formatEventTime = (event: CalendarEvent) => {
         if (event.start.dateTime && event.end.dateTime) {
@@ -271,33 +285,33 @@ const Calendar = () => {
 
     if (isLoading && events.length === 0) {
         return (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-white text-black">
-                <Loader2 className="w-8 h-8 animate-spin text-neutral-500" />
-                <p className="mt-2 text-neutral-600">{t('calendar.loading')}</p>
+            <div className="w-full h-full flex flex-col items-center justify-center text-black dark:text-white bg-[#F2F2F7] dark:bg-[#1C1C1E]">
+                <Loader2 className="w-8 h-8 animate-spin text-neutral-500 dark:text-neutral-400" />
+                <p className="mt-2 text-neutral-600 dark:text-neutral-300">{t('calendar.loading')}</p>
             </div>
         );
     }
-    
+
     return (
-        <div className="w-full h-full flex flex-col bg-white text-black">
+        <div className="w-full h-full flex flex-col bg-[#F2F2F7] dark:bg-[#1C1C1E] text-black dark:text-white transition-colors">
             {/* Header */}
             <div className="flex justify-between items-center px-4 pt-2 pb-4">
-                <div className="flex items-center gap-1 text-neutral-800">
+                <div className="flex items-center gap-1 text-neutral-800 dark:text-neutral-100">
                     <h1 className="text-3xl font-bold tracking-tight">{monthName}</h1>
-                    <span className="text-3xl font-light text-neutral-400">{year}</span>
+                    <span className="text-3xl font-light text-neutral-400 dark:text-neutral-500">{year}</span>
                 </div>
                 <div className="flex items-center text-red-500">
-                    <Button variant="ghost" size="icon" onClick={() => changeMonth(-1)} className="text-red-500 hover:text-red-500"><ChevronLeft size={28} /></Button>
-                    <Button variant="ghost" size="icon" onClick={() => changeMonth(1)} className="text-red-500 hover:text-red-500"><ChevronRight size={28} /></Button>
-                    <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-500" onClick={() => setCreateModalOpen(true)}><Plus size={28} /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => changeMonth(-1)} className="text-red-500 hover:text-red-500 dark:hover:bg-neutral-800"><ChevronLeft size={28} /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => changeMonth(1)} className="text-red-500 hover:text-red-500 dark:hover:bg-neutral-800"><ChevronRight size={28} /></Button>
+                    <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-500 dark:hover:bg-neutral-800" onClick={() => setCreateModalOpen(true)}><Plus size={28} /></Button>
                 </div>
             </div>
 
             {/* Weekday Headers */}
-            <div className="grid grid-cols-7 text-center text-xs text-neutral-500 pb-2 px-2 border-b border-neutral-200">
+            <div className="grid grid-cols-7 text-center text-xs text-neutral-500 dark:text-neutral-400 pb-2 px-2 border-b border-neutral-200 dark:border-neutral-800">
                 {weekDays.map((day, index) => <div key={`${day}-${index}`}>{day}</div>)}
             </div>
-            
+
             {/* Calendar Grid & Events */}
             <div className="flex-1 flex flex-col min-h-0">
                 <div className="px-2 pt-2">
@@ -310,28 +324,28 @@ const Calendar = () => {
                             const hasEvents = getEventsForDate(dayDate).length > 0;
                             return (
                                 <div key={day} className="py-2 flex justify-center items-center relative">
-                                    <button 
+                                    <button
                                         onClick={() => setSelectedDate(dayDate)}
                                         className={cn(
-                                        'w-8 h-8 rounded-full flex items-center justify-center transition-colors font-medium',
-                                        isSelected ? 'bg-red-500 text-white' : 'hover:bg-neutral-100',
-                                        isToday && !isSelected && 'bg-red-100 text-red-600',
-                                        !isToday && !isSelected && 'text-neutral-700'
-                                    )}>
+                                            'w-8 h-8 rounded-full flex items-center justify-center transition-colors font-medium',
+                                            isSelected ? 'bg-red-500 text-white' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800',
+                                            isToday && !isSelected && 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400',
+                                            !isToday && !isSelected && 'text-neutral-700 dark:text-neutral-200'
+                                        )}>
                                         {day}
                                     </button>
-                                     {hasEvents && !isSelected && <div className="absolute bottom-1 w-1 h-1 bg-red-500 rounded-full" />}
+                                    {hasEvents && !isSelected && <div className="absolute bottom-1 w-1 h-1 bg-red-500 rounded-full" />}
                                 </div>
                             );
                         })}
                     </div>
                 </div>
-                
-                 {/* Events List */}
-                <div className="flex-1 overflow-y-auto mt-4 border-t border-neutral-200">
+
+                {/* Events List */}
+                <div className="flex-1 overflow-y-auto mt-4 border-t border-neutral-200 dark:border-neutral-800">
                     <div className="p-4">
-                        <h2 className="font-semibold text-neutral-800 mb-2">{selectedDate.toLocaleDateString(locale, { weekday: 'long', day: 'numeric' })}</h2>
-                        {isLoading && <Loader2 className="w-5 h-5 animate-spin text-neutral-400" />}
+                        <h2 className="font-semibold text-neutral-800 dark:text-neutral-100 mb-2">{selectedDate.toLocaleDateString(locale, { weekday: 'long', day: 'numeric' })}</h2>
+                        {isLoading && <Loader2 className="w-5 h-5 animate-spin text-neutral-400 dark:text-neutral-500" />}
                         {error && !isLoading && (
                             <Alert variant="destructive">
                                 <AlertTriangle />
@@ -345,29 +359,29 @@ const Calendar = () => {
                                     <div key={event.id} className="flex items-start gap-3">
                                         <div className="w-2 h-2 rounded-full mt-1.5 shrink-0 bg-blue-500" />
                                         <div className="flex flex-col">
-                                            <p className="font-semibold leading-tight text-sm">{event.summary}</p>
-                                            <p className="text-xs text-neutral-500">{formatEventTime(event)}</p>
+                                            <p className="font-semibold leading-tight text-sm text-neutral-900 dark:text-neutral-100">{event.summary}</p>
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">{formatEventTime(event)}</p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                           !isLoading && !error && <p className="text-neutral-500 text-sm">{t('calendar.noEvents')}</p>
+                            !isLoading && !error && <p className="text-neutral-500 dark:text-neutral-400 text-sm">{t('calendar.noEvents')}</p>
                         )}
                     </div>
                 </div>
 
-                <div className="flex-shrink-0 border-t border-neutral-200 p-2 flex justify-center items-center">
-                     <Button variant="ghost" onClick={() => setSelectedDate(today)} className="text-red-500 hover:text-red-500 font-semibold text-base">
+                <div className="flex-shrink-0 border-t border-neutral-200 dark:border-neutral-800 p-2 flex justify-center items-center">
+                    <Button variant="ghost" onClick={() => setSelectedDate(today)} className="text-red-500 hover:text-red-500 dark:hover:bg-neutral-800 font-semibold text-base">
                         {t('calendar.today')}
                     </Button>
                 </div>
             </div>
             <Dialog open={isCreateModalOpen} onOpenChange={setCreateModalOpen}>
-                <DialogContent className="bg-white text-black max-w-lg">
+                <DialogContent className="max-w-lg bg-white text-black dark:bg-neutral-950 dark:text-white border-neutral-200 dark:border-neutral-800">
                     <DialogHeader>
                         <DialogTitle>{t('calendar.createEvent.title')}</DialogTitle>
-                        <DialogDescription>{t('calendar.createEvent.description')}</DialogDescription>
+                        <DialogDescription className="text-neutral-600 dark:text-neutral-400">{t('calendar.createEvent.description')}</DialogDescription>
                     </DialogHeader>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(handleCreateEvent)} className="space-y-4">
@@ -375,71 +389,71 @@ const Calendar = () => {
                                 control={form.control}
                                 name="summary"
                                 render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t('calendar.createEvent.summaryPlaceholder')}</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder={t('calendar.createEvent.summaryPlaceholder')} {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
+                                    <FormItem>
+                                        <FormLabel>{t('calendar.createEvent.summaryPlaceholder')}</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder={t('calendar.createEvent.summaryPlaceholder')} {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
                             />
                             <FormField
                                 control={form.control}
                                 name="guestEmail"
                                 render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t('form.email')}</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder={t('form.emailPlaceholder')} {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
+                                    <FormItem>
+                                        <FormLabel>{t('form.email')}</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder={t('form.emailPlaceholder')} {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
                             />
                             <FormField
                                 control={form.control}
                                 name="description"
                                 render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t('calendar.createEvent.descriptionPlaceholder')}</FormLabel>
-                                    <FormControl>
-                                        <Textarea placeholder={t('calendar.createEvent.descriptionPlaceholder')} {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
+                                    <FormItem>
+                                        <FormLabel>{t('calendar.createEvent.descriptionPlaceholder')}</FormLabel>
+                                        <FormControl>
+                                            <Textarea placeholder={t('calendar.createEvent.descriptionPlaceholder')} {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
                             />
-                           <FormField
+                            <FormField
                                 control={form.control}
                                 name="time"
                                 render={({ field }) => (
-                                <FormItem className="space-y-3">
-                                    <FormLabel>{t('calendar.createEvent.time')} - {selectedDate.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })}</FormLabel>
-                                    <FormControl>
-                                        <RadioGroup
-                                            onValueChange={field.onChange}
-                                            defaultValue={field.value}
-                                            className="grid grid-cols-4 gap-2"
-                                        >
-                                            <ScrollArea className="h-40 col-span-4">
-                                                {availableSlots.length > 0 ? availableSlots.map(slot => (
-                                                    <FormItem key={slot} className="flex items-center space-x-3 space-y-0 mb-2">
-                                                        <FormControl>
-                                                            <RadioGroupItem value={slot} />
-                                                        </FormControl>
-                                                        <FormLabel className="font-normal">{slot}</FormLabel>
-                                                    </FormItem>
-                                                )) : <p className="text-sm text-neutral-500">{t('calendar.noSlots')}</p>}
-                                            </ScrollArea>
-                                        </RadioGroup>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
+                                    <FormItem className="space-y-3">
+                                        <FormLabel>{t('calendar.createEvent.time')} - {selectedDate.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })}</FormLabel>
+                                        <FormControl>
+                                            <RadioGroup
+                                                onValueChange={field.onChange}
+                                                defaultValue={field.value}
+                                                className="grid grid-cols-4 gap-2"
+                                            >
+                                                <ScrollArea className="h-40 col-span-4">
+                                                    {availableSlots.length > 0 ? availableSlots.map(slot => (
+                                                        <FormItem key={slot} className="flex items-center space-x-3 space-y-0 mb-2">
+                                                            <FormControl>
+                                                                <RadioGroupItem value={slot} />
+                                                            </FormControl>
+                                                            <FormLabel className="font-normal">{slot}</FormLabel>
+                                                        </FormItem>
+                                                    )) : <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('calendar.noSlots')}</p>}
+                                                </ScrollArea>
+                                            </RadioGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
                             />
                             <DialogFooter>
-                                <Button type="button" variant="ghost" onClick={() => setCreateModalOpen(false)}>{t('cancel')}</Button>
+                                <Button type="button" variant="ghost" className="dark:hover:bg-neutral-800" onClick={() => setCreateModalOpen(false)}>{t('cancel')}</Button>
                                 <Button type="submit" disabled={form.formState.isSubmitting}>
                                     {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     {t('calendar.createEvent.submit')}

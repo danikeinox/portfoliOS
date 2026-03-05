@@ -144,22 +144,22 @@ const Weather = () => {
   };
 
   return (
-    <div className="w-full h-full bg-black text-white flex flex-col">
-      <div className="px-4 pt-3 pb-3 border-b border-white/10">
+    <div className="w-full h-full bg-[#f2f4f8] text-black dark:bg-black dark:text-white flex flex-col transition-colors">
+      <div className="px-4 pt-3 pb-3 border-b border-black/10 dark:border-white/10">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-black/50 dark:text-white/60" size={18} />
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Buscar ciudad, provincia o país"
-            className="pl-10 bg-white/10 border-white/10 text-white placeholder:text-white/60"
+            className="pl-10 bg-white border-black/10 text-black placeholder:text-black/50 dark:bg-white/10 dark:border-white/10 dark:text-white dark:placeholder:text-white/60"
           />
         </div>
 
         {(isSearching || results.length > 0) && (
-          <div className="mt-2 rounded-xl bg-neutral-900 border border-white/10 overflow-hidden max-h-48 overflow-y-auto">
+          <div className="mt-2 rounded-xl bg-white border border-black/10 dark:bg-neutral-900 dark:border-white/10 overflow-hidden max-h-48 overflow-y-auto">
             {isSearching ? (
-              <div className="p-3 flex items-center gap-2 text-white/70 text-sm">
+              <div className="p-3 flex items-center gap-2 text-black/70 dark:text-white/70 text-sm">
                 <Loader2 className="h-4 w-4 animate-spin" /> Buscando...
               </div>
             ) : (
@@ -167,10 +167,10 @@ const Weather = () => {
                 <button
                   key={`${item.name}-${item.latitude}-${item.longitude}-${index}`}
                   onClick={() => pickLocation(item)}
-                  className="w-full text-left px-3 py-2 hover:bg-white/10 transition-colors"
+                  className="w-full text-left px-3 py-2 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                 >
                   <p className="font-medium text-sm">{item.name}</p>
-                  <p className="text-xs text-white/70">{[item.admin1, item.country].filter(Boolean).join(', ')}</p>
+                  <p className="text-xs text-black/60 dark:text-white/70">{[item.admin1, item.country].filter(Boolean).join(', ')}</p>
                 </button>
               ))
             )}
@@ -181,44 +181,44 @@ const Weather = () => {
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-4">
           {isLoading && (
-            <div className="h-56 rounded-3xl bg-gradient-to-b from-blue-500/40 to-blue-900/50 border border-white/10 flex items-center justify-center">
-              <Loader2 className="w-7 h-7 animate-spin text-white/80" />
+            <div className="h-56 rounded-3xl bg-gradient-to-b from-blue-300/60 to-blue-500/70 dark:from-blue-500/40 dark:to-blue-900/50 border border-black/10 dark:border-white/10 flex items-center justify-center">
+              <Loader2 className="w-7 h-7 animate-spin text-black/70 dark:text-white/80" />
             </div>
           )}
 
           {!isLoading && error && (
-            <div className="rounded-3xl bg-red-500/15 border border-red-400/30 p-4 text-sm text-red-100">
+            <div className="rounded-3xl bg-red-500/10 dark:bg-red-500/15 border border-red-400/40 p-4 text-sm text-red-700 dark:text-red-100">
               {error}
             </div>
           )}
 
           {!isLoading && !error && weather && (
             <>
-              <div className="rounded-3xl bg-gradient-to-b from-blue-500/50 via-blue-700/50 to-blue-950/80 p-5 border border-white/10">
+              <div className="rounded-3xl bg-gradient-to-b from-blue-300/80 via-blue-500/70 to-blue-700/80 dark:from-blue-500/50 dark:via-blue-700/50 dark:to-blue-950/80 p-5 border border-black/10 dark:border-white/10">
                 <p className="text-2xl font-semibold leading-tight">{weather.location.name}</p>
-                <p className="text-sm text-white/80">{[weather.location.admin1, weather.location.country].filter(Boolean).join(', ')}</p>
+                <p className="text-sm text-black/70 dark:text-white/80">{[weather.location.admin1, weather.location.country].filter(Boolean).join(', ')}</p>
                 <div className="mt-4 flex items-center justify-between">
                   <div>
                     <p className="text-7xl font-thin leading-none">{Math.round(weather.current?.temperature_2m ?? 0)}°</p>
-                    <p className="text-sm text-white/85 mt-1">Sensación de {Math.round(weather.current?.apparent_temperature ?? 0)}°</p>
+                    <p className="text-sm text-black/70 dark:text-white/85 mt-1">Sensación de {Math.round(weather.current?.apparent_temperature ?? 0)}°</p>
                   </div>
                   <div className="text-right">
                     <currentMeta.Icon className="w-10 h-10 ml-auto" />
                     <p className="text-sm mt-2">{currentMeta.label}</p>
-                    <p className="text-xs text-white/80 mt-1">Viento {Math.round(weather.current?.wind_speed_10m ?? 0)} km/h</p>
+                    <p className="text-xs text-black/70 dark:text-white/80 mt-1">Viento {Math.round(weather.current?.wind_speed_10m ?? 0)} km/h</p>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-3xl bg-white/10 border border-white/10 p-3">
-                <p className="text-xs uppercase tracking-wide text-white/70 mb-3">Próximas horas</p>
+              <div className="rounded-3xl bg-white/75 dark:bg-white/10 border border-black/10 dark:border-white/10 p-3 backdrop-blur-sm">
+                <p className="text-xs uppercase tracking-wide text-black/60 dark:text-white/70 mb-3">Próximas horas</p>
                 <div className="grid grid-cols-4 gap-2">
                   {weather.hourly?.time?.slice(0, 8).map((time, index) => {
                     const weatherCode = weather.hourly?.weather_code?.[index] ?? 1;
                     const hourlyMeta = getWeatherMeta(weatherCode, true);
                     return (
-                      <div key={`${time}-${index}`} className="rounded-xl bg-white/10 p-2 text-center">
-                        <p className="text-[11px] text-white/80">{formatHour(time)}</p>
+                      <div key={`${time}-${index}`} className="rounded-xl bg-black/5 dark:bg-white/10 p-2 text-center">
+                        <p className="text-[11px] text-black/70 dark:text-white/80">{formatHour(time)}</p>
                         <hourlyMeta.Icon className="w-4 h-4 mx-auto my-1" />
                         <p className="text-sm font-medium">{Math.round(weather.hourly?.temperature_2m?.[index] ?? 0)}°</p>
                       </div>
@@ -227,22 +227,22 @@ const Weather = () => {
                 </div>
               </div>
 
-              <div className="rounded-3xl bg-white/10 border border-white/10 p-3">
-                <p className="text-xs uppercase tracking-wide text-white/70 mb-2">Próximos días</p>
+              <div className="rounded-3xl bg-white/75 dark:bg-white/10 border border-black/10 dark:border-white/10 p-3 backdrop-blur-sm">
+                <p className="text-xs uppercase tracking-wide text-black/60 dark:text-white/70 mb-2">Próximos días</p>
                 <div className="space-y-2">
                   {weather.daily?.time?.slice(0, 5).map((day, index) => {
                     const weatherCode = weather.daily?.weather_code?.[index] ?? 1;
                     const dailyMeta = getWeatherMeta(weatherCode, true);
                     return (
-                      <div key={day} className={cn('flex items-center justify-between rounded-xl px-3 py-2', index === 0 ? 'bg-white/15' : 'bg-white/5')}>
+                      <div key={day} className={cn('flex items-center justify-between rounded-xl px-3 py-2', index === 0 ? 'bg-black/10 dark:bg-white/15' : 'bg-black/5 dark:bg-white/5')}>
                         <div className="flex items-center gap-2">
-                          <MapPin className="w-3.5 h-3.5 text-white/70" />
+                          <MapPin className="w-3.5 h-3.5 text-black/60 dark:text-white/70" />
                           <span className="font-medium text-sm uppercase">{formatDay(day)}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-white/90">
+                        <div className="flex items-center gap-2 text-black/90 dark:text-white/90">
                           <dailyMeta.Icon className="w-4 h-4" />
                           <span className="text-sm">{Math.round(weather.daily?.temperature_2m_max?.[index] ?? 0)}°</span>
-                          <span className="text-xs text-white/60">{Math.round(weather.daily?.temperature_2m_min?.[index] ?? 0)}°</span>
+                          <span className="text-xs text-black/60 dark:text-white/60">{Math.round(weather.daily?.temperature_2m_min?.[index] ?? 0)}°</span>
                         </div>
                       </div>
                     );

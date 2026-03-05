@@ -26,16 +26,16 @@ const AppFrame = ({ children, appName, forceTheme, homeBarBackgroundClass, frame
             const now = new Date();
             setTime(now.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: hourFormat === '12h' }).replace(' ', ''));
         };
-      
+
         updateClock();
         const timerId = setInterval(updateClock, 1000);
-        
+
         api.start({ y: 0, scale: 1, bgOpacity: 1 });
         document.body.style.overflow = 'hidden';
-        
-        return () => { 
+
+        return () => {
             clearInterval(timerId);
-            document.body.style.overflow = ''; 
+            document.body.style.overflow = '';
         };
     }, [api, locale, hourFormat]);
 
@@ -56,7 +56,7 @@ const AppFrame = ({ children, appName, forceTheme, homeBarBackgroundClass, frame
             onRest: (result) => { if (result.finished) router.back(); },
         });
     };
-    
+
     const bindCloseGesture = useDrag(
         ({ last, down, movement: [, my], velocity: [, vy] }) => {
             setIsGesturing(down);
@@ -65,7 +65,7 @@ const AppFrame = ({ children, appName, forceTheme, homeBarBackgroundClass, frame
                 if (my > window.innerHeight / 4 || vy > 0.5) closeApp(vy);
                 else api.start({ y: 0, scale: 1, config: { tension: 400, friction: 35 } });
             } else {
-                 api.start({ y: my, immediate: true });
+                api.start({ y: my, immediate: true });
             }
         },
         { from: () => [0, y.get()] }
@@ -81,7 +81,7 @@ const AppFrame = ({ children, appName, forceTheme, homeBarBackgroundClass, frame
                 style={{ y, scale }}
                 className={cn(
                     "w-full h-full flex flex-col will-change-transform shadow-2xl rounded-t-3xl overflow-hidden relative",
-                    frameBgClass || "bg-[#F2F2F7] dark:bg-black"
+                    frameBgClass ? frameBgClass : "bg-[#F2F2F7] dark:bg-[#1C1C1E]"
                 )}
             >
                 {/* Status Bar */}
@@ -108,8 +108,8 @@ const AppFrame = ({ children, appName, forceTheme, homeBarBackgroundClass, frame
                 />
 
                 {/* Home Bar */}
-                <div 
-                    {...bindCloseGesture()} 
+                <div
+                    {...bindCloseGesture()}
                     className="absolute bottom-0 inset-x-0 h-10 z-50 cursor-grab flex justify-center items-center pointer-events-auto"
                     style={{ touchAction: 'pan-y' }}
                 >

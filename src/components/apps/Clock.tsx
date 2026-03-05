@@ -16,27 +16,27 @@ const Clock = () => {
         { value: 'stopwatch', label: t('clock.stopwatch.title'), icon: Hourglass },
         { value: 'timer', label: t('clock.timer.title'), icon: Timer },
     ];
-    
+
     return (
-        <Tabs defaultValue="alarms" className="w-full h-full flex flex-col bg-black text-white">
+        <Tabs defaultValue="alarms" className="w-full h-full flex flex-col bg-white text-black dark:bg-black dark:text-white transition-colors">
             <TabsContent value="world-clock" className="flex-1 h-full mt-0">
                 <WorldClockTab />
             </TabsContent>
             <TabsContent value="alarms" className="flex-1 h-full mt-0">
                 <AlarmsTab />
             </TabsContent>
-             <TabsContent value="stopwatch" className="flex-1 h-full mt-0">
+            <TabsContent value="stopwatch" className="flex-1 h-full mt-0">
                 <StopwatchTab />
             </TabsContent>
-             <TabsContent value="timer" className="flex-1 h-full mt-0">
-                 <TimerTab />
+            <TabsContent value="timer" className="flex-1 h-full mt-0">
+                <TimerTab />
             </TabsContent>
-            
-            <TabsList className="h-20 w-full rounded-none bg-neutral-900/80 backdrop-blur-md border-t border-neutral-800 flex justify-around p-0 pt-1 pb-[env(safe-area-inset-bottom)]">
+
+            <TabsList className="h-20 w-full rounded-none bg-white/90 dark:bg-neutral-900/80 backdrop-blur-md border-t border-neutral-200 dark:border-neutral-800 flex justify-around p-0 pt-1 pb-[env(safe-area-inset-bottom)]">
                 {tabs.map(tab => {
                     const Icon = tab.icon;
                     return (
-                        <TabsTrigger key={tab.value} value={tab.value} className="flex flex-col items-center gap-1 text-neutral-500 data-[state=active]:text-orange-500 h-full w-full rounded-none text-xs p-0 data-[state=active]:bg-transparent focus-visible:bg-neutral-800">
+                        <TabsTrigger key={tab.value} value={tab.value} className="flex flex-col items-center gap-1 text-neutral-500 dark:text-neutral-400 data-[state=active]:text-orange-500 h-full w-full rounded-none text-xs p-0 data-[state=active]:bg-transparent focus-visible:bg-neutral-100 dark:focus-visible:bg-neutral-800">
                             <Icon size={24} />
                             {tab.label}
                         </TabsTrigger>
