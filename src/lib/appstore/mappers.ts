@@ -54,7 +54,8 @@ export function mapApp(data: DocumentData, id: string): AppStoreApp {
       ? data.screenshotsUrls
       : [],
     externalUrl: typeof data.externalUrl === "string" ? data.externalUrl : "",
-    downloadCount: typeof data.downloadCount === "number" ? data.downloadCount : 0,
+    downloadCount:
+      typeof data.downloadCount === "number" ? data.downloadCount : 0,
     createdAt: toIsoString(data.createdAt),
     updatedAt: toIsoString(data.updatedAt),
   };

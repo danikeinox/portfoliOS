@@ -1097,17 +1097,17 @@ const AppStore = () => {
                                         {(detailApp.screenshotsUrls.length > 0
                                             ? detailApp.screenshotsUrls
                                             : ['https://picsum.photos/seed/screen-fallback-1/520/290']).map(
-                                            (url, index) => (
-                                                <div key={`${url}-${index}`} className="relative w-64 h-36 shrink-0">
-                                                    <Image
-                                                        src={url}
-                                                        fill
-                                                        alt={`Screenshot ${index + 1}`}
-                                                        className="rounded-2xl object-cover"
-                                                    />
-                                                </div>
-                                            ),
-                                        )}
+                                                (url, index) => (
+                                                    <div key={`${url}-${index}`} className="relative w-64 h-36 shrink-0">
+                                                        <Image
+                                                            src={url}
+                                                            fill
+                                                            alt={`Screenshot ${index + 1}`}
+                                                            className="rounded-2xl object-cover"
+                                                        />
+                                                    </div>
+                                                ),
+                                            )}
                                     </div>
                                 </div>
 

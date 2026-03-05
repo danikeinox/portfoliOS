@@ -25,7 +25,10 @@ export async function GET(
   }
 
   try {
-    const appDoc = await adminDb.collection(APPSTORE_COLLECTIONS.apps).doc(appId).get();
+    const appDoc = await adminDb
+      .collection(APPSTORE_COLLECTIONS.apps)
+      .doc(appId)
+      .get();
 
     if (!appDoc.exists) {
       return fail("APP_NOT_FOUND", "App not found", 404);
@@ -34,7 +37,11 @@ export async function GET(
     return ok(mapApp(appDoc.data()!, appId));
   } catch (error) {
     console.error("get app detail error:", error);
-    return fail("GET_APP_DETAIL_ERROR", "Unexpected error fetching app detail", 500);
+    return fail(
+      "GET_APP_DETAIL_ERROR",
+      "Unexpected error fetching app detail",
+      500,
+    );
   }
 }
 

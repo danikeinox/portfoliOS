@@ -9,7 +9,9 @@ type CategoryCount = {
 };
 
 export async function GET(request: NextRequest) {
-  const query = request.nextUrl.searchParams.get("q")?.trim().toLocaleLowerCase("es-ES") ?? "";
+  const query =
+    request.nextUrl.searchParams.get("q")?.trim().toLocaleLowerCase("es-ES") ??
+    "";
 
   try {
     const snapshot = await adminDb
@@ -48,12 +50,21 @@ export async function GET(request: NextRequest) {
 
     const categories: CategoryCount[] = [...counters.entries()]
       .map(([category, count]) => ({ category, count }))
-      .filter((item) => (query ? item.category.toLocaleLowerCase("es-ES").includes(query) : true))
-      .sort((a, b) => b.count - a.count || a.category.localeCompare(b.category, "es"));
+      .filter((item) =>
+        query ? item.category.toLocaleLowerCase("es-ES").includes(query) : true,
+      )
+      .sort(
+        (a, b) =>
+          b.count - a.count || a.category.localeCompare(b.category, "es"),
+      );
 
     return ok({ categories: categories.slice(0, 50) });
   } catch (error) {
     console.error("list categories error:", error);
-    return fail("LIST_CATEGORIES_ERROR", "Unexpected error fetching categories", 500);
+    return fail(
+      "LIST_CATEGORIES_ERROR",
+      "Unexpected error fetching categories",
+      500,
+    );
   }
 }
