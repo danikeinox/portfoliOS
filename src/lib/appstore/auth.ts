@@ -22,3 +22,25 @@ export async function requireAuthenticatedUser(
     throw new Error("INVALID_AUTH_TOKEN");
   }
 }
+
+export async function getOptionalAuthenticatedUser(
+  request: NextRequest,
+): Promise<string | null> {
+  const authorization = request.headers.get("authorization") || "";
+
+  if (!authorization.startsWith("Bearer ")) {
+    return null;
+  }
+
+  const token = authorization.slice(7).trim();
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const decoded = await adminAuth.verifyIdToken(token);
+    return decoded.uid;
+  } catch {
+    return null;
+  }
+}

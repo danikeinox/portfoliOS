@@ -83,3 +83,11 @@ export const appListQuerySchema = z.object({
   status: z.enum(["draft", "published"]).optional(),
   limit: z.coerce.number().int().min(1).max(50).default(20),
 });
+
+export const publicProfileQuerySchema = z.object({
+  nickname: nicknameSchema,
+});
+
+export const followActionSchema = z.object({
+  targetNickname: nicknameSchema,
+});

@@ -26,6 +26,10 @@ export function mapUserProfile(data: DocumentData): UserProfile {
     displayName: data.displayName,
     bio: data.bio,
     avatarUrl: data.avatarUrl,
+    followersCount:
+      typeof data.followersCount === "number" ? data.followersCount : 0,
+    followingCount:
+      typeof data.followingCount === "number" ? data.followingCount : 0,
     createdAt: toIsoString(data.createdAt),
     updatedAt: toIsoString(data.updatedAt),
   };

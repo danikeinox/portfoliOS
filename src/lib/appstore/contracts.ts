@@ -23,8 +23,21 @@ export type UserProfile = {
   displayName: string;
   bio?: string;
   avatarUrl?: string;
+  followersCount: number;
+  followingCount: number;
   createdAt: string;
   updatedAt: string;
+};
+
+export type SocialRelationStatus =
+  | "self"
+  | "not_following"
+  | "following"
+  | "friends";
+
+export type PublicDeveloperProfile = UserProfile & {
+  relation: SocialRelationStatus;
+  isOwner: boolean;
 };
 
 export type AppStoreApp = {

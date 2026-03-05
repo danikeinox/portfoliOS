@@ -104,5 +104,10 @@ service cloud.firestore {
         && request.resource.data.tags.size() <= 8;
       allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
     }
+
+    match /follows/{followId} {
+      allow read: if true;
+      allow write: if false;
+    }
   }
 }

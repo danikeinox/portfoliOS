@@ -125,6 +125,14 @@ export async function PUT(request: NextRequest) {
           displayName: payload.displayName,
           bio: payload.bio ?? "",
           avatarUrl: payload.avatarUrl ?? "",
+          followersCount:
+            typeof existingUser?.followersCount === "number"
+              ? existingUser.followersCount
+              : 0,
+          followingCount:
+            typeof existingUser?.followingCount === "number"
+              ? existingUser.followingCount
+              : 0,
           createdAt: existingUser?.createdAt ?? FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
         },
