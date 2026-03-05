@@ -42,6 +42,7 @@
     "clsx": "2.1.1",
     "embla-carousel-react": "8.1.5",
     "firebase": "^10.14.1",
+    "firebase-admin": "^12.6.0",
     "googleapis": "^140.0.0",
     "immer": "^10.1.1",
     "leaflet": "^1.9.4",
