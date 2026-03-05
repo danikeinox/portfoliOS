@@ -22,6 +22,12 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth, useUser } from '@/firebase';
+import { useHomeScreen } from '@/hooks/use-home-screen';
+import {
+    getInstalledAppById,
+    saveInstalledApp,
+    toInstalledSlug,
+} from '@/lib/installed-apps';
 import type {
     AppStoreApiResponse,
     AppStoreApp,
@@ -118,6 +124,7 @@ const AppStore = () => {
     const { toast } = useToast();
     const auth = useAuth();
     const { data: firebaseUser } = useUser();
+    const { addApp } = useHomeScreen();
 
     const [tab, setTab] = useState<HomeTab>('home');
     const [authOpen, setAuthOpen] = useState(false);
@@ -686,6 +693,43 @@ const AppStore = () => {
         }
     }
 
+    async function handleInstallApp() {
+        if (!detailApp) {
+            return;
+        }
+
+        const alreadyInstalled = getInstalledAppById(detailApp.id);
+
+        saveInstalledApp({
+            id: detailApp.id,
+            name: detailApp.title,
+            iconUrl:
+                detailApp.iconUrl ||
+                'https://picsum.photos/seed/installed-app-fallback/180/180',
+            externalUrl: detailApp.externalUrl,
+        });
+
+        addApp(toInstalledSlug(detailApp.id));
+
+        if (!alreadyInstalled) {
+            try {
+                await fetch(`/api/appstore/apps/${detailApp.id}`, { method: 'POST' });
+            } catch {
+                toast({
+                    title: 'Instalación',
+                    description: 'La app se instaló, pero no se pudo actualizar el contador.',
+                });
+            }
+        }
+
+        toast({
+            title: alreadyInstalled ? 'App ya instalada' : 'App instalada',
+            description: alreadyInstalled
+                ? 'La app ya estaba disponible en tu iPhone.'
+                : 'La app ya aparece en tu pantalla de inicio.',
+        });
+    }
+
     useEffect(() => {
         fetchAppsBySort('recent', setRecentApps);
         fetchAppsBySort('downloads', setPopularApps);
@@ -1081,11 +1125,9 @@ const AppStore = () => {
                                         <div className="mt-3">
                                             <Button
                                                 className="h-10 rounded-full px-6 bg-[#0A84FF] hover:bg-[#0A84FF]/90 text-white"
-                                                onClick={() => {
-                                                    toast({ title: 'Obtener', description: 'Mockup de instalación (Paso 4).' });
-                                                }}
+                                                onClick={handleInstallApp}
                                             >
-                                                Obtener
+                                                {getInstalledAppById(detailApp.id) ? 'Instalada' : 'Obtener'}
                                             </Button>
                                         </div>
                                     </div>
