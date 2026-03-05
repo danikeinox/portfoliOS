@@ -15,97 +15,97 @@ import EditWidgetView from './EditWidgetView';
 import { findApp } from '@/lib/apps';
 import { useToast } from '@/hooks/use-toast';
 import {
-  DndContext,
-  closestCorners,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragOverlay,
-  type DragEndEvent,
-  type DragStartEvent,
-  type DragOverEvent,
-  useDroppable,
+    DndContext,
+    closestCorners,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragOverlay,
+    type DragEndEvent,
+    type DragStartEvent,
+    type DragOverEvent,
+    useDroppable,
 } from '@dnd-kit/core';
 import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  rectSortingStrategy,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    rectSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import Dock from './Dock';
 
 // Sortable Item Wrapper
-export const SortableItem = ({ 
-    id, 
-    item, 
-    isJiggleMode, 
-    onRemove, 
-    onEdit, 
+export const SortableItem = ({
+    id,
+    item,
+    isJiggleMode,
+    onRemove,
+    onEdit,
     isDragging,
     isDock = false
-}: { 
-    id: string, 
-    item: GridItem, 
-    isJiggleMode: boolean, 
-    onRemove: (id:string) => void, 
-    onEdit: (id:string)=>void, 
+}: {
+    id: string,
+    item: GridItem,
+    isJiggleMode: boolean,
+    onRemove: (id: string) => void,
+    onEdit: (id: string) => void,
     isDragging?: boolean,
-    isDock?: boolean 
+    isDock?: boolean
 }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
-    id,
-    disabled: !isJiggleMode,
-  });
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+        id,
+        disabled: !isJiggleMode,
+    });
 
-  const style = {
-    transform: transform ? CSS.Transform.toString(transform) : undefined,
-    transition,
-    zIndex: isDragging ? 10 : 'auto',
-  };
+    const style = {
+        transform: transform ? CSS.Transform.toString(transform) : undefined,
+        transition,
+        zIndex: isDragging ? 10 : 'auto',
+    };
 
-  const handleInteractionStart = (e: React.SyntheticEvent) => {
-    // This stops the event from bubbling to the long-press detector on the homescreen.
-    e.stopPropagation();
-  };
+    const handleInteractionStart = (e: React.SyntheticEvent) => {
+        // This stops the event from bubbling to the long-press detector on the homescreen.
+        e.stopPropagation();
+    };
 
-  if (item.type === 'widget' && item.widgetType) {
-    return (
-      <WidgetWrapper
-        ref={setNodeRef}
-        style={style}
-        widgetId={item.widgetType}
-        itemId={item.id}
-        isJiggleMode={isJiggleMode}
-        onRemove={() => onRemove(item.id)}
-        onEdit={onEdit}
-        size={item.size}
-        isDragging={isDragging}
-        {...attributes}
-        {...listeners}
-      />
-    );
-  }
+    if (item.type === 'widget' && item.widgetType) {
+        return (
+            <WidgetWrapper
+                ref={setNodeRef}
+                style={style}
+                widgetId={item.widgetType}
+                itemId={item.id}
+                isJiggleMode={isJiggleMode}
+                onRemove={() => onRemove(item.id)}
+                onEdit={onEdit}
+                size={item.size}
+                isDragging={isDragging}
+                {...attributes}
+                {...listeners}
+            />
+        );
+    }
 
-  if (item.type === 'app' && item.appId) {
-    const app = findApp(item.appId);
-    if (!app) return null;
-    return (
-        <div 
-            ref={setNodeRef} 
-            style={style} 
-            {...attributes} 
-            {...listeners}
-            className="relative"
-            onTouchStart={handleInteractionStart}
-            onMouseDown={handleInteractionStart}
-        >
-             <AppIcon app={app} isJiggleMode={isJiggleMode} onRemove={() => onRemove(item.id)} isDragging={isDragging} isDock={isDock}/>
-        </div>
-    );
-  }
-  return null;
+    if (item.type === 'app' && item.appId) {
+        const app = findApp(item.appId);
+        if (!app) return null;
+        return (
+            <div
+                ref={setNodeRef}
+                style={style}
+                {...attributes}
+                {...listeners}
+                className="relative"
+                onTouchStart={handleInteractionStart}
+                onMouseDown={handleInteractionStart}
+            >
+                <AppIcon app={app} isJiggleMode={isJiggleMode} onRemove={() => onRemove(item.id)} isDragging={isDragging} isDock={isDock} />
+            </div>
+        );
+    }
+    return null;
 };
 
 // Draggable Overlay Item
@@ -113,14 +113,14 @@ export const DraggableOverlayItem = ({ item }: { item: GridItem | null }) => {
     if (!item) return null;
 
     const isDockItem = item?.id.includes('-dock-');
-    
+
     if (item.type === 'widget' && item.widgetType) {
-        return <WidgetWrapper widgetId={item.widgetType} itemId={item.id} isJiggleMode={true} onRemove={()=>{}} onEdit={()=>{}} size={item.size} isDragging={true} />
+        return <WidgetWrapper widgetId={item.widgetType} itemId={item.id} isJiggleMode={true} onRemove={() => { }} onEdit={() => { }} size={item.size} isDragging={true} />
     }
     if (item.type === 'app' && item.appId) {
         const app = findApp(item.appId);
         if (!app) return null;
-        return <AppIcon app={app} isJiggleMode={true} isDragging={true} isDock={isDockItem}/>
+        return <AppIcon app={app} isJiggleMode={true} isDragging={true} isDock={isDockItem} />
     }
     return null;
 }
@@ -130,19 +130,19 @@ const GridPage = ({ page, isJiggleMode, removeItem, onEditWidget, activeId }: Gr
 
     return (
         <SortableContext items={page.items.map(i => i.id)} strategy={rectSortingStrategy}>
-            <div 
+            <div
                 ref={setNodeRef}
                 className="h-[70dvh] md:h-[65dvh] grid grid-cols-4 grid-rows-6 gap-y-4 gap-x-2 md:gap-4 max-w-xs md:max-w-xl lg:max-w-3xl w-full mx-auto"
             >
                 {page.items.map(item => (
-                    <SortableItem 
-                        key={item.id} 
-                        id={item.id} 
-                        item={item} 
-                        isJiggleMode={isJiggleMode} 
-                        onRemove={removeItem} 
-                        onEdit={onEditWidget} 
-                        isDragging={activeId === item.id} 
+                    <SortableItem
+                        key={item.id}
+                        id={item.id}
+                        item={item}
+                        isJiggleMode={isJiggleMode}
+                        onRemove={removeItem}
+                        onEdit={onEditWidget}
+                        isDragging={activeId === item.id}
                     />
                 ))}
             </div>
@@ -161,10 +161,10 @@ interface HomeScreenProps {
     onPageIndexChange: (index: number) => void;
 }
 
-const HomeScreen = ({ 
-    isJiggleMode, 
-    toggleJiggleMode, 
-    onContainerClick, 
+const HomeScreen = ({
+    isJiggleMode,
+    toggleJiggleMode,
+    onContainerClick,
     onAppLibraryVisibilityChange,
     isEditingPages,
     setEditingPages,
@@ -174,12 +174,12 @@ const HomeScreen = ({
     const [current, setCurrent] = useState(0);
     const { t } = useI18n();
     const { toast } = useToast();
-    const { 
-        pages, 
+    const {
+        pages,
         dockItems,
-        visiblePages, 
-        setVisiblePages, 
-        removeItem, 
+        visiblePages,
+        setVisiblePages,
+        removeItem,
         lastAddedPageIndex,
         acknowledgeNavigation,
         moveItem,
@@ -188,7 +188,7 @@ const HomeScreen = ({
 
     const [activeId, setActiveId] = useState<string | null>(null);
     const activeItem = activeId ? findItem(activeId) : null;
-    
+
     const [editingWidgetId, setEditingWidgetId] = useState<string | null>(null);
     const [showPageIndicator, setShowPageIndicator] = useState(false);
     const pageIndicatorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -202,7 +202,7 @@ const HomeScreen = ({
             .filter(Boolean) as ({ id: string; items: GridItem[], originalIndex: number })[];
         return [...visibleAppPages, { id: 'app-library', items: [], originalIndex: -1 }];
     }, [pages, visiblePages]);
-    
+
     const isAppLibraryActive = useMemo(() => current === pagesToRender.length - 1, [current, pagesToRender.length]);
 
     const longPressCallback = useCallback(() => {
@@ -223,29 +223,29 @@ const HomeScreen = ({
 
     useEffect(() => {
         const handlePointerMove = (e: PointerEvent) => {
-                    lastClientXRef.current = e.clientX;
+            lastClientXRef.current = e.clientX;
         };
         if (activeId) {
-          window.addEventListener('pointermove', handlePointerMove);
+            window.addEventListener('pointermove', handlePointerMove);
         }
         return () => {
-          window.removeEventListener('pointermove', handlePointerMove);
+            window.removeEventListener('pointermove', handlePointerMove);
         };
     }, [activeId]);
-    
-    
+
+
     const sensors = useSensors(
         useSensor(PointerSensor, {
-          activationConstraint: {
-            delay: 150, 
-            tolerance: 5,
-          },
+            activationConstraint: {
+                delay: 150,
+                tolerance: 5,
+            },
         }),
         useSensor(KeyboardSensor, {
-          coordinateGetter: sortableKeyboardCoordinates,
+            coordinateGetter: sortableKeyboardCoordinates,
         })
     );
-    
+
     useEffect(() => {
         if (lastAddedPageIndex !== null && api) {
             const renderIndex = pagesToRender.findIndex(p => p.originalIndex === lastAddedPageIndex);
@@ -274,13 +274,13 @@ const HomeScreen = ({
             if (pageIndicatorTimeoutRef.current) clearTimeout(pageIndicatorTimeoutRef.current);
         };
     }, [api, isJiggleMode, onPageIndexChange, pagesToRender]);
-    
+
     useEffect(() => {
         onAppLibraryVisibilityChange(isAppLibraryActive);
     }, [isAppLibraryActive, onAppLibraryVisibilityChange]);
 
     const handlePageVisibilityChange = (index: number, isVisible: boolean) => {
-        if (!isVisible && visiblePages.filter(v => v).length === 1) return; 
+        if (!isVisible && visiblePages.filter(v => v).length === 1) return;
         const newVisibility = [...visiblePages];
         newVisibility[index] = isVisible;
         setVisiblePages(newVisibility);
@@ -297,7 +297,7 @@ const HomeScreen = ({
     function handleDragOver(event: DragOverEvent) {
         const { active, over } = event;
         if (!over || active.id === over.id) return;
-        
+
         const activeContainer = findItem(active.id as string)?.containerId;
         const overContainer = findItem(over.id as string)?.containerId ?? (over.data.current?.type === 'container' ? over.id as string : undefined);
 
@@ -309,31 +309,31 @@ const HomeScreen = ({
             clearTimeout(dragEdgeTimeoutRef.current);
             dragEdgeTimeoutRef.current = null;
         }
-        
+
         const clientX = lastClientXRef.current;
         const edgeSize = 50;
 
         if (clientX < edgeSize) {
-             dragEdgeTimeoutRef.current = setTimeout(() => api?.scrollPrev(), 300);
+            dragEdgeTimeoutRef.current = setTimeout(() => api?.scrollPrev(), 300);
         } else if (clientX > window.innerWidth - edgeSize) {
-             if (current < pagesToRender.length - 2) { // Prevent scrolling into app library
+            if (current < pagesToRender.length - 2) { // Prevent scrolling into app library
                 dragEdgeTimeoutRef.current = setTimeout(() => api?.scrollNext(), 300);
-             }
+            }
         }
     }
 
     function handleDragEnd(event: DragEndEvent) {
         const { active, over } = event;
-    
+
         if (over && active.id !== over.id) {
-             const success = moveItem(active.id as string, over.id as string, over.data.current);
-             if (!success) {
+            const success = moveItem(active.id as string, over.id as string, over.data.current);
+            if (!success) {
                 toast({
                     variant: 'destructive',
                     title: t('addWidget.noSpace.title'),
                     description: t('addWidget.noSpace.description')
                 });
-             }
+            }
         }
 
         if (dragEdgeTimeoutRef.current) {
@@ -341,7 +341,7 @@ const HomeScreen = ({
         }
         setActiveId(null);
     }
-    
+
     return (
         <DndContext
             sensors={sensors}
@@ -351,18 +351,18 @@ const HomeScreen = ({
             onDragOver={handleDragOver}
         >
             <div className="h-full w-full relative" {...longPressProps}>
-                <Carousel 
-                    setApi={setApi} 
-                    className="w-full h-full home-carousel" 
+                <Carousel
+                    setApi={setApi}
+                    className="w-full h-full home-carousel"
                     opts={{ draggable: !activeId && !isPotentialDrag }}
                 >
                     <CarouselContent>
                         {pagesToRender.map((page) => (
                             <CarouselItem key={page.id} className="h-full" onContextMenu={(e) => e.preventDefault()}>
-                                 <div 
+                                <div
                                     className={cn("h-full w-full min-h-0", page.id !== 'app-library' && "pt-[calc(env(safe-area-inset-top)+1rem)] pb-24 px-4")}
                                     onClick={onContainerClick}
-                                 >
+                                >
                                     {page.id !== 'app-library' ? (
                                         <GridPage
                                             page={page}
@@ -377,23 +377,23 @@ const HomeScreen = ({
                         ))}
                     </CarouselContent>
                 </Carousel>
-                
+
                 <DragOverlay>
                     {activeId && activeItem ? <DraggableOverlayItem item={activeItem.item} /> : null}
                 </DragOverlay>
 
                 <div className="absolute bottom-0 left-0 right-0">
-                    <Dock 
-                        items={dockItems} 
-                        isJiggleMode={isJiggleMode} 
+                    <Dock
+                        items={dockItems}
+                        isJiggleMode={isJiggleMode}
                         onRemoveItem={removeItem}
                     />
                 </div>
 
 
                 <div className="absolute bottom-[calc(env(safe-area-inset-bottom)+7.5rem)] left-0 right-0 flex justify-center items-center h-10 z-10 pointer-events-none">
-                    <div 
-                        onClick={(e) => { if (isJiggleMode) { e.stopPropagation(); setEditingPages(true); }}}
+                    <div
+                        onClick={(e) => { if (isJiggleMode) { e.stopPropagation(); setEditingPages(true); } }}
                         onKeyDown={(e) => {
                             if (!isJiggleMode) return;
                             if (e.key === 'Enter' || e.key === ' ') {
@@ -426,11 +426,11 @@ const HomeScreen = ({
                         )}
                     </div>
                 </div>
-                 {isEditingPages && (
-                    <EditPagesView 
-                        pages={pages.map(p => p.items)} 
-                        visiblePages={visiblePages} 
-                        onVisibilityChange={handlePageVisibilityChange} 
+                {isEditingPages && (
+                    <EditPagesView
+                        pages={pages.map(p => p.items)}
+                        visiblePages={visiblePages}
+                        onVisibilityChange={handlePageVisibilityChange}
                         onDone={() => setEditingPages(false)}
                     />
                 )}

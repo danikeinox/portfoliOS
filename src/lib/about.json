@@ -1,9 +1,8 @@
-
 {
   "name": "Daniel Cabrera",
   "age": 24,
   "profileImage": {
-    "url": "https://picsum.photos/seed/profile/150/150",
+    "url": "https://s6.imgcdn.dev/Yrcy4v.png",
     "aiHint": "male portrait"
   },
   "titleKey": "about.page.title",

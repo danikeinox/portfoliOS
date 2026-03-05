@@ -8,7 +8,15 @@ const ProfileWidget = ({ size = '2x2' }: { size?: WidgetSize }) => {
     return (
         <div className="w-full h-full bg-white/25 backdrop-blur-xl rounded-2xl md:rounded-3xl p-2.5 text-gray-800 flex flex-col justify-between">
             <div className="flex items-center gap-2">
-                <Image src="https://picsum.photos/seed/profile/80/80" width={28} height={28} alt={t('widget.profile.alt')} className="rounded-full border-2 border-white/50" data-ai-hint="male portrait" />
+                <div className="h-12 w-12 relative">
+                    <Image
+                        src="https://s6.imgcdn.dev/Yrcy4v.png"
+                        alt={t('widget.profile.alt')}
+                        fill
+                        className="rounded-full border-2 border-white/50 object-cover"
+                        data-ai-hint="male portrait"
+                    />
+                </div>
                 <div className="text-black">
                     <p className="text-[10px]/[12px] font-light">{t('widget.profile.greeting')}</p>
                     <h3 className="text-sm font-bold leading-tight">{t('settings.profile.name')}</h3>

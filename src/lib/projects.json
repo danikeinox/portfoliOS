@@ -1,4 +1,3 @@
-
 {
   "projects": [
     {
@@ -6,16 +5,25 @@
       "titleKey": "projects.businfy.title",
       "descriptionShortKey": "projects.businfy.descriptionShort",
       "descriptionLongKey": "projects.businfy.descriptionLong",
-      "tags": ["Next.js", "React", "JavaScript"],
+      "filterTags": ["proyecto personal", "intento de startup"],
+      "tags": [
+        "Next.js",
+        "React",
+        "JavaScript",
+        "Tailwind CSS",
+        "Python",
+        "MongoDB",
+        "Docker",
+        "Supabase",
+        "Stripe",
+        "Firebase"
+      ],
       "mainImage": {
-        "imageUrl": "https://picsum.photos/seed/businfy/600/400",
+        "imageUrl": "https://s6.imgcdn.dev/YrcS09.webp",
         "imageHint": "business platform dashboard"
       },
-      "gallery": [
-        { "imageUrl": "https://picsum.photos/seed/businfy-g1/800/450", "imageHint": "signup form" },
-        { "imageUrl": "https://picsum.photos/seed/businfy-g2/800/450", "imageHint": "dashboard analytics" }
-      ],
-      "githubUrl": "https://github.com/danikeinox",
+      "gallery": [],
+      "githubUrl": "https://github.com/danikeinox/businfy",
       "liveUrl": "#"
     },
     {
@@ -23,87 +31,131 @@
       "titleKey": "projects.bookManager.title",
       "descriptionShortKey": "projects.bookManager.descriptionShort",
       "descriptionLongKey": "projects.bookManager.descriptionLong",
+      "filterTags": ["trabajos"],
       "tags": ["Python", "Tkinter", "MySQL"],
       "mainImage": {
-        "imageUrl": "https://picsum.photos/seed/book-manager/600/400",
+        "imageUrl": "https://s6.imgcdn.dev/YrcOJH.webp",
         "imageHint": "desktop application interface"
       },
       "gallery": [],
-      "githubUrl": "https://github.com/danikeinox",
+      "githubUrl": "https://github.com/danikeinox/proj-biblio-m5",
       "liveUrl": null
     },
     {
-      "id": "ai-podcast-generator",
+      "id": "podgenius",
       "titleKey": "projects.aiPodcast.title",
       "descriptionShortKey": "projects.aiPodcast.descriptionShort",
       "descriptionLongKey": "projects.aiPodcast.descriptionLong",
-      "tags": ["TypeScript", "Next.js", "Node.js"],
+      "filterTags": ["proyecto personal", "intento de startup"],
+      "tags": [
+        "TypeScript",
+        "Next.js",
+        "Node.js",
+        "Firebase",
+        "Tailwind CSS",
+        "React",
+        "Google Gemini API"
+      ],
       "mainImage": {
-        "imageUrl": "https://picsum.photos/seed/ai-podcast/600/400",
+        "imageUrl": "https://s6.imgcdn.dev/YrcGCD.webp",
         "imageHint": "ai audio waveform"
       },
-      "gallery": [
-        { "imageUrl": "https://picsum.photos/seed/ai-podcast-g1/800/450", "imageHint": "podcast creation interface" },
-        { "imageUrl": "https://picsum.photos/seed/ai-podcast-g2/800/450", "imageHint": "podcast library" }
-      ],
-      "githubUrl": "https://github.com/danikeinox",
-      "liveUrl": "#"
+      "gallery": [],
+      "githubUrl": null,
+      "liveUrl": "https://podgenius.ai"
     },
     {
       "id": "resuma",
       "titleKey": "projects.resuma.title",
       "descriptionShortKey": "projects.resuma.descriptionShort",
       "descriptionLongKey": "projects.resuma.descriptionLong",
-      "tags": ["TypeScript", "Next.js", "Node.js"],
+      "filterTags": ["proyecto personal", "intento de startup"],
+      "tags": [
+        "TypeScript",
+        "Next.js",
+        "Node.js",
+        "Firebase",
+        "Tailwind CSS",
+        "React",
+        "Google Gemini API"
+      ],
       "mainImage": {
-        "imageUrl": "https://picsum.photos/seed/resuma/600/400",
+        "imageUrl": "https://s6.imgcdn.dev/Yrc7FT.webp",
         "imageHint": "ai resume analysis"
       },
       "gallery": [],
       "githubUrl": null,
-      "liveUrl": "#"
+      "liveUrl": "https://resuma.app"
     },
     {
       "id": "roblox-experience",
       "titleKey": "projects.roblox.title",
       "descriptionShortKey": "projects.roblox.descriptionShort",
       "descriptionLongKey": "projects.roblox.descriptionLong",
+      "filterTags": ["juegos"],
       "tags": ["TypeScript", "Luau", "Roblox DataStore"],
       "mainImage": {
-        "imageUrl": "https://picsum.photos/seed/roblox/600/400",
-        "imageHint": "multiplayer game world"
+        "imageUrl": "https://s6.imgcdn.dev/Yrc2T2.png",
+        "imageHint": "roblox pixel painting multiplayer game world"
       },
-      "gallery": [],
+      "gallery": [
+        {
+          "imageUrl": "https://s6.imgcdn.dev/YrcARi.png",
+          "imageHint": "roblox pixel painting multiplayer game world"
+        }
+      ],
       "githubUrl": null,
-      "liveUrl": "#"
+      "liveUrl": "https://www.roblox.com/es/games/132827978541746/Pixel-Plots"
     },
     {
       "id": "phanteum-network",
       "titleKey": "projects.phanteum.title",
       "descriptionShortKey": "projects.phanteum.descriptionShort",
       "descriptionLongKey": "projects.phanteum.descriptionLong",
-      "tags": ["TypeScript", "Next.js", "Node.js"],
+      "filterTags": ["proyecto personal", "juegos"],
+      "tags": [
+        "TypeScript",
+        "Next.js",
+        "Node.js",
+        "Firebase",
+        "Tailwind CSS",
+        "React",
+        "Hytale HyQuery API",
+        "Hytale Data API",
+        "i18n"
+      ],
       "mainImage": {
-        "imageUrl": "https://picsum.photos/seed/phanteum/600/400",
+        "imageUrl": "https://s6.imgcdn.dev/Yrcr3y.png",
         "imageHint": "fantasy game server"
       },
       "gallery": [],
       "githubUrl": null,
-      "liveUrl": "#"
+      "liveUrl": "https://phanteum.net"
     },
     {
-      "id": "hytale-store",
-      "titleKey": "projects.hytaleStore.title",
-      "descriptionShortKey": "projects.hytaleStore.descriptionShort",
-      "descriptionLongKey": "projects.hytaleStore.descriptionLong",
-      "tags": ["TypeScript", "Next.js", "Node.js"],
+      "id": "phanteum-network-shop",
+      "titleKey": "projects.phanteumShop.title",
+      "descriptionShortKey": "projects.phanteumShop.descriptionShort",
+      "descriptionLongKey": "projects.phanteumShop.descriptionLong",
+      "filterTags": ["proyecto personal", "juegos"],
+      "tags": [
+        "TypeScript",
+        "Next.js",
+        "Node.js",
+        "Firebase",
+        "Tailwind CSS",
+        "React",
+        "Tebex Headless API",
+        "Discord API",
+        "i18n"
+      ],
       "mainImage": {
-        "imageUrl": "https://picsum.photos/seed/hytale-store/600/400",
+        "imageUrl": "https://s6.imgcdn.dev/Yrcxj8.png",
         "imageHint": "game web store"
       },
       "gallery": [],
       "githubUrl": null,
-      "liveUrl": "#"
+      "liveUrl": "https://shop.phanteum.net"
     }
   ]
 }
