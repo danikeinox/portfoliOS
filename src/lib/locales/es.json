@@ -1,551 +1,551 @@
 {
-    "cancel": "Cancelar",
-    "delete": "Eliminar",
-    "done": "Hecho",
-    "back": "Atrás",
+  "cancel": "Cancelar",
+  "delete": "Eliminar",
+  "done": "Hecho",
+  "back": "Atrás",
+  "search": "Buscar",
+  "app": {
+    "youtube": "YouTube",
+    "settings": "Ajustes",
+    "notes": "Notas",
+    "about": "Sobre mí",
+    "portfolio": "Portfolio",
+    "blog": "Blog",
+    "testimonials": "Testimonios",
+    "contact": "Contacto",
+    "messages": "Mensajes",
+    "camera": "Cámara",
+    "photos": "Fotos",
+    "spotify": "Spotify",
+    "calendar": "Calendario",
+    "clock": "Reloj",
+    "weather": "Tiempo",
+    "maps": "Mapas",
+    "facetime": "FaceTime",
+    "phone": "Teléfono",
+    "safari": "Safari",
+    "tv": "TV",
+    "podcasts": "Podcasts",
+    "appstore": "App Store",
+    "news": "Noticias",
+    "services": "Servicios",
+    "github": "GitHub",
+    "linkedin": "LinkedIn",
+    "suggestions": "Sugerencias",
+    "recentlyAdded": "Recién Añadido"
+  },
+  "home": {
     "search": "Buscar",
-    "app": {
-        "youtube": "YouTube",
-        "settings": "Ajustes",
-        "notes": "Notas",
-        "about": "Sobre mí",
-        "portfolio": "Portfolio",
-        "blog": "Blog",
-        "testimonials": "Testimonios",
-        "contact": "Contacto",
-        "messages": "Mensajes",
-        "camera": "Cámara",
-        "photos": "Fotos",
-        "spotify": "Spotify",
-        "calendar": "Calendario",
-        "clock": "Reloj",
-        "weather": "Tiempo",
-        "maps": "Mapas",
-        "facetime": "FaceTime",
-        "phone": "Teléfono",
-        "safari": "Safari",
-        "tv": "TV",
-        "podcasts": "Podcasts",
-        "appstore": "App Store",
-        "news": "Noticias",
-        "services": "Servicios",
-        "github": "GitHub",
-        "linkedin": "LinkedIn",
-        "suggestions": "Sugerencias",
-        "recentlyAdded": "Recién Añadido"
+    "done": "Hecho",
+    "edit": "Editar",
+    "ok": "OK"
+  },
+  "deleteApp": {
+    "title": "¿Eliminar \"{appTitle}\"?",
+    "description": "Al eliminar la app, se borrará de la pantalla de inicio."
+  },
+  "deleteWidget": {
+    "title": "¿Eliminar Widget?",
+    "description": "El widget se eliminará de la pantalla de inicio."
+  },
+  "appAdded": {
+    "title": "\"{appTitle}\" se ha añadido a la pantalla de inicio"
+  },
+  "addWidget": {
+    "noSpace": {
+      "title": "No hay espacio disponible",
+      "description": "No hay suficiente espacio en esta página para añadir el widget."
+    }
+  },
+  "editWidget": {
+    "title": "Editar Widget",
+    "type": "Tipo de Widget",
+    "size": "Tamaño",
+    "size.2x2": "Pequeño",
+    "size.2x4": "Mediano",
+    "size.4x4": "Grande"
+  },
+  "underDev": {
+    "title": "En Desarrollo",
+    "subtitle": "Esta aplicación está actualmente en desarrollo.",
+    "cta": "¡Vuelve más tarde para ver las actualizaciones!"
+  },
+  "about": {
+    "title": "Daniel Cabrera",
+    "subtitle": "Desarrollador Web & Creador de Contenido",
+    "heading": "Sobre Mí",
+    "paragraph": "Soy un apasionado programador Full-Stack con una sólida formación tanto en <strong>ciberseguridad como en desarrollo de software</strong>. Mi trayectoria profesional está impulsada por un compromiso con el aprendizaje continuo y la capacidad de adaptarme a nuevos desafíos y tecnologías. Me encanta construir experiencias web elegantes, eficientes y seguras.",
+    "skills": "Mis Habilidades",
+    "page": {
+      "title": "Desarrollador Full-Stack y Entusiasta de la Ciberseguridad",
+      "location": "Barcelona, España",
+      "experienceValue": "+5 Años",
+      "experienceTitle": "Experiencia",
+      "ageTitle": "Edad",
+      "bioTitle": "Biografía",
+      "bio": "Como un dedicado desarrollador Full-Stack, tiendo un puente entre la ingeniería de software robusta y los estrictos principios de la ciberseguridad. Con más de cinco años de experiencia práctica, he perfeccionado mis habilidades en la creación de aplicaciones web dinámicas y escalables, siempre con una mentalidad de 'seguridad primero'. Mi filosofía profesional se basa en el aprendizaje continuo y la adaptación, lo que me permite abordar desafíos complejos y adoptar nuevas tecnologías con entusiasmo. Me especializo en arquitecturas digitales que son elegantes, eficientes y resilientes, desde la lógica del lado del servidor hasta la interfaz de usuario perfecta al píxel.",
+      "skillsTitle": "Competencias Clave",
+      "safarititle": "Sobre mí: Daniel Cabrera",
+      "exploreTitle": "Explora Mi Trabajo, {name}",
+      "explorePortfolio": "Navega por mis proyectos",
+      "exploreBlog": "Lee mis últimos artículos",
+      "exploreTestimonials": "Mira lo que dicen otros",
+      "contactTitle": "Trabajemos Juntos",
+      "contactDesc": "Siempre estoy abierto a discutir nuevos proyectos, ideas creativas u oportunidades para formar parte de un equipo increíble."
+    }
+  },
+  "projects": {
+    "businfy": {
+      "title": "Businfy",
+      "descriptionShort": "Plataforma SaaS para automatizar el registro de empresas en España. Proporciona una forma simple de enviar formularios, subir documentos y verificar la identidad, con un servicio freemium para la gestión posterior.",
+      "descriptionLong": "Businfy es una plataforma integral de Software como Servicio (SaaS) diseñada para simplificar drásticamente el proceso burocrático de registrar una nueva empresa en España. La plataforma guía a los usuarios a través de un proceso paso a paso, gestionando la presentación de todos los formularios necesarios, la carga segura de documentos y la verificación de identidad. Se integra con los sistemas gubernamentales para agilizar las operaciones. Tras el registro exitoso, Businfy se transforma en una herramienta de gestión empresarial, ofreciendo un nivel freemium con características como facturación, gestión de clientes y contabilidad básica para ayudar a los nuevos emprendedores a comenzar."
     },
-    "home": {
-        "search": "Buscar",
-        "done": "Hecho",
-        "edit": "Editar",
-        "ok": "OK"
+    "bookManager": {
+      "title": "App de Gestión de Libros",
+      "descriptionShort": "Aplicación desarrollada con Python y Tkinter. Permite registrarse, iniciar sesión, ver libros disponibles, alquilar, reservar y administrar libros/usuarios (modo administrador).",
+      "descriptionLong": "Una aplicación de escritorio completa desarrollada con Python y la biblioteca gráfica Tkinter. Este proyecto funciona como un sistema de gestión integral para una biblioteca, permitiendo roles de usuario distintos con diferentes permisos. Los usuarios estándar pueden navegar por el catálogo de libros, verificar la disponibilidad y gestionar sus alquileres y reservas. El modo de administrador proporciona capacidades completas de CRUD (Crear, Leer, Actualizar, Eliminar) tanto para los libros como para las cuentas de usuario, ofreciendo un panel de control centralizado para la gestión de la biblioteca."
     },
-    "deleteApp": {
-        "title": "¿Eliminar \"{appTitle}\"?",
-        "description": "Al eliminar la app, se borrará de la pantalla de inicio."
+    "aiPodcast": {
+      "title": "Generador de Podcasts con IA",
+      "descriptionShort": "Crea y comparte tus podcasts generados con IA con el mundo.",
+      "descriptionLong": "Este proyecto aprovecha la IA de vanguardia para generar episodios completos de podcast a partir de guiones de texto. Los usuarios pueden introducir su contenido, elegir entre una variedad de voces generadas por IA y el sistema produce un archivo de audio completo. La plataforma también incluye funciones para compartir los podcasts generados en las redes sociales, convirtiéndola en una herramienta completa para los creadores de contenido que buscan explorar nuevos formatos."
     },
-    "deleteWidget": {
-        "title": "¿Eliminar Widget?",
-        "description": "El widget se eliminará de la pantalla de inicio."
+    "resuma": {
+      "title": "Resuma (Startup)",
+      "descriptionShort": "Servicio de análisis de currículum con IA, con creación de perfil de trabajo, búsqueda inteligente de ofertas y creación de portfolios personalizados con subdominio '.resuma.app'. Actualmente en fase Alpha.",
+      "descriptionLong": "Resuma es un ambicioso proyecto de startup destinado a revolucionar el proceso de búsqueda de empleo. Aprovechando la IA, la plataforma analiza el currículum de un usuario para crear un perfil profesional detallado. Luego, rastrea inteligentemente las bolsas de trabajo para encontrar las ofertas más relevantes. Una característica destacada es la generación automática de un sitio web de portafolio personalizado bajo un subdominio '.resuma.app', proporcionando a los usuarios una presencia profesional en línea al instante. El proyecto se encuentra actualmente en su fase Alfa, en desarrollo y prueba activos."
     },
-    "appAdded": {
-        "title": "\"{appTitle}\" se ha añadido a la pantalla de inicio"
+    "roblox": {
+      "title": "Experiencia Roblox",
+      "descriptionShort": "Experiencia de juego multijugador de parcelas y dibujo pixelart.",
+      "descriptionLong": "Este proyecto es una experiencia de juego multijugador construida en la plataforma Roblox usando Luau (un dialecto de Lua) y TypeScript con Rojo para la gestión del código fuente. Cuenta con un sistema basado en parcelas donde los jugadores pueden reclamar un terreno y construir estructuras. Una característica principal es un sistema colaborativo de dibujo de pixel art, que permite a múltiples jugadores dibujar en un lienzo compartido en tiempo real. El juego utiliza el DataStore de Roblox para el almacenamiento persistente de datos."
     },
-    "addWidget": {
-        "noSpace": {
-            "title": "No hay espacio disponible",
-            "description": "No hay suficiente espacio en esta página para añadir el widget."
-        }
+    "phanteum": {
+      "title": "Phanteum Network (Web)",
+      "descriptionShort": "Servidor multijugador de Hytale ambientado en la antigua Grecia, con modalidades como KitPVP, SkyWars, HungerGames y Survival PVP.",
+      "descriptionLong": "Phanteum Network fue el portal web para un servidor multijugador de Hytale a gran escala que se planeó. La temática estaba ambientada en la antigua Grecia, y el sitio web fue diseñado para ser el centro neurálgico de la comunidad. Mostraba los modos de juego planeados como KitPVP, SkyWars, HungerGames y Survival PVP. El sitio incluía foros, tablas de clasificación y actualizaciones de noticias, construido con una pila web moderna para ser rápido y responsivo."
     },
-    "editWidget": {
-        "title": "Editar Widget",
-        "type": "Tipo de Widget",
-        "size": "Tamaño",
-        "size.2x2": "Pequeño",
-        "size.2x4": "Mediano",
-        "size.4x4": "Grande"
+    "phanteumShop": {
+      "title": "Tienda Phanteum Network (Web)",
+      "descriptionShort": "Tienda de Phanteum Network con inicio de sesión sin contraseña usando el usuario 'In-Game' de Hytale, con la seguridad de compra de Tebex.io. Permite vinculación automática con el Discord de la comunidad.",
+      "descriptionLong": "Esta tienda web fue desarrollada para el servidor de Hytale Phanteum Network, con un novedoso sistema de inicio de sesión sin contraseña que autenticaba a los usuarios según su nombre de usuario en el juego. Para garantizar transacciones seguras y fiables, la tienda se integró con la pasarela de pago Tebex.io, una plataforma líder para la monetización de servidores de juegos. Además, incluía una función para vincular la cuenta de la tienda de un jugador con su cuenta de Discord, fomentando la integración de la comunidad."
+    }
+  },
+  "blog": {
+    "title": "Mi Blog",
+    "authorPrefix": "por",
+    "empty": "No hay entradas en el blog todavía.",
+    "emptyHint": "En un entorno de producción, un administrador añadiría posts desde un panel."
+  },
+  "camera": {
+    "photo": "FOTO",
+    "video": "VÍDEO",
+    "takePhoto": "Hacer Foto",
+    "flip": "Girar Cámara",
+    "photoSaved": "¡Foto guardada!",
+    "photoSavedDesc": "La foto ha sido guardada en tu app de Fotos.",
+    "permissionDenied": "Acceso a la cámara denegado",
+    "permissionDeniedDesc": "Por favor, activa los permisos de cámara en tu navegador para usar esta app.",
+    "permissionRequired": "Acceso a la cámara requerido",
+    "permissionRequiredDesc": "Por favor, permite el acceso a la cámara en tu navegador para usar esta función. Puede que necesites refrescar la página tras dar permiso."
+  },
+  "contact": {
+    "title": "Ponte en Contacto"
+  },
+  "messages": {
+    "title": "Nuevo Mensaje",
+    "subtitle": "Esto será enviado a Daniel Cabrera.",
+    "messagePlaceholder": "Mensaje",
+    "send": "Enviar"
+  },
+  "form": {
+    "name": "Nombre",
+    "namePlaceholder": "John Doe",
+    "email": "Tu Email",
+    "emailPlaceholder": "john.doe@example.com",
+    "message": "Mensaje",
+    "messagePlaceholder": "Cuéntame cómo puedo ayudarte",
+    "sendMessage": "Enviar Mensaje",
+    "messageSent": "¡Mensaje Enviado!",
+    "messageSentDesc": "Gracias por contactar. Te responderé pronto.",
+    "error": "¡Uy! Algo ha ido mal.",
+    "errorDesc": "No se pudo enviar el mensaje.",
+    "validation": {
+      "name": "El nombre debe tener al menos 2 caracteres.",
+      "nameRequired": "Por favor, introduce tu nombre.",
+      "email": "Por favor, introduce una dirección de correo válida.",
+      "message": "El mensaje debe tener al menos 10 caracteres.",
+      "testimonialMessage": "El testimonio debe tener al menos 10 caracteres."
+    }
+  },
+  "notes": {
+    "title": "Notas",
+    "iCloud": "iCloud",
+    "notesCount": "{count} notas",
+    "deleteTitle": "¿Eliminar Nota?",
+    "deleteConfirm": "¿Estás seguro de que quieres eliminar \"{noteTitle}\"?",
+    "noNotes": "Aún no hay notas.",
+    "noNotesHint": "Toca el botón '+' para crear una.",
+    "creatingTitle": "Título",
+    "creatingContent": "Empezar a escribir...",
+    "noteCreated": "¡Nota creada!",
+    "noteDeleted": "Nota eliminada.",
+    "noAdditionalText": "Sin texto adicional",
+    "draw": "Dibujar",
+    "clearDrawing": "Limpiar Dibujo"
+  },
+  "photos": {
+    "title": "Fotos",
+    "deleteTitle": "¿Eliminar Foto?",
+    "deleteConfirm": "Esta foto será eliminada permanentemente.",
+    "noPhotos": "Aún no hay fotos.",
+    "noPhotosHint": "¡Usa la app de Cámara para hacer algunas fotos!",
+    "library": "Fototeca",
+    "forYou": "Para ti",
+    "albums": "Álbumes",
+    "search": "Buscar"
+  },
+  "portfolio": {
+    "title": "Mis Proyectos",
+    "github": "GitHub",
+    "liveDemo": "Ver Demo"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "language": "Idioma",
+    "lang": {
+      "en": "Inglés",
+      "es": "Español"
     },
-    "underDev": {
-        "title": "En Desarrollo",
-        "subtitle": "Esta aplicación está actualmente en desarrollo.",
-        "cta": "¡Vuelve más tarde para ver las actualizaciones!"
+    "wallpaper": "Fondo de pantalla",
+    "addWallpaper": "Añadir nuevo",
+    "addWallpaperTitle": "Añadir fondo de pantalla",
+    "addWallpaperDesc": "Añade una imagen desde una URL o súbela desde tu dispositivo.",
+    "addFromUrl": "Añadir",
+    "uploadFromDevice": "Subir desde dispositivo",
+    "or": "O",
+    "invalidFile": "Archivo no válido",
+    "invalidFileDesc": "Por favor, selecciona un archivo de imagen.",
+    "wallpaperExists": "Ya existe",
+    "wallpaperExistsDesc": "Este fondo de pantalla ya está en tu lista.",
+    "success": "¡Éxito!",
+    "wallpaperAdded": "Fondo de pantalla añadido.",
+    "loadError": "Error al cargar",
+    "loadErrorDesc": "La URL no apunta a una imagen válida.",
+    "wallpaperDeleted": "Fondo de pantalla eliminado.",
+    "general": {
+      "title": "General",
+      "appearance": "Aspecto",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema"
     },
-    "about": {
-        "title": "Daniel Cabrera",
-        "subtitle": "Desarrollador Web & Creador de Contenido",
-        "heading": "Sobre Mí",
-        "paragraph": "Soy un apasionado programador Full-Stack con una sólida formación tanto en <strong>ciberseguridad como en desarrollo de software</strong>. Mi trayectoria profesional está impulsada por un compromiso con el aprendizaje continuo y la capacidad de adaptarme a nuevos desafíos y tecnologías. Me encanta construir experiencias web elegantes, eficientes y seguras.",
-        "skills": "Mis Habilidades",
-        "page": {
-            "title": "Desarrollador Full-Stack y Entusiasta de la Ciberseguridad",
-            "location": "Barcelona, España",
-            "experienceValue": "+5 Años",
-            "experienceTitle": "Experiencia",
-            "ageTitle": "Edad",
-            "bioTitle": "Biografía",
-            "bio": "Como un dedicado desarrollador Full-Stack, tiendo un puente entre la ingeniería de software robusta y los estrictos principios de la ciberseguridad. Con más de cinco años de experiencia práctica, he perfeccionado mis habilidades en la creación de aplicaciones web dinámicas y escalables, siempre con una mentalidad de 'seguridad primero'. Mi filosofía profesional se basa en el aprendizaje continuo y la adaptación, lo que me permite abordar desafíos complejos y adoptar nuevas tecnologías con entusiasmo. Me especializo en arquitecturas digitales que son elegantes, eficientes y resilientes, desde la lógica del lado del servidor hasta la interfaz de usuario perfecta al píxel.",
-            "skillsTitle": "Competencias Clave",
-            "safarititle": "Sobre mí: Daniel Cabrera",
-            "exploreTitle": "Explora Mi Trabajo, {name}",
-            "explorePortfolio": "Navega por mis proyectos",
-            "exploreBlog": "Lee mis últimos artículos",
-            "exploreTestimonials": "Mira lo que dicen otros",
-            "contactTitle": "Trabajemos Juntos",
-            "contactDesc": "Siempre estoy abierto a discutir nuevos proyectos, ideas creativas u oportunidades para formar parte de un equipo increíble."
-        }
+    "wifi": "Wi-Fi",
+    "bluetooth": "Bluetooth",
+    "profile": {
+      "name": "Daniel Cabrera",
+      "subtitle": "ID de Apple, iCloud, Contenido y compras"
     },
-    "projects": {
-        "businfy": {
-            "title": "Businfy",
-            "descriptionShort": "Plataforma SaaS para automatizar el registro de empresas en España. Proporciona una forma simple de enviar formularios, subir documentos y verificar la identidad, con un servicio freemium para la gestión posterior.",
-            "descriptionLong": "Businfy es una plataforma integral de Software como Servicio (SaaS) diseñada para simplificar drásticamente el proceso burocrático de registrar una nueva empresa en España. La plataforma guía a los usuarios a través de un proceso paso a paso, gestionando la presentación de todos los formularios necesarios, la carga segura de documentos y la verificación de identidad. Se integra con los sistemas gubernamentales para agilizar las operaciones. Tras el registro exitoso, Businfy se transforma en una herramienta de gestión empresarial, ofreciendo un nivel freemium con características como facturación, gestión de clientes y contabilidad básica para ayudar a los nuevos emprendedores a comenzar."
-        },
-        "bookManager": {
-            "title": "App de Gestión de Libros",
-            "descriptionShort": "Aplicación desarrollada con Python y Tkinter. Permite registrarse, iniciar sesión, ver libros disponibles, alquilar, reservar y administrar libros/usuarios (modo administrador).",
-            "descriptionLong": "Una aplicación de escritorio completa desarrollada con Python y la biblioteca gráfica Tkinter. Este proyecto funciona como un sistema de gestión integral para una biblioteca, permitiendo roles de usuario distintos con diferentes permisos. Los usuarios estándar pueden navegar por el catálogo de libros, verificar la disponibilidad y gestionar sus alquileres y reservas. El modo de administrador proporciona capacidades completas de CRUD (Crear, Leer, Actualizar, Eliminar) tanto para los libros como para las cuentas de usuario, ofreciendo un panel de control centralizado para la gestión de la biblioteca."
-        },
-        "aiPodcast": {
-            "title": "Generador de Podcasts con IA",
-            "descriptionShort": "Crea y comparte tus podcasts generados con IA con el mundo.",
-            "descriptionLong": "Este proyecto aprovecha la IA de vanguardia para generar episodios completos de podcast a partir de guiones de texto. Los usuarios pueden introducir su contenido, elegir entre una variedad de voces generadas por IA y el sistema produce un archivo de audio completo. La plataforma también incluye funciones para compartir los podcasts generados en las redes sociales, convirtiéndola en una herramienta completa para los creadores de contenido que buscan explorar nuevos formatos."
-        },
-        "resuma": {
-            "title": "Resuma (Startup)",
-            "descriptionShort": "Servicio de análisis de currículum con IA, con creación de perfil de trabajo, búsqueda inteligente de ofertas y creación de portfolios personalizados con subdominio '.resuma.app'. Actualmente en fase Alpha.",
-            "descriptionLong": "Resuma es un ambicioso proyecto de startup destinado a revolucionar el proceso de búsqueda de empleo. Aprovechando la IA, la plataforma analiza el currículum de un usuario para crear un perfil profesional detallado. Luego, rastrea inteligentemente las bolsas de trabajo para encontrar las ofertas más relevantes. Una característica destacada es la generación automática de un sitio web de portafolio personalizado bajo un subdominio '.resuma.app', proporcionando a los usuarios una presencia profesional en línea al instante. El proyecto se encuentra actualmente en su fase Alfa, en desarrollo y prueba activos."
-        },
-        "roblox": {
-            "title": "Experiencia Roblox",
-            "descriptionShort": "Experiencia de juego multijugador de parcelas y dibujo pixelart.",
-            "descriptionLong": "Este proyecto es una experiencia de juego multijugador construida en la plataforma Roblox usando Luau (un dialecto de Lua) y TypeScript con Rojo para la gestión del código fuente. Cuenta con un sistema basado en parcelas donde los jugadores pueden reclamar un terreno y construir estructuras. Una característica principal es un sistema colaborativo de dibujo de pixel art, que permite a múltiples jugadores dibujar en un lienzo compartido en tiempo real. El juego utiliza el DataStore de Roblox para el almacenamiento persistente de datos."
-        },
-        "phanteum": {
-            "title": "Phanteum Network (Web)",
-            "descriptionShort": "Servidor multijugador de Hytale ambientado en la antigua Grecia, con modalidades como KitPVP, SkyWars, HungerGames y Survival PVP.",
-            "descriptionLong": "Phanteum Network fue el portal web para un servidor multijugador de Hytale a gran escala que se planeó. La temática estaba ambientada en la antigua Grecia, y el sitio web fue diseñado para ser el centro neurálgico de la comunidad. Mostraba los modos de juego planeados como KitPVP, SkyWars, HungerGames y Survival PVP. El sitio incluía foros, tablas de clasificación y actualizaciones de noticias, construido con una pila web moderna para ser rápido y responsivo."
-        },
-        "hytaleStore": {
-            "title": "Tienda Web para Servidor Hytale",
-            "descriptionShort": "Tienda con inicio de sesión sin contraseña usando el usuario 'In-Game' de Hytale, con la seguridad de compra de Tebex.io. Permite vinculación automática con el Discord de la comunidad.",
-            "descriptionLong": "Esta tienda web fue desarrollada para un servidor de juegos de Hytale, con un novedoso sistema de inicio de sesión sin contraseña que autenticaba a los usuarios según su nombre de usuario en el juego. Para garantizar transacciones seguras y fiables, la tienda se integró con la pasarela de pago Tebex.io, una plataforma líder para la monetización de servidores de juegos. Además, incluía una función para vincular la cuenta de la tienda de un jugador con su cuenta de Discord, fomentando la integración de la comunidad."
-        }
+    "notifications": "Notificaciones",
+    "clock": {
+      "title": "Reloj",
+      "timeFormat24": "Formato de 24 horas"
+    }
+  },
+  "spotify": {
+    "home": "Inicio",
+    "search": "Buscar",
+    "library": "Tu biblioteca",
+    "connectTitle": "Conecta tu cuenta de Spotify",
+    "connectDescription": "Para activar la integración con Spotify, necesitas proporcionar tus credenciales de desarrollador en el archivo .env. Esto permitirá a la app obtener datos de reproducción en tiempo real.",
+    "loading": "Cargando música...",
+    "activity": "Actividad",
+    "nowPlaying": "Escuchando ahora",
+    "notPlayingTitle": "No suena nada",
+    "notPlayingDescription": "Spotify está pausado en este momento."
+  },
+  "testimonials": {
+    "title": "Testimonios",
+    "subtitle": "Lo que otros dicen de mi trabajo.",
+    "leave": "Deja un Testimonio",
+    "yourName": "Tu Nombre",
+    "message": "Mensaje",
+    "submit": "Enviar",
+    "thankYou": "¡Gracias!",
+    "submitted": "Tu testimonio ha sido enviado.",
+    "error": "No se pudo enviar tu testimonio.",
+    "formNamePlaceholder": "Jane Doe",
+    "formMessagePlaceholder": "Trabajar con Daniel fue una gran experiencia...",
+    "whatTheySay": "Lo que dicen",
+    "noTestimonials": "Aún no hay testimonios",
+    "noTestimonialsHint": "¡Sé el primero en dejar uno!"
+  },
+  "youtube": {
+    "locale_sup": "ES",
+    "search": "Buscar",
+    "signIn": "Acceder",
+    "home": "Inicio",
+    "shorts": "Shorts",
+    "subscriptions": "Suscripciones",
+    "you": "Tú",
+    "history": "Historial",
+    "noHistory": "Aún no hay vídeos en tu historial.",
+    "signInPrompt": "Accede para dar me gusta a vídeos, comentar y suscribirte.",
+    "explore": "Explorar",
+    "music": "Música",
+    "movies": "Películas",
+    "live": "En directo",
+    "showMore": "Mostrar más",
+    "more": "Más de YouTube",
+    "premium": "YouTube Premium",
+    "kids": "YouTube Kids",
+    "settings": "Configuración",
+    "reportHistory": "Historial de denuncias",
+    "help": "Ayuda",
+    "sendFeedback": "Enviar sugerencias",
+    "trySearching": "Prueba a buscar para empezar",
+    "feedTip": "Empieza a ver vídeos para ayudarnos a crear un feed de vídeos que te encantarán.",
+    "noVideosFound": "No se han encontrado vídeos para \"{query}\".",
+    "back": "Volver"
+  },
+  "calendar": {
+    "today": "Hoy",
+    "noEvents": "No hay eventos",
+    "allDay": "Todo el día",
+    "eventFriendDinner": "Cena con amigos",
+    "signInPrompt": "Conecta tu Google Calendar para ver tus eventos.",
+    "signInButton": "Iniciar sesión con Google",
+    "signInWidgetPrompt": "Inicia sesión desde la app Calendario para ver los eventos",
+    "signOut": "Cerrar sesión",
+    "loading": "Cargando Calendario...",
+    "noSlots": "No hay huecos disponibles este día.",
+    "error": {
+      "title": "Error al cargar los eventos",
+      "description": "No se pudieron recuperar los eventos del calendario."
     },
-    "blog": {
-        "title": "Mi Blog",
-        "authorPrefix": "por",
-        "empty": "No hay entradas en el blog todavía.",
-        "emptyHint": "En un entorno de producción, un administrador añadiría posts desde un panel."
+    "configError": {
+      "title": "Configuración Requerida",
+      "description": "Para usar Google Calendar, debes proporcionar tu API Key y el ID del Calendario en el archivo .env:",
+      "widget": "Falta configuración. Por favor, configúralo en la app de Calendario."
     },
-    "camera": {
-        "photo": "FOTO",
-        "video": "VÍDEO",
-        "takePhoto": "Hacer Foto",
-        "flip": "Girar Cámara",
-        "photoSaved": "¡Foto guardada!",
-        "photoSavedDesc": "La foto ha sido guardada en tu app de Fotos.",
-        "permissionDenied": "Acceso a la cámara denegado",
-        "permissionDeniedDesc": "Por favor, activa los permisos de cámara en tu navegador para usar esta app.",
-        "permissionRequired": "Acceso a la cámara requerido",
-        "permissionRequiredDesc": "Por favor, permite el acceso a la cámara en tu navegador para usar esta función. Puede que necesites refrescar la página tras dar permiso."
+    "createEvent": {
+      "title": "Agendar reunión de 30 min",
+      "description": "El evento se añadirá al calendario de Daniel. Se generará un enlace de Google Meet.",
+      "summaryPlaceholder": "Reunión sobre...",
+      "descriptionPlaceholder": "Detalles, agenda, etc.",
+      "date": "Fecha",
+      "time": "Hora",
+      "attendees": "Invitados adicionales (opcional)",
+      "attendeesPlaceholder": "invitado1@ejemplo.com, invitado2@ejemplo.com",
+      "submit": "Agendar Reunión"
     },
-    "contact": {
-        "title": "Ponte en Contacto"
+    "eventCreated": {
+      "title": "¡Reunión Agendada!",
+      "description": "La reunión está reservada en el calendario de Daniel. Puedes añadirla al tuyo ahora.",
+      "action": "Añadir al Calendario"
     },
-    "messages": {
-        "title": "Nuevo Mensaje",
-        "subtitle": "Esto será enviado a Daniel Cabrera.",
-        "messagePlaceholder": "Mensaje",
-        "send": "Enviar"
+    "validation": {
+      "weekend": "No se pueden agendar reuniones en fin de semana.",
+      "workHours": "Por favor, selecciona una hora entre las 9:30 y las 16:30."
+    }
+  },
+  "clock": {
+    "worldClock": {
+      "title": "Reloj mundial",
+      "today": "Hoy",
+      "tomorrow": "Mañana, +{hours}H",
+      "yesterday": "Ayer, -{hours}H"
     },
-    "form": {
-        "name": "Nombre",
-        "namePlaceholder": "John Doe",
-        "email": "Tu Email",
-        "emailPlaceholder": "john.doe@example.com",
-        "message": "Mensaje",
-        "messagePlaceholder": "Cuéntame cómo puedo ayudarte",
-        "sendMessage": "Enviar Mensaje",
-        "messageSent": "¡Mensaje Enviado!",
-        "messageSentDesc": "Gracias por contactar. Te responderé pronto.",
-        "error": "¡Uy! Algo ha ido mal.",
-        "errorDesc": "No se pudo enviar el mensaje.",
-        "validation": {
-            "name": "El nombre debe tener al menos 2 caracteres.",
-            "nameRequired": "Por favor, introduce tu nombre.",
-            "email": "Por favor, introduce una dirección de correo válida.",
-            "message": "El mensaje debe tener al menos 10 caracteres.",
-            "testimonialMessage": "El testimonio debe tener al menos 10 caracteres."
-        }
+    "alarms": {
+      "title": "Alarmas",
+      "edit": "Editar",
+      "add": "Añadir",
+      "noAlarms": "No hay alarmas",
+      "save": "Guardar",
+      "label": "Etiqueta",
+      "repeat": "Repetir",
+      "sound": "Sonido",
+      "snooze": "Posponer"
     },
-    "notes": {
-        "title": "Notas",
-        "iCloud": "iCloud",
-        "notesCount": "{count} notas",
-        "deleteTitle": "¿Eliminar Nota?",
-        "deleteConfirm": "¿Estás seguro de que quieres eliminar \"{noteTitle}\"?",
-        "noNotes": "Aún no hay notas.",
-        "noNotesHint": "Toca el botón '+' para crear una.",
-        "creatingTitle": "Título",
-        "creatingContent": "Empezar a escribir...",
-        "noteCreated": "¡Nota creada!",
-        "noteDeleted": "Nota eliminada.",
-        "noAdditionalText": "Sin texto adicional",
-        "draw": "Dibujar",
-        "clearDrawing": "Limpiar Dibujo"
+    "stopwatch": {
+      "title": "Cronómetro",
+      "lap": "Vuelta",
+      "start": "Iniciar",
+      "stop": "Detener",
+      "reset": "Reiniciar"
     },
-    "photos": {
-        "title": "Fotos",
-        "deleteTitle": "¿Eliminar Foto?",
-        "deleteConfirm": "Esta foto será eliminada permanentemente.",
-        "noPhotos": "Aún no hay fotos.",
-        "noPhotosHint": "¡Usa la app de Cámara para hacer algunas fotos!",
-        "library": "Fototeca",
-        "forYou": "Para ti",
-        "albums": "Álbumes",
-        "search": "Buscar"
+    "timer": {
+      "title": "Temporizador",
+      "start": "Iniciar",
+      "pause": "Pausar",
+      "cancel": "Cancelar",
+      "whenEnds": "Al finalizar"
     },
-    "portfolio": {
-        "title": "Mis Proyectos",
-        "github": "GitHub",
-        "liveDemo": "Ver Demo"
+    "days": {
+      "every": "Todos los",
+      "monday": "Lunes",
+      "tuesday": "Martes",
+      "wednesday": "Miércoles",
+      "thursday": "Jueves",
+      "friday": "Viernes",
+      "saturday": "Sábado",
+      "sunday": "Domingo",
+      "weekday": "Días de diario",
+      "weekend": "Fines de semana",
+      "never": "Nunca"
+    }
+  },
+  "notification": {
+    "centerTitle": "Centro de Notificaciones",
+    "clearAll": "Borrar Todas",
+    "options": "Opciones",
+    "deleteAll": "Borrar Todas",
+    "noNotifications": "No hay notificaciones nuevas",
+    "noNotificationsHint": "Estás al día.",
+    "item": {
+      "now": "ahora"
+    }
+  },
+  "appLibrary": {
+    "search": "Biblioteca de apps",
+    "folder": {
+      "close": "Cerrar"
     },
-    "settings": {
-        "title": "Ajustes",
-        "language": "Idioma",
-        "lang": {
-            "en": "Inglés",
-            "es": "Español"
-        },
-        "wallpaper": "Fondo de pantalla",
-        "addWallpaper": "Añadir nuevo",
-        "addWallpaperTitle": "Añadir fondo de pantalla",
-        "addWallpaperDesc": "Añade una imagen desde una URL o súbela desde tu dispositivo.",
-        "addFromUrl": "Añadir",
-        "uploadFromDevice": "Subir desde dispositivo",
-        "or": "O",
-        "invalidFile": "Archivo no válido",
-        "invalidFileDesc": "Por favor, selecciona un archivo de imagen.",
-        "wallpaperExists": "Ya existe",
-        "wallpaperExistsDesc": "Este fondo de pantalla ya está en tu lista.",
-        "success": "¡Éxito!",
-        "wallpaperAdded": "Fondo de pantalla añadido.",
-        "loadError": "Error al cargar",
-        "loadErrorDesc": "La URL no apunta a una imagen válida.",
-        "wallpaperDeleted": "Fondo de pantalla eliminado.",
-        "general": {
-            "title": "General",
-            "appearance": "Aspecto",
-            "light": "Claro",
-            "dark": "Oscuro",
-            "system": "Sistema"
-        },
-        "wifi": "Wi-Fi",
-        "bluetooth": "Bluetooth",
-        "profile": {
-            "name": "Daniel Cabrera",
-            "subtitle": "ID de Apple, iCloud, Contenido y compras"
-        },
-        "notifications": "Notificaciones",
-        "clock": {
-            "title": "Reloj",
-            "timeFormat24": "Formato de 24 horas"
-        }
-    },
-    "spotify": {
-        "home": "Inicio",
-        "search": "Buscar",
-        "library": "Tu biblioteca",
-        "connectTitle": "Conecta tu cuenta de Spotify",
-        "connectDescription": "Para activar la integración con Spotify, necesitas proporcionar tus credenciales de desarrollador en el archivo .env. Esto permitirá a la app obtener datos de reproducción en tiempo real.",
-        "loading": "Cargando música...",
-        "activity": "Actividad",
-        "nowPlaying": "Escuchando ahora",
-        "notPlayingTitle": "No suena nada",
-        "notPlayingDescription": "Spotify está pausado en este momento."
-    },
-    "testimonials": {
-        "title": "Testimonios",
-        "subtitle": "Lo que otros dicen de mi trabajo.",
-        "leave": "Deja un Testimonio",
-        "yourName": "Tu Nombre",
-        "message": "Mensaje",
-        "submit": "Enviar",
-        "thankYou": "¡Gracias!",
-        "submitted": "Tu testimonio ha sido enviado.",
-        "error": "No se pudo enviar tu testimonio.",
-        "formNamePlaceholder": "Jane Doe",
-        "formMessagePlaceholder": "Trabajar con Daniel fue una gran experiencia...",
-        "whatTheySay": "Lo que dicen",
-        "noTestimonials": "Aún no hay testimonios",
-        "noTestimonialsHint": "¡Sé el primero en dejar uno!"
-    },
-    "youtube": {
-        "locale_sup": "ES",
-        "search": "Buscar",
-        "signIn": "Acceder",
-        "home": "Inicio",
-        "shorts": "Shorts",
-        "subscriptions": "Suscripciones",
-        "you": "Tú",
-        "history": "Historial",
-        "noHistory": "Aún no hay vídeos en tu historial.",
-        "signInPrompt": "Accede para dar me gusta a vídeos, comentar y suscribirte.",
-        "explore": "Explorar",
-        "music": "Música",
-        "movies": "Películas",
-        "live": "En directo",
-        "showMore": "Mostrar más",
-        "more": "Más de YouTube",
-        "premium": "YouTube Premium",
-        "kids": "YouTube Kids",
-        "settings": "Configuración",
-        "reportHistory": "Historial de denuncias",
-        "help": "Ayuda",
-        "sendFeedback": "Enviar sugerencias",
-        "trySearching": "Prueba a buscar para empezar",
-        "feedTip": "Empieza a ver vídeos para ayudarnos a crear un feed de vídeos que te encantarán.",
-        "noVideosFound": "No se han encontrado vídeos para \"{query}\".",
-        "back": "Volver"
+    "searchPlaceholder": "Buscar Apps",
+    "searchResults": "Resultados de búsqueda",
+    "noResults": "No se encontraron resultados"
+  },
+  "widget": {
+    "profile": {
+      "alt": "Foto de perfil",
+      "greeting": "¡Hola, soy",
+      "bio": "Desarrollador Full-Stack y Entusiasta de la Ciberseguridad",
+      "location": "📍 Barcelona, España",
+      "about": "Sobre mí",
+      "portfolio": "Portfolio",
+      "title": "Perfil"
     },
     "calendar": {
-        "today": "Hoy",
-        "noEvents": "No hay eventos",
-        "allDay": "Todo el día",
-        "eventFriendDinner": "Cena con amigos",
-        "signInPrompt": "Conecta tu Google Calendar para ver tus eventos.",
-        "signInButton": "Iniciar sesión con Google",
-        "signInWidgetPrompt": "Inicia sesión desde la app Calendario para ver los eventos",
-        "signOut": "Cerrar sesión",
-        "loading": "Cargando Calendario...",
-        "noSlots": "No hay huecos disponibles este día.",
-        "error": {
-            "title": "Error al cargar los eventos",
-            "description": "No se pudieron recuperar los eventos del calendario."
-        },
-        "configError": {
-            "title": "Configuración Requerida",
-            "description": "Para usar Google Calendar, debes proporcionar tu API Key y el ID del Calendario en el archivo .env:",
-            "widget": "Falta configuración. Por favor, configúralo en la app de Calendario."
-        },
-        "createEvent": {
-            "title": "Agendar reunión de 30 min",
-            "description": "El evento se añadirá al calendario de Daniel. Se generará un enlace de Google Meet.",
-            "summaryPlaceholder": "Reunión sobre...",
-            "descriptionPlaceholder": "Detalles, agenda, etc.",
-            "date": "Fecha",
-            "time": "Hora",
-            "attendees": "Invitados adicionales (opcional)",
-            "attendeesPlaceholder": "invitado1@ejemplo.com, invitado2@ejemplo.com",
-            "submit": "Agendar Reunión"
-        },
-        "eventCreated": {
-            "title": "¡Reunión Agendada!",
-            "description": "La reunión está reservada en el calendario de Daniel. Puedes añadirla al tuyo ahora.",
-            "action": "Añadir al Calendario"
-        },
-        "validation": {
-            "weekend": "No se pueden agendar reuniones en fin de semana.",
-            "workHours": "Por favor, selecciona una hora entre las 9:30 y las 16:30."
-        }
+      "more": "Ver más...",
+      "event1": "Reunión de equipo",
+      "event2": "Nuevo Proyecto",
+      "title": "Calendario"
+    },
+    "weather": {
+      "title": "El Tiempo"
     },
     "clock": {
-        "worldClock": {
-            "title": "Reloj mundial",
-            "today": "Hoy",
-            "tomorrow": "Mañana, +{hours}H",
-            "yesterday": "Ayer, -{hours}H"
-        },
-        "alarms": {
-            "title": "Alarmas",
-            "edit": "Editar",
-            "add": "Añadir",
-            "noAlarms": "No hay alarmas",
-            "save": "Guardar",
-            "label": "Etiqueta",
-            "repeat": "Repetir",
-            "sound": "Sonido",
-            "snooze": "Posponer"
-        },
-        "stopwatch": {
-            "title": "Cronómetro",
-            "lap": "Vuelta",
-            "start": "Iniciar",
-            "stop": "Detener",
-            "reset": "Reiniciar"
-        },
-        "timer": {
-            "title": "Temporizador",
-            "start": "Iniciar",
-            "pause": "Pausar",
-            "cancel": "Cancelar",
-            "whenEnds": "Al finalizar"
-        },
-        "days": {
-            "every": "Todos los",
-            "monday": "Lunes",
-            "tuesday": "Martes",
-            "wednesday": "Miércoles",
-            "thursday": "Jueves",
-            "friday": "Viernes",
-            "saturday": "Sábado",
-            "sunday": "Domingo",
-            "weekday": "Días de diario",
-            "weekend": "Fines de semana",
-            "never": "Nunca"
-        }
+      "title": "Reloj"
     },
-    "notification": {
-        "centerTitle": "Centro de Notificaciones",
-        "clearAll": "Borrar Todas",
-        "options": "Opciones",
-        "deleteAll": "Borrar Todas",
-        "noNotifications": "No hay notificaciones nuevas",
-        "noNotificationsHint": "Estás al día.",
-        "item": {
-            "now": "ahora"
-        }
+    "searchPlaceholder": "Buscar widgets"
+  },
+  "safari": {
+    "blocked": {
+      "title": "Safari no puede abrir la página.",
+      "description": "No se ha podido abrir \"{url}\" porque el sitio no permite ser mostrado dentro de otras páginas web por motivos de seguridad.",
+      "openExternal": "Abrir en Nueva Pestaña"
     },
-    "appLibrary": {
-        "search": "Biblioteca de apps",
-        "folder": {
-            "close": "Cerrar"
-        },
-        "searchPlaceholder": "Buscar Apps",
-        "searchResults": "Resultados de búsqueda",
-        "noResults": "No se encontraron resultados"
+    "placeholder": "Busca o introduce el nombre de la web",
+    "favorites": "Favoritos",
+    "privacyReport": "Informe de Privacidad",
+    "privacyReportDesc": "Safari no ha encontrado ningún rastreador en los últimos siete días."
+  },
+  "controlCenter": {
+    "mobileData": "Datos Móviles",
+    "wifi": "Wi-Fi",
+    "bluetooth": "Bluetooth",
+    "on": "Activado",
+    "off": "Desactivado",
+    "music": "Música",
+    "notPlaying": "No se está reproduciendo"
+  },
+  "Productivity": "Productividad",
+  "Social": "Social",
+  "Entertainment": "Entretenimiento",
+  "Creativity": "Creatividad",
+  "Information & Reading": "Información y Lectura",
+  "Development": "Desarrollo",
+  "Utilities": "Utilidades",
+  "Business": "Negocios",
+  "appstore": {
+    "today": "Hoy",
+    "featuredApp": "App Destacada",
+    "mainTitle": "Desata Tu Creatividad",
+    "mainSubtitle": "Descubre apps que dan vida a tus ideas.",
+    "get": "OBTENER",
+    "inAppPurchases": "Compras dentro de la app"
+  },
+  "news": {
+    "topStories": "Noticias Destacadas",
+    "noNews": {
+      "title": "No hay noticias disponibles",
+      "description": "No se pudieron cargar las últimas noticias en este momento. Por favor, inténtalo de nuevo más tarde."
     },
-    "widget": {
-        "profile": {
-            "alt": "Foto de perfil",
-            "greeting": "¡Hola, soy",
-            "bio": "Desarrollador Full-Stack y Entusiasta de la Ciberseguridad",
-            "location": "📍 Barcelona, España",
-            "about": "Sobre mí",
-            "portfolio": "Portfolio",
-            "title": "Perfil"
-        },
-        "calendar": {
-            "more": "Ver más...",
-            "event1": "Reunión de equipo",
-            "event2": "Nuevo Proyecto",
-            "title": "Calendario"
-        },
-        "weather": {
-            "title": "El Tiempo"
-        },
-        "clock": {
-            "title": "Reloj"
-        },
-        "searchPlaceholder": "Buscar widgets"
+    "error": {
+      "title": "Error al Cargar las Noticias",
+      "description": "Hubo un problema al obtener las noticias."
     },
-    "safari": {
-        "blocked": {
-            "title": "Safari no puede abrir la página.",
-            "description": "No se ha podido abrir \"{url}\" porque el sitio no permite ser mostrado dentro de otras páginas web por motivos de seguridad.",
-            "openExternal": "Abrir en Nueva Pestaña"
-        },
-        "placeholder": "Busca o introduce el nombre de la web",
-        "favorites": "Favoritos",
-        "privacyReport": "Informe de Privacidad",
-        "privacyReportDesc": "Safari no ha encontrado ningún rastreador en los últimos siete días."
-    },
-    "controlCenter": {
-        "mobileData": "Datos Móviles",
-        "wifi": "Wi-Fi",
-        "bluetooth": "Bluetooth",
-        "on": "Activado",
-        "off": "Desactivado",
-        "music": "Música",
-        "notPlaying": "No se está reproduciendo"
-    },
-    "Productivity": "Productividad",
-    "Social": "Social",
-    "Entertainment": "Entretenimiento",
-    "Creativity": "Creatividad",
-    "Information & Reading": "Información y Lectura",
-    "Development": "Desarrollo",
-    "Utilities": "Utilidades",
-    "Business": "Negocios",
-    "appstore": {
-        "today": "Hoy",
-        "featuredApp": "App Destacada",
-        "mainTitle": "Desata Tu Creatividad",
-        "mainSubtitle": "Descubre apps que dan vida a tus ideas.",
-        "get": "OBTENER",
-        "inAppPurchases": "Compras dentro de la app"
-    },
-    "news": {
-        "topStories": "Noticias Destacadas",
-        "noNews": {
-            "title": "No hay noticias disponibles",
-            "description": "No se pudieron cargar las últimas noticias en este momento. Por favor, inténtalo de nuevo más tarde."
-        },
-        "error": {
-            "title": "Error al Cargar las Noticias",
-            "description": "Hubo un problema al obtener las noticias."
-        },
-        "configError": {
-            "title": "Configuración Requerida",
-            "description": "Para usar la app de Noticias, debes proporcionar tu clave de API de thenewsapi.com en el archivo .env:"
-        }
-    },
-    "podcasts": {
-        "listenNow": "Escuchar",
-        "upNext": "A continuación",
-        "youMightLike": "Te podría gustar"
-    },
-    "tv": {
-        "watchNow": "Ver ahora",
-        "upNext": "A continuación",
-        "whatToWatch": "Qué ver"
-    },
-    "facetime": {
-        "createLink": "Crear enlace",
-        "newFaceTime": "Nuevo FaceTime",
-        "suggested": "Sugerencias"
-    },
-    "phone": {
-        "favorites": "Favoritos",
-        "recents": "Recientes",
-        "contacts": "Contactos",
-        "keypad": "Teclado",
-        "voicemail": "Buzón de voz"
-    },
-    "maps": {
-        "searchPlaceholder": "Buscar un lugar o dirección"
-    },
-    "services": {
-        "subtitle": "Descubre los servicios profesionales que ofrezco para dar vida a tus proyectos digitales.",
-        "webDev": {
-            "title": "Desarrollo Web",
-            "desc": "Aplicaciones web modernas, responsivas y seguras usando React, Next.js y Node.js."
-        },
-        "mobileDev": {
-            "title": "Desarrollo Móvil",
-            "desc": "Apps móviles multiplataforma que ofrecen una experiencia de usuario fluida."
-        },
-        "cloud": {
-            "title": "Cloud & DevOps",
-            "desc": "Infraestructura cloud escalable y pipelines CI/CD en Firebase y Google Cloud."
-        },
-        "cybersecurity": {
-            "title": "Ciberseguridad",
-            "desc": "Auditorías de seguridad, pentesting e implementación de ciclo de vida de desarrollo seguro."
-        },
-        "ai": {
-            "title": "Integración de IA",
-            "desc": "Integrando funcionalidades inteligentes con Genkit y Google AI para crear aplicaciones más listas."
-        }
-    },
-    "editMenu": {
-        "addWidget": "Añadir widget",
-        "customize": "Personalizar",
-        "editWallpaper": "Editar fondo de pantalla",
-        "editPages": "Editar páginas"
-    },
-    "customize": {
-        "font": "Fuente",
-        "color": "Color"
+    "configError": {
+      "title": "Configuración Requerida",
+      "description": "Para usar la app de Noticias, debes proporcionar tu clave de API de thenewsapi.com en el archivo .env:"
     }
+  },
+  "podcasts": {
+    "listenNow": "Escuchar",
+    "upNext": "A continuación",
+    "youMightLike": "Te podría gustar"
+  },
+  "tv": {
+    "watchNow": "Ver ahora",
+    "upNext": "A continuación",
+    "whatToWatch": "Qué ver"
+  },
+  "facetime": {
+    "createLink": "Crear enlace",
+    "newFaceTime": "Nuevo FaceTime",
+    "suggested": "Sugerencias"
+  },
+  "phone": {
+    "favorites": "Favoritos",
+    "recents": "Recientes",
+    "contacts": "Contactos",
+    "keypad": "Teclado",
+    "voicemail": "Buzón de voz"
+  },
+  "maps": {
+    "searchPlaceholder": "Buscar un lugar o dirección"
+  },
+  "services": {
+    "subtitle": "Descubre los servicios profesionales que ofrezco para dar vida a tus proyectos digitales.",
+    "webDev": {
+      "title": "Desarrollo Web",
+      "desc": "Aplicaciones web modernas, responsivas y seguras usando React, Next.js y Node.js."
+    },
+    "mobileDev": {
+      "title": "Desarrollo Móvil",
+      "desc": "Apps móviles multiplataforma que ofrecen una experiencia de usuario fluida."
+    },
+    "cloud": {
+      "title": "Cloud & DevOps",
+      "desc": "Infraestructura cloud escalable y pipelines CI/CD en Firebase y Google Cloud."
+    },
+    "cybersecurity": {
+      "title": "Ciberseguridad",
+      "desc": "Auditorías de seguridad, pentesting e implementación de ciclo de vida de desarrollo seguro."
+    },
+    "ai": {
+      "title": "Integración de IA",
+      "desc": "Integrando funcionalidades inteligentes con Genkit y Google AI para crear aplicaciones más listas."
+    }
+  },
+  "editMenu": {
+    "addWidget": "Añadir widget",
+    "customize": "Personalizar",
+    "editWallpaper": "Editar fondo de pantalla",
+    "editPages": "Editar páginas"
+  },
+  "customize": {
+    "font": "Fuente",
+    "color": "Color"
+  }
 }
