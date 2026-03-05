@@ -13,7 +13,13 @@ import { useI18n } from '@/hooks/use-i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth, useUser } from '@/firebase';
 import type {
@@ -26,16 +32,40 @@ import type {
 } from '@/lib/appstore/contracts';
 
 type AuthMode = 'login' | 'register';
+type AppSort = 'recent' | 'downloads';
+type HomeTab = 'home' | 'categories';
 
 type PublicProfileApi = AppStoreApiResponse<PublicDeveloperProfile>;
 type OwnProfileApi = AppStoreApiResponse<UserProfile>;
 type AppsListApi = AppStoreApiResponse<{ apps: AppStoreApp[]; count: number }>;
 type RelationApi = AppStoreApiResponse<{ relation: SocialRelationStatus }>;
+type AppDetailApi = AppStoreApiResponse<AppStoreApp>;
+type CategoriesApi = AppStoreApiResponse<{
+    categories: Array<{ category: string; count: number }>;
+}>;
 
-function extractNickFromEmail(email: string | null | undefined): string {
-    const candidate = (email ?? 'usuario').split('@')[0] ?? 'usuario';
-    return candidate.replace(/[^A-Za-zÀ-ÖØ-öø-ÿÑñ0-9 ]/g, '').slice(0, 24) || 'usuario';
-}
+type AppFormState = {
+    id: string | null;
+    title: string;
+    description: string;
+    iconUrl: string;
+    externalUrl: string;
+    screenshotsText: string;
+    categories: string[];
+    categoryInput: string;
+    status: 'draft' | 'published';
+};
+
+const fallbackCategories = [
+    'Productividad',
+    'Juegos',
+    'Utilidades',
+    'Educación',
+    'Salud',
+    'Creatividad',
+    'Social',
+    'Música',
+];
 
 const insetInput =
     'h-12 rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#2C2C2E] text-[15px] focus-visible:ring-2 focus-visible:ring-[#0A84FF]';
@@ -43,14 +73,53 @@ const insetInput =
 const primaryButton =
     'h-12 rounded-full bg-[#0A84FF] hover:bg-[#0A84FF]/90 text-white font-semibold text-[15px]';
 
+const cardBase =
+    'rounded-3xl border border-neutral-200 dark:border-[#38383A] bg-white dark:bg-[#1C1C1E]';
+
+function extractNickFromEmail(email: string | null | undefined): string {
+    const candidate = (email ?? 'usuario').split('@')[0] ?? 'usuario';
+    return (
+        candidate.replace(/[^A-Za-zÀ-ÖØ-öø-ÿÑñ0-9 ]/g, '').slice(0, 24) || 'usuario'
+    );
+}
+
+function toTitleCase(value: string): string {
+    return value
+        .trim()
+        .replace(/\s+/g, ' ')
+        .toLocaleLowerCase('es-ES')
+        .split(' ')
+        .map((part) =>
+            part ? `${part[0].toLocaleUpperCase('es-ES')}${part.slice(1)}` : part,
+        )
+        .join(' ');
+}
+
+function isValidCategory(value: string): boolean {
+    return /^[A-Za-zÀ-ÖØ-öø-ÿÑñ0-9 ]+$/.test(value);
+}
+
+function emptyAppForm(): AppFormState {
+    return {
+        id: null,
+        title: '',
+        description: '',
+        iconUrl: '',
+        externalUrl: '',
+        screenshotsText: '',
+        categories: [],
+        categoryInput: '',
+        status: 'published',
+    };
+}
+
 const AppStore = () => {
     const { locale } = useI18n();
     const { toast } = useToast();
     const auth = useAuth();
     const { data: firebaseUser } = useUser();
 
-    const [apps, setApps] = useState<AppStoreApp[]>([]);
-    const [appsLoading, setAppsLoading] = useState(false);
+    const [tab, setTab] = useState<HomeTab>('home');
     const [authOpen, setAuthOpen] = useState(false);
     const [authMode, setAuthMode] = useState<AuthMode>('login');
     const [authLoading, setAuthLoading] = useState(false);
@@ -67,8 +136,30 @@ const AppStore = () => {
 
     const [ownProfile, setOwnProfile] = useState<UserProfile | null>(null);
     const [selectedNickname, setSelectedNickname] = useState<string | null>(null);
-    const [publicProfile, setPublicProfile] = useState<PublicDeveloperProfile | null>(null);
+    const [publicProfile, setPublicProfile] = useState<PublicDeveloperProfile | null>(
+        null,
+    );
     const [editProfileOpen, setEditProfileOpen] = useState(false);
+
+    const [recentApps, setRecentApps] = useState<AppStoreApp[]>([]);
+    const [popularApps, setPopularApps] = useState<AppStoreApp[]>([]);
+    const [categoryApps, setCategoryApps] = useState<AppStoreApp[]>([]);
+    const [appsLoading, setAppsLoading] = useState(false);
+
+    const [categories, setCategories] = useState<Array<{ category: string; count: number }>>(
+        [],
+    );
+    const [categoriesSearch, setCategoriesSearch] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [categoriesLoading, setCategoriesLoading] = useState(false);
+
+    const [detailAppId, setDetailAppId] = useState<string | null>(null);
+    const [detailApp, setDetailApp] = useState<AppStoreApp | null>(null);
+    const [detailLoading, setDetailLoading] = useState(false);
+
+    const [publishOpen, setPublishOpen] = useState(false);
+    const [publishLoading, setPublishLoading] = useState(false);
+    const [form, setForm] = useState<AppFormState>(emptyAppForm());
 
     const today = new Date();
     const dateString = today.toLocaleDateString(locale, {
@@ -77,13 +168,49 @@ const AppStore = () => {
         day: 'numeric',
     });
 
-    const developers = useMemo(() => {
-        const map = new Map<string, string>();
-        for (const app of apps) {
-            map.set(app.ownerNickname, app.ownerId);
+    const mergedCategories = useMemo(() => {
+        const map = new Map<string, number>();
+        categories.forEach((item) => map.set(item.category, item.count));
+        fallbackCategories.forEach((category) => {
+            if (!map.has(category)) {
+                map.set(category, 0);
+            }
+        });
+
+        return [...map.entries()]
+            .map(([category, count]) => ({ category, count }))
+            .sort((a, b) => b.count - a.count || a.category.localeCompare(b.category, 'es'))
+            .slice(0, 50);
+    }, [categories]);
+
+    const visibleCategories = useMemo(
+        () => mergedCategories.filter((item) => {
+            if (!categoriesSearch.trim()) {
+                return true;
+            }
+            return item.category
+                .toLocaleLowerCase('es-ES')
+                .includes(categoriesSearch.toLocaleLowerCase('es-ES'));
+        }),
+        [mergedCategories, categoriesSearch],
+    );
+
+    const featuredCategories = useMemo(() => mergedCategories.slice(0, 6), [mergedCategories]);
+
+    const ownerApps = useMemo(() => {
+        if (!ownProfile) {
+            return [] as AppStoreApp[];
         }
-        return [...map.keys()];
-    }, [apps]);
+
+        const all = [...recentApps, ...popularApps, ...categoryApps];
+        const dedupe = new Map<string, AppStoreApp>();
+        all.forEach((app) => {
+            if (app.ownerId === ownProfile.uid) {
+                dedupe.set(app.id, app);
+            }
+        });
+        return [...dedupe.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    }, [ownProfile, recentApps, popularApps, categoryApps]);
 
     async function authHeaders(): Promise<Record<string, string>> {
         if (!firebaseUser) {
@@ -94,12 +221,12 @@ const AppStore = () => {
         return { Authorization: `Bearer ${token}` };
     }
 
-    async function fetchApps() {
+    async function fetchAppsBySort(sort: AppSort, target: (apps: AppStoreApp[]) => void) {
         setAppsLoading(true);
         try {
-            const response = await fetch('/api/appstore/apps?status=published&limit=20', {
-                method: 'GET',
-            });
+            const response = await fetch(
+                `/api/appstore/apps?status=published&sort=${sort}&limit=20`,
+            );
             const json = (await response.json()) as AppsListApi;
 
             if (!json.success) {
@@ -107,11 +234,83 @@ const AppStore = () => {
                 return;
             }
 
-            setApps(json.data.apps);
+            target(json.data.apps);
         } catch {
-            toast({ title: 'AppStore', description: 'No se pudieron cargar las apps.', variant: 'destructive' });
+            toast({
+                title: 'AppStore',
+                description: 'No se pudieron cargar las apps.',
+                variant: 'destructive',
+            });
         } finally {
             setAppsLoading(false);
+        }
+    }
+
+    async function fetchAppsByCategory(category: string) {
+        setAppsLoading(true);
+        try {
+            const response = await fetch(
+                `/api/appstore/apps?status=published&category=${encodeURIComponent(category)}&limit=20`,
+            );
+            const json = (await response.json()) as AppsListApi;
+
+            if (!json.success) {
+                toast({ title: 'Categorías', description: json.error.message, variant: 'destructive' });
+                return;
+            }
+
+            setCategoryApps(json.data.apps);
+        } catch {
+            toast({
+                title: 'Categorías',
+                description: 'No se pudieron cargar apps de la categoría.',
+                variant: 'destructive',
+            });
+        } finally {
+            setAppsLoading(false);
+        }
+    }
+
+    async function fetchCategories(search?: string) {
+        setCategoriesLoading(true);
+        try {
+            const query = search?.trim() ? `?q=${encodeURIComponent(search.trim())}` : '';
+            const response = await fetch(`/api/appstore/categories${query}`);
+            const json = (await response.json()) as CategoriesApi;
+
+            if (!json.success) {
+                toast({ title: 'Categorías', description: json.error.message, variant: 'destructive' });
+                return;
+            }
+
+            setCategories(json.data.categories);
+        } catch {
+            toast({
+                title: 'Categorías',
+                description: 'No se pudo cargar el buscador de categorías.',
+                variant: 'destructive',
+            });
+        } finally {
+            setCategoriesLoading(false);
+        }
+    }
+
+    async function fetchAppDetail(appId: string) {
+        setDetailLoading(true);
+        try {
+            const response = await fetch(`/api/appstore/apps/${appId}`);
+            const json = (await response.json()) as AppDetailApi;
+
+            if (!json.success) {
+                toast({ title: 'Detalle de app', description: json.error.message, variant: 'destructive' });
+                return;
+            }
+
+            setDetailApp(json.data);
+        } catch {
+            toast({ title: 'Detalle de app', description: 'No se pudo abrir esta app.', variant: 'destructive' });
+        } finally {
+            setDetailLoading(false);
         }
     }
 
@@ -125,11 +324,7 @@ const AppStore = () => {
 
         try {
             const headers = await authHeaders();
-            const response = await fetch('/api/appstore/users/profile', {
-                method: 'GET',
-                headers,
-            });
-
+            const response = await fetch('/api/appstore/users/profile', { method: 'GET', headers });
             const json = (await response.json()) as OwnProfileApi;
 
             if (!json.success) {
@@ -181,7 +376,9 @@ const AppStore = () => {
     }
 
     async function checkNicknameAvailability(candidate: string): Promise<boolean> {
-        const response = await fetch(`/api/appstore/users/check-nickname?nickname=${encodeURIComponent(candidate)}`);
+        const response = await fetch(
+            `/api/appstore/users/check-nickname?nickname=${encodeURIComponent(candidate)}`,
+        );
         const json = (await response.json()) as AppStoreApiResponse<NicknameAvailability>;
 
         if (!json.success) {
@@ -190,7 +387,11 @@ const AppStore = () => {
         }
 
         if (!json.data.available) {
-            toast({ title: 'Nickname ocupado', description: 'Elige otro nickname para continuar.', variant: 'destructive' });
+            toast({
+                title: 'Nickname ocupado',
+                description: 'Elige otro nickname para continuar.',
+                variant: 'destructive',
+            });
             return false;
         }
 
@@ -315,22 +516,15 @@ const AppStore = () => {
         }
 
         setSocialLoading(true);
-
         try {
             const headers = await authHeaders();
             const response = await fetch('/api/appstore/social/follow', {
                 method: 'POST',
-                headers: {
-                    ...headers,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    targetNickname: selectedNickname,
-                }),
+                headers: { ...headers, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ targetNickname: selectedNickname }),
             });
 
             const json = (await response.json()) as RelationApi;
-
             if (!json.success) {
                 toast({ title: 'Sistema social', description: json.error.message, variant: 'destructive' });
                 return;
@@ -350,16 +544,14 @@ const AppStore = () => {
         }
 
         setSocialLoading(true);
-
         try {
             const headers = await authHeaders();
-            const response = await fetch(`/api/appstore/social/follow?targetNickname=${encodeURIComponent(selectedNickname)}`, {
-                method: 'DELETE',
-                headers,
-            });
+            const response = await fetch(
+                `/api/appstore/social/follow?targetNickname=${encodeURIComponent(selectedNickname)}`,
+                { method: 'DELETE', headers },
+            );
 
             const json = (await response.json()) as RelationApi;
-
             if (!json.success) {
                 toast({ title: 'Sistema social', description: json.error.message, variant: 'destructive' });
                 return;
@@ -373,8 +565,131 @@ const AppStore = () => {
         }
     }
 
+    function setFormFromApp(app: AppStoreApp | null) {
+        if (!app) {
+            setForm(emptyAppForm());
+            return;
+        }
+
+        setForm({
+            id: app.id,
+            title: app.title,
+            description: app.description,
+            iconUrl: app.iconUrl ?? '',
+            externalUrl: app.externalUrl ?? '',
+            screenshotsText: (app.screenshotsUrls ?? []).join('\n'),
+            categories: app.categories ?? [app.category],
+            categoryInput: '',
+            status: app.status,
+        });
+    }
+
+    function addCategoryToForm() {
+        const formatted = toTitleCase(form.categoryInput);
+        if (!formatted) {
+            return;
+        }
+
+        if (!isValidCategory(formatted)) {
+            toast({ title: 'Categoría inválida', description: 'Solo texto Title Case sin símbolos.', variant: 'destructive' });
+            return;
+        }
+
+        if (form.categories.includes(formatted)) {
+            setForm((current) => ({ ...current, categoryInput: '' }));
+            return;
+        }
+
+        if (form.categories.length >= 5) {
+            toast({ title: 'Máximo alcanzado', description: 'Puedes añadir hasta 5 categorías.', variant: 'destructive' });
+            return;
+        }
+
+        setForm((current) => ({
+            ...current,
+            categories: [...current.categories, formatted],
+            categoryInput: '',
+        }));
+    }
+
+    async function submitAppForm() {
+        if (!firebaseUser) {
+            setAuthOpen(true);
+            return;
+        }
+
+        if (form.categories.length < 1) {
+            toast({ title: 'Categorías requeridas', description: 'Añade al menos una categoría.', variant: 'destructive' });
+            return;
+        }
+
+        const screenshotsUrls = form.screenshotsText
+            .split('\n')
+            .map((item) => item.trim())
+            .filter(Boolean);
+
+        setPublishLoading(true);
+        try {
+            const headers = await authHeaders();
+            const payload = {
+                title: form.title,
+                description: form.description,
+                iconUrl: form.iconUrl || undefined,
+                externalUrl: form.externalUrl,
+                screenshotsUrls,
+                categories: form.categories,
+                category: form.categories[0],
+                status: form.status,
+                tags: form.categories,
+            };
+
+            const isEdit = !!form.id;
+            const response = await fetch(
+                isEdit ? `/api/appstore/apps/${form.id}` : '/api/appstore/apps',
+                {
+                    method: isEdit ? 'PATCH' : 'POST',
+                    headers: {
+                        ...headers,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                },
+            );
+
+            const json = (await response.json()) as AppDetailApi;
+            if (!json.success) {
+                toast({ title: 'Publicación', description: json.error.message, variant: 'destructive' });
+                return;
+            }
+
+            toast({
+                title: isEdit ? 'App actualizada' : 'App publicada',
+                description: isEdit ? 'Tus cambios se han guardado.' : 'Tu app ya aparece en AppStore.',
+            });
+
+            setPublishOpen(false);
+            setForm(emptyAppForm());
+
+            await Promise.all([
+                fetchAppsBySort('recent', setRecentApps),
+                fetchAppsBySort('downloads', setPopularApps),
+                fetchCategories(categoriesSearch),
+            ]);
+
+            if (selectedCategory) {
+                await fetchAppsByCategory(selectedCategory);
+            }
+        } catch {
+            toast({ title: 'Publicación', description: 'No se pudo guardar la app.', variant: 'destructive' });
+        } finally {
+            setPublishLoading(false);
+        }
+    }
+
     useEffect(() => {
-        fetchApps();
+        fetchAppsBySort('recent', setRecentApps);
+        fetchAppsBySort('downloads', setPopularApps);
+        fetchCategories();
     }, []);
 
     useEffect(() => {
@@ -389,6 +704,28 @@ const AppStore = () => {
 
         fetchPublicProfile(selectedNickname);
     }, [selectedNickname, firebaseUser]);
+
+    useEffect(() => {
+        if (!detailAppId) {
+            setDetailApp(null);
+            return;
+        }
+
+        fetchAppDetail(detailAppId);
+    }, [detailAppId]);
+
+    useEffect(() => {
+        if (!selectedCategory) {
+            setCategoryApps([]);
+            return;
+        }
+
+        fetchAppsByCategory(selectedCategory);
+    }, [selectedCategory]);
+
+    useEffect(() => {
+        fetchCategories(categoriesSearch);
+    }, [categoriesSearch]);
 
     useEffect(() => {
         if (!ownProfile) {
@@ -410,15 +747,52 @@ const AppStore = () => {
                 : relation === 'self'
                     ? 'Tu perfil'
                     : 'Seguir';
-
     const reverseActionLabel = relation === 'friends' ? 'Dejar de ser Amigos' : 'Dejar de seguir';
+
+    function renderCarouselSection(title: string, apps: AppStoreApp[]) {
+        return (
+            <div className={`${cardBase} p-4`}>
+                <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-semibold">{title}</h3>
+                </div>
+                <div className="flex gap-3 overflow-x-auto pb-1">
+                    {apps.map((app) => (
+                        <button
+                            key={app.id}
+                            type="button"
+                            onClick={() => setDetailAppId(app.id)}
+                            className="w-44 shrink-0 rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 text-left"
+                        >
+                            <div className="relative w-14 h-14 mb-3">
+                                <Image
+                                    src={app.iconUrl || 'https://picsum.photos/seed/appicon-fallback/120/120'}
+                                    fill
+                                    alt={app.title}
+                                    className="rounded-2xl object-cover"
+                                />
+                            </div>
+                            <p className="font-semibold text-sm truncate">{app.title}</p>
+                            <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] truncate">
+                                {app.ownerNickname}
+                            </p>
+                        </button>
+                    ))}
+                    {apps.length === 0 && (
+                        <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">Sin resultados.</p>
+                    )}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <ScrollArea className="h-full w-full bg-[#F2F2F7] dark:bg-black text-black dark:text-white">
             <div className="max-w-xl mx-auto p-4 space-y-4">
                 <div className="flex justify-between items-end">
                     <div>
-                        <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] font-semibold uppercase">{dateString}</p>
+                        <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] font-semibold uppercase">
+                            {dateString}
+                        </p>
                         <h1 className="text-4xl font-bold tracking-tight">App Store</h1>
                     </div>
 
@@ -433,14 +807,36 @@ const AppStore = () => {
                         }}
                         className="h-10 w-10 relative"
                     >
-                        <Image src={ownProfile?.avatarUrl || 'https://s6.imgcdn.dev/Yrcy4v.png'} fill alt="Profile" className="rounded-full object-cover" data-ai-hint="male portrait" />
+                        <Image
+                            src={ownProfile?.avatarUrl || 'https://s6.imgcdn.dev/Yrcy4v.png'}
+                            fill
+                            alt="Profile"
+                            className="rounded-full object-cover"
+                        />
                     </button>
                 </div>
 
+                <div className="rounded-2xl bg-white dark:bg-[#1C1C1E] p-2 grid grid-cols-2 gap-2 border border-neutral-200 dark:border-[#38383A]">
+                    <Button
+                        variant={tab === 'home' ? 'default' : 'ghost'}
+                        className={`rounded-xl h-10 ${tab === 'home' ? 'bg-[#0A84FF] text-white hover:bg-[#0A84FF]/90' : ''}`}
+                        onClick={() => setTab('home')}
+                    >
+                        Inicio
+                    </Button>
+                    <Button
+                        variant={tab === 'categories' ? 'default' : 'ghost'}
+                        className={`rounded-xl h-10 ${tab === 'categories' ? 'bg-[#0A84FF] text-white hover:bg-[#0A84FF]/90' : ''}`}
+                        onClick={() => setTab('categories')}
+                    >
+                        Categorías
+                    </Button>
+                </div>
+
                 {!firebaseUser && (
-                    <div className="rounded-3xl bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-[#38383A] p-5">
+                    <div className={`${cardBase} p-5`}>
                         <p className="text-[15px] text-[#3A3A3C] dark:text-[#D1D1D6] mb-3">
-                            Inicia sesión para crear tu perfil de desarrollador y conectar con otros creadores.
+                            Inicia sesión para publicar y editar tus apps.
                         </p>
                         <Button className={`${primaryButton} w-full`} onClick={() => setAuthOpen(true)}>
                             Iniciar sesión / Registrarse
@@ -448,14 +844,8 @@ const AppStore = () => {
                     </div>
                 )}
 
-                {profileLoading && (
-                    <div className="rounded-3xl bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-[#38383A] p-5 text-sm text-[#8A8A8E] dark:text-[#8E8E93]">
-                        Cargando perfil...
-                    </div>
-                )}
-
                 {publicProfile && (
-                    <div className="rounded-3xl bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-[#38383A] p-5">
+                    <div className={`${cardBase} p-5`}>
                         <div className="flex items-center gap-3">
                             <div className="relative h-16 w-16">
                                 <Image
@@ -487,8 +877,14 @@ const AppStore = () => {
                                 <Button className={`${primaryButton} w-full`} onClick={() => setEditProfileOpen(true)}>
                                     Editar Perfil
                                 </Button>
-                                <Button className="w-full h-11 rounded-full bg-[#34C759] hover:bg-[#34C759]/90 text-white font-semibold">
-                                    Publicar nueva App (Paso 3)
+                                <Button
+                                    className="w-full h-11 rounded-full bg-[#34C759] hover:bg-[#34C759]/90 text-white font-semibold"
+                                    onClick={() => {
+                                        setForm(emptyAppForm());
+                                        setPublishOpen(true);
+                                    }}
+                                >
+                                    Publicar nueva App
                                 </Button>
                                 <Button
                                     variant="ghost"
@@ -511,7 +907,6 @@ const AppStore = () => {
                                 >
                                     {socialLoading ? 'Actualizando...' : relationLabel}
                                 </Button>
-
                                 {(relation === 'following' || relation === 'friends') && (
                                     <Button
                                         variant="ghost"
@@ -527,75 +922,327 @@ const AppStore = () => {
                     </div>
                 )}
 
-                <div className="relative rounded-3xl overflow-hidden border border-neutral-200 dark:border-[#38383A] bg-white dark:bg-[#1C1C1E]">
-                    <Image
-                        src="https://picsum.photos/seed/appstore-main/800/500"
-                        alt="Main Feature"
-                        width={800}
-                        height={500}
-                        className="w-full h-56 object-cover"
-                        data-ai-hint="abstract art"
-                    />
-                    <div className="absolute bottom-0 left-0 p-4 text-white bg-gradient-to-t from-black/60 to-transparent w-full">
-                        <p className="text-xs font-semibold uppercase">App Destacada</p>
-                        <h2 className="text-2xl font-bold">Crea. Publica. Conecta.</h2>
-                        <p className="text-sm">Tu perfil social de desarrollador en estilo iOS.</p>
-                    </div>
-                </div>
+                {tab === 'home' ? (
+                    <>
+                        {renderCarouselSection('Recién añadidas', recentApps)}
+                        {renderCarouselSection('Más descargadas', popularApps)}
 
-                <div className="bg-white dark:bg-[#1C1C1E] rounded-3xl overflow-hidden border border-neutral-200 dark:border-[#38383A]">
-                    <div className="px-4 pt-4 pb-2">
-                        <h3 className="text-lg font-semibold">Apps publicadas</h3>
-                        <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">Pulsa sobre el desarrollador para ver su perfil.</p>
-                    </div>
+                        <div className={`${cardBase} p-4`}>
+                            <h3 className="text-lg font-semibold mb-3">Categorías destacadas</h3>
+                            <div className="flex gap-2 overflow-x-auto pb-1">
+                                {featuredCategories.map((item) => (
+                                    <Button
+                                        key={item.category}
+                                        variant="secondary"
+                                        className="rounded-full h-9 shrink-0"
+                                        onClick={() => {
+                                            setTab('categories');
+                                            setSelectedCategory(item.category);
+                                        }}
+                                    >
+                                        {item.category} · {item.count}
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    <div className={`${cardBase} p-4 space-y-3`}>
+                        <div>
+                            <h3 className="text-lg font-semibold">Explorar por categorías</h3>
+                            <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">
+                                Ordenadas de mayor a menor cantidad de apps.
+                            </p>
+                        </div>
 
-                    {appsLoading ? (
-                        <p className="px-4 pb-4 text-sm text-[#8A8A8E] dark:text-[#8E8E93]">Cargando apps...</p>
-                    ) : apps.length === 0 ? (
-                        <p className="px-4 pb-4 text-sm text-[#8A8A8E] dark:text-[#8E8E93]">Aún no hay apps publicadas.</p>
-                    ) : (
-                        apps.map((app) => (
-                            <div key={app.id} className="border-t border-neutral-200 dark:border-[#38383A] px-4 py-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-14 h-14 rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] flex items-center justify-center text-xs text-center px-2">
-                                        {app.title.slice(0, 4).toUpperCase()}
+                        <Input
+                            className={insetInput}
+                            placeholder="Buscar categoría"
+                            value={categoriesSearch}
+                            onChange={(event) => setCategoriesSearch(event.target.value)}
+                        />
+
+                        <div className="grid grid-cols-2 gap-2">
+                            {visibleCategories.slice(0, 12).map((item) => (
+                                <button
+                                    key={item.category}
+                                    type="button"
+                                    onClick={() => setSelectedCategory(item.category)}
+                                    className={`rounded-2xl p-3 text-left border ${selectedCategory === item.category ? 'border-[#0A84FF] bg-[#E9F2FF] dark:bg-[#10233D]' : 'border-neutral-200 dark:border-[#38383A] bg-[#F8F8FA] dark:bg-[#2C2C2E]'}`}
+                                >
+                                    <p className="font-semibold text-sm">{item.category}</p>
+                                    <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">{item.count} apps</p>
+                                </button>
+                            ))}
+                        </div>
+
+                        {categoriesLoading && (
+                            <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">Cargando categorías...</p>
+                        )}
+
+                        {selectedCategory && (
+                            <div className="space-y-2">
+                                <h4 className="font-semibold">{selectedCategory}</h4>
+                                {categoryApps.map((app) => (
+                                    <button
+                                        key={app.id}
+                                        type="button"
+                                        onClick={() => setDetailAppId(app.id)}
+                                        className="w-full rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 flex items-center gap-3 text-left"
+                                    >
+                                        <div className="relative h-12 w-12">
+                                            <Image
+                                                src={app.iconUrl || 'https://picsum.photos/seed/appicon-fallback-2/120/120'}
+                                                fill
+                                                alt={app.title}
+                                                className="rounded-xl object-cover"
+                                            />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-sm truncate">{app.title}</p>
+                                            <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] truncate">
+                                                @{app.ownerNickname}
+                                            </p>
+                                        </div>
+                                    </button>
+                                ))}
+
+                                {!appsLoading && categoryApps.length === 0 && (
+                                    <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">No hay apps en esta categoría.</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {profileLoading && (
+                    <div className={`${cardBase} p-4 text-sm text-[#8A8A8E] dark:text-[#8E8E93]`}>
+                        Cargando perfil...
+                    </div>
+                )}
+
+                {publicProfile?.isOwner && ownerApps.length > 0 && (
+                    <div className={`${cardBase} p-4`}>
+                        <h3 className="text-lg font-semibold mb-3">Tus apps publicadas</h3>
+                        <div className="space-y-2">
+                            {ownerApps.map((app) => (
+                                <div key={app.id} className="rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 flex items-center gap-3">
+                                    <div className="relative h-12 w-12">
+                                        <Image src={app.iconUrl || 'https://picsum.photos/seed/ownerapp/120/120'} fill alt={app.title} className="rounded-xl object-cover" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="font-semibold truncate">{app.title}</p>
-                                        <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93] truncate">{app.category}</p>
-                                        <button
-                                            type="button"
-                                            className="text-sm text-[#0A84FF] mt-1"
-                                            onClick={() => setSelectedNickname(app.ownerNickname)}
-                                        >
-                                            @{app.ownerNickname}
-                                        </button>
+                                        <p className="font-semibold text-sm truncate">{app.title}</p>
+                                        <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">{app.status}</p>
                                     </div>
-                                    <Button className="h-9 px-5 rounded-full bg-[#0A84FF] hover:bg-[#0A84FF]/90 text-white">Abrir</Button>
+                                    <Button
+                                        className="h-9 rounded-full px-4"
+                                        onClick={() => {
+                                            setFormFromApp(app);
+                                            setPublishOpen(true);
+                                        }}
+                                    >
+                                        Editar
+                                    </Button>
                                 </div>
-                            </div>
-                        ))
-                    )}
-                </div>
-
-                {developers.length > 0 && (
-                    <div className="bg-white dark:bg-[#1C1C1E] rounded-3xl border border-neutral-200 dark:border-[#38383A] p-4">
-                        <h3 className="text-lg font-semibold mb-2">Desarrolladores</h3>
-                        <div className="flex flex-wrap gap-2">
-                            {developers.map((dev) => (
-                                <Button
-                                    key={dev}
-                                    variant="secondary"
-                                    className="rounded-full h-9"
-                                    onClick={() => setSelectedNickname(dev)}
-                                >
-                                    @{dev}
-                                </Button>
                             ))}
                         </div>
                     </div>
                 )}
             </div>
+
+            <Dialog open={detailAppId !== null} onOpenChange={(open) => !open && setDetailAppId(null)}>
+                <DialogContent className="sm:max-w-2xl rounded-3xl border-0 p-0 overflow-hidden bg-[#F2F2F7] dark:bg-[#1C1C1E]">
+                    {detailLoading || !detailApp ? (
+                        <div className="p-6 text-sm text-[#8A8A8E] dark:text-[#8E8E93]">Cargando detalle de app...</div>
+                    ) : (
+                        <div className="max-h-[80vh] overflow-y-auto">
+                            <div className="p-6">
+                                <div className="flex gap-4 items-start">
+                                    <div className="relative h-24 w-24">
+                                        <Image
+                                            src={detailApp.iconUrl || 'https://picsum.photos/seed/detail-icon/220/220'}
+                                            fill
+                                            alt={detailApp.title}
+                                            className="rounded-3xl object-cover"
+                                        />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h2 className="text-2xl font-bold truncate">{detailApp.title}</h2>
+                                        <button
+                                            type="button"
+                                            className="text-[#0A84FF] text-sm"
+                                            onClick={() => {
+                                                setSelectedNickname(detailApp.ownerNickname);
+                                                setDetailAppId(null);
+                                            }}
+                                        >
+                                            @{detailApp.ownerNickname}
+                                        </button>
+                                        <div className="mt-3">
+                                            <Button
+                                                className="h-10 rounded-full px-6 bg-[#0A84FF] hover:bg-[#0A84FF]/90 text-white"
+                                                onClick={() => {
+                                                    toast({ title: 'Obtener', description: 'Mockup de instalación (Paso 4).' });
+                                                }}
+                                            >
+                                                Obtener
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-6">
+                                    <h4 className="font-semibold mb-2">Capturas</h4>
+                                    <div className="flex gap-3 overflow-x-auto pb-1">
+                                        {(detailApp.screenshotsUrls.length > 0
+                                            ? detailApp.screenshotsUrls
+                                            : ['https://picsum.photos/seed/screen-fallback-1/520/290']).map(
+                                            (url, index) => (
+                                                <div key={`${url}-${index}`} className="relative w-64 h-36 shrink-0">
+                                                    <Image
+                                                        src={url}
+                                                        fill
+                                                        alt={`Screenshot ${index + 1}`}
+                                                        className="rounded-2xl object-cover"
+                                                    />
+                                                </div>
+                                            ),
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="mt-6 space-y-2">
+                                    <h4 className="font-semibold">Descripción</h4>
+                                    <p className="text-sm text-[#3A3A3C] dark:text-[#D1D1D6] whitespace-pre-wrap">
+                                        {detailApp.description}
+                                    </p>
+                                    <div className="flex flex-wrap gap-2 pt-2">
+                                        {detailApp.categories.map((category) => (
+                                            <span
+                                                key={category}
+                                                className="inline-flex h-7 items-center rounded-full bg-[#E9E9EE] dark:bg-[#2C2C2E] px-3 text-xs"
+                                            >
+                                                {category}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={publishOpen} onOpenChange={setPublishOpen}>
+                <DialogContent className="sm:max-w-2xl rounded-3xl border-0 p-0 overflow-hidden bg-[#F2F2F7] dark:bg-[#1C1C1E]">
+                    <DialogHeader className="px-6 pt-6 pb-2 text-left">
+                        <DialogTitle className="text-2xl font-semibold">
+                            {form.id ? 'Editar app' : 'Publicar nueva app'}
+                        </DialogTitle>
+                        <DialogDescription className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">
+                            Dashboard de publicación estilo iOS (Inset Grouped).
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="px-6 pb-6 space-y-3 max-h-[70vh] overflow-y-auto">
+                        <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
+                            <Input
+                                className={insetInput}
+                                placeholder="Nombre de la app"
+                                value={form.title}
+                                onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
+                            />
+                            <textarea
+                                className="w-full min-h-[110px] rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#1C1C1E] p-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0A84FF]"
+                                placeholder="Descripción"
+                                value={form.description}
+                                onChange={(event) =>
+                                    setForm((current) => ({ ...current, description: event.target.value }))
+                                }
+                            />
+                            <Input
+                                className={insetInput}
+                                placeholder="URL del icono"
+                                value={form.iconUrl}
+                                onChange={(event) => setForm((current) => ({ ...current, iconUrl: event.target.value }))}
+                            />
+                            <Input
+                                className={insetInput}
+                                placeholder="URL de la web app (externalUrl)"
+                                value={form.externalUrl}
+                                onChange={(event) =>
+                                    setForm((current) => ({ ...current, externalUrl: event.target.value }))
+                                }
+                            />
+                            <textarea
+                                className="w-full min-h-[110px] rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#1C1C1E] p-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0A84FF]"
+                                placeholder="URLs de capturas (una por línea)"
+                                value={form.screenshotsText}
+                                onChange={(event) =>
+                                    setForm((current) => ({ ...current, screenshotsText: event.target.value }))
+                                }
+                            />
+                        </div>
+
+                        <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
+                            <div className="flex gap-2">
+                                <Input
+                                    className={insetInput}
+                                    placeholder="Categoría (Title Case)"
+                                    value={form.categoryInput}
+                                    onChange={(event) =>
+                                        setForm((current) => ({ ...current, categoryInput: event.target.value }))
+                                    }
+                                />
+                                <Button className="rounded-xl h-12" onClick={addCategoryToForm}>
+                                    Añadir
+                                </Button>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                {form.categories.map((category) => (
+                                    <button
+                                        key={category}
+                                        type="button"
+                                        className="inline-flex h-8 items-center rounded-full bg-[#E9E9EE] dark:bg-[#1C1C1E] px-3 text-xs"
+                                        onClick={() =>
+                                            setForm((current) => ({
+                                                ...current,
+                                                categories: current.categories.filter((item) => item !== category),
+                                            }))
+                                        }
+                                    >
+                                        {category} · ✕
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">
+                                Máximo 5 categorías. Solo texto en Title Case y sin símbolos.
+                            </p>
+                        </div>
+
+                        <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-2 grid grid-cols-2 gap-2">
+                            <Button
+                                variant={form.status === 'published' ? 'default' : 'ghost'}
+                                className={`rounded-xl h-10 ${form.status === 'published' ? 'bg-[#0A84FF] text-white hover:bg-[#0A84FF]/90' : ''}`}
+                                onClick={() => setForm((current) => ({ ...current, status: 'published' }))}
+                            >
+                                Publicada
+                            </Button>
+                            <Button
+                                variant={form.status === 'draft' ? 'default' : 'ghost'}
+                                className={`rounded-xl h-10 ${form.status === 'draft' ? 'bg-[#0A84FF] text-white hover:bg-[#0A84FF]/90' : ''}`}
+                                onClick={() => setForm((current) => ({ ...current, status: 'draft' }))}
+                            >
+                                Borrador
+                            </Button>
+                        </div>
+
+                        <Button className={`${primaryButton} w-full`} onClick={submitAppForm} disabled={publishLoading}>
+                            {publishLoading ? 'Guardando...' : form.id ? 'Guardar cambios' : 'Publicar app'}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
 
             <Dialog open={authOpen} onOpenChange={setAuthOpen}>
                 <DialogContent className="sm:max-w-md rounded-3xl border-0 p-0 overflow-hidden bg-[#F2F2F7] dark:bg-[#1C1C1E]">
@@ -655,7 +1302,11 @@ const AppStore = () => {
                             )}
                         </div>
 
-                        <Button className={`${primaryButton} w-full`} onClick={authMode === 'login' ? handleLogin : handleRegister} disabled={authLoading}>
+                        <Button
+                            className={`${primaryButton} w-full`}
+                            onClick={authMode === 'login' ? handleLogin : handleRegister}
+                            disabled={authLoading}
+                        >
                             {authLoading ? 'Procesando...' : authMode === 'login' ? 'Entrar' : 'Crear cuenta'}
                         </Button>
 
@@ -676,7 +1327,7 @@ const AppStore = () => {
                     <DialogHeader className="px-6 pt-6 pb-2 text-left">
                         <DialogTitle className="text-2xl font-semibold">Completa tu perfil</DialogTitle>
                         <DialogDescription className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">
-                            Necesitas nickname único para usar el sistema social.
+                            Necesitas nickname único para usar AppStore.
                         </DialogDescription>
                     </DialogHeader>
 
