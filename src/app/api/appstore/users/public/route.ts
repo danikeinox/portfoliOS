@@ -1,14 +1,9 @@
 import { type NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
-import {
-  getOptionalAuthenticatedUser,
-} from "@/lib/appstore/auth";
+import { getOptionalAuthenticatedUser } from "@/lib/appstore/auth";
 import { ok, fail } from "@/lib/appstore/http";
 import { mapUserProfile } from "@/lib/appstore/mappers";
-import {
-  APPSTORE_COLLECTIONS,
-  followDocId,
-} from "@/lib/appstore/paths";
+import { APPSTORE_COLLECTIONS, followDocId } from "@/lib/appstore/paths";
 import { publicProfileQuerySchema } from "@/lib/appstore/schemas";
 import type { SocialRelationStatus } from "@/lib/appstore/contracts";
 

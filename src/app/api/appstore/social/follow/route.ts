@@ -58,7 +58,12 @@ export async function POST(request: NextRequest) {
   const parsed = followActionSchema.safeParse(body);
 
   if (!parsed.success) {
-    return fail("INVALID_FOLLOW_PAYLOAD", "Invalid follow payload", 400, parsed.error.flatten());
+    return fail(
+      "INVALID_FOLLOW_PAYLOAD",
+      "Invalid follow payload",
+      400,
+      parsed.error.flatten(),
+    );
   }
 
   const targetUid = await resolveTargetUid(parsed.data.targetNickname);
@@ -80,8 +85,12 @@ export async function POST(request: NextRequest) {
       .collection(APPSTORE_COLLECTIONS.follows)
       .doc(followDocId(targetUid, currentUid));
 
-    const currentUserRef = adminDb.collection(APPSTORE_COLLECTIONS.users).doc(currentUid);
-    const targetUserRef = adminDb.collection(APPSTORE_COLLECTIONS.users).doc(targetUid);
+    const currentUserRef = adminDb
+      .collection(APPSTORE_COLLECTIONS.users)
+      .doc(currentUid);
+    const targetUserRef = adminDb
+      .collection(APPSTORE_COLLECTIONS.users)
+      .doc(targetUid);
 
     const relation = await adminDb.runTransaction(async (transaction) => {
       const [followSnapshot, reverseSnapshot] = await Promise.all([
@@ -125,7 +134,11 @@ export async function POST(request: NextRequest) {
     return ok({ relation });
   } catch (error) {
     console.error("follow action error:", error);
-    return fail("FOLLOW_ACTION_ERROR", "Unexpected error following developer", 500);
+    return fail(
+      "FOLLOW_ACTION_ERROR",
+      "Unexpected error following developer",
+      500,
+    );
   }
 }
 
@@ -145,7 +158,8 @@ export async function DELETE(request: NextRequest) {
     );
   }
 
-  const targetNickname = request.nextUrl.searchParams.get("targetNickname") ?? "";
+  const targetNickname =
+    request.nextUrl.searchParams.get("targetNickname") ?? "";
   const parsed = followActionSchema.safeParse({ targetNickname });
 
   if (!parsed.success) {
@@ -176,8 +190,12 @@ export async function DELETE(request: NextRequest) {
       .collection(APPSTORE_COLLECTIONS.follows)
       .doc(followDocId(targetUid, currentUid));
 
-    const currentUserRef = adminDb.collection(APPSTORE_COLLECTIONS.users).doc(currentUid);
-    const targetUserRef = adminDb.collection(APPSTORE_COLLECTIONS.users).doc(targetUid);
+    const currentUserRef = adminDb
+      .collection(APPSTORE_COLLECTIONS.users)
+      .doc(currentUid);
+    const targetUserRef = adminDb
+      .collection(APPSTORE_COLLECTIONS.users)
+      .doc(targetUid);
 
     const relation = await adminDb.runTransaction(async (transaction) => {
       const [followSnapshot, reverseSnapshot] = await Promise.all([
@@ -217,6 +235,10 @@ export async function DELETE(request: NextRequest) {
     return ok({ relation });
   } catch (error) {
     console.error("unfollow action error:", error);
-    return fail("UNFOLLOW_ACTION_ERROR", "Unexpected error unfollowing developer", 500);
+    return fail(
+      "UNFOLLOW_ACTION_ERROR",
+      "Unexpected error unfollowing developer",
+      500,
+    );
   }
 }
