@@ -2,17 +2,18 @@
 import type { ComponentType } from 'react';
 import type { IconType } from 'react-icons';
 import { SiAppstore, SiSpotify } from 'react-icons/si';
+import { getInstalledAppsAsEntries } from '@/lib/installed-apps';
 
 import { 
     User, FolderOpen, Youtube, Wrench, MessagesSquare, Mail, Rss, Github, Linkedin, 
-    Phone, Video, StickyNote, Image as ImageIcon, Camera, Settings, Map, Tv, Podcast, 
+    Phone, Video, StickyNote, Image as ImageIcon, Camera, Settings, Map as MapIcon, Tv, Podcast, 
     Newspaper, MessageCircle, Music, Compass, CalendarDays, Clock, CloudSun
 } from 'lucide-react';
 
 // A more generic type for icons to accommodate multiple libraries
 type GenericIcon = ComponentType<any> | IconType;
 
-export type AppCategory = 'Social' | 'Productivity' | 'Entertainment' | 'Creativity' | 'Information & Reading' | 'Utilities' | 'Development' | 'Business';
+export type AppCategory = 'Social' | 'Productivity' | 'Entertainment' | 'Creativity' | 'Information & Reading' | 'Utilities' | 'Development' | 'Business' | 'External' | string;
 
 export interface App {
   id: string;
@@ -44,7 +45,7 @@ export const HOME_SCREEN_APPS: App[] = [
   { id: 'github', title: 'app.github', icon: Github, bgColor: '#1c1c1e', color: 'white', href: 'https://github.com/danikeinox', category: 'Development' },
   { id: 'linkedin', title: 'app.linkedin', icon: Linkedin, bgColor: '#0a66c2', color: 'white', href: 'https://linkedin.com/in/dcabreraa/', category: 'Social' },
   { id: 'settings', title: 'app.settings', icon: Settings, isSystem: true, category: 'Utilities', href: '/app/settings' },
-  { id: 'maps', title: 'app.maps', icon: Map, isSystem: true, category: 'Utilities', href: '/app/maps' },
+  { id: 'maps', title: 'app.maps', icon: MapIcon, isSystem: true, category: 'Utilities', href: '/app/maps' },
   { id: 'tv', title: 'app.tv', icon: Tv, isSystem: true, category: 'Entertainment', href: '/app/tv' },
   { id: 'podcasts', title: 'app.podcasts', icon: Podcast, isSystem: true, category: 'Entertainment', href: '/app/podcasts' },
   { id: 'appstore', title: 'app.appstore', icon: SiAppstore, isSystem: true, category: 'Utilities', href: '/app/appstore' },
@@ -59,5 +60,17 @@ export const DOCK_APPS: App[] = [
 ]
 
 export const findApp = (appId: string): App | undefined => {
-    return [...HOME_SCREEN_APPS, ...DOCK_APPS].find(app => app.id === appId);
+  return getAvailableApps().find(app => app.id === appId);
+}
+
+export const getAvailableApps = (): App[] => {
+  const baseApps = [...HOME_SCREEN_APPS, ...DOCK_APPS];
+  const installedApps = getInstalledAppsAsEntries();
+  const deduped = new Map<string, App>();
+
+  [...baseApps, ...installedApps].forEach((app) => {
+    deduped.set(app.id, app);
+  });
+
+  return [...deduped.values()];
 }

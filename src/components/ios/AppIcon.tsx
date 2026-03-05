@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import type { App } from '@/lib/apps';
 import { cn } from '@/lib/utils';
@@ -25,6 +26,7 @@ import {
 import { SiAppstore, SiSpotify } from 'react-icons/si';
 import CalendarIcon from './CalendarIcon';
 import { useHomeScreen } from '@/hooks/use-home-screen';
+import { getInstalledAppBySlug } from '@/lib/installed-apps';
 
 export const systemIconMapping: { [key: string]: { icon: GenericIcon, bgColor?: string, color?: string } } = {
   notes: { icon: StickyNote, bgColor: '#fff', color: '#1c1c1e' },
@@ -84,6 +86,7 @@ const AppIcon = forwardRef<HTMLDivElement, AppIconProps>(({
   const { removeItem } = useHomeScreen();
 
   const notificationCount = getNotificationCountForApp(app.id) + (app.notifications || 0);
+  const installedApp = getInstalledAppBySlug(app.id);
 
   const systemStyle = systemIconMapping[app.id] || {};
   const Icon = systemStyle.icon || app.icon;
@@ -95,7 +98,7 @@ const AppIcon = forwardRef<HTMLDivElement, AppIconProps>(({
   
   const isNavigable = !isJiggleMode && action === 'navigate';
   const href = isNavigable ? (app.href || `/app/${app.id}`) : '#';
-  const title = t(app.title);
+  const title = installedApp ? installedApp.name : (app.title.startsWith('app.') ? t(app.title) : app.title);
 
   const handleIconClick = (e: React.MouseEvent) => {
     if (!isNavigable) {
@@ -182,7 +185,9 @@ const AppIcon = forwardRef<HTMLDivElement, AppIconProps>(({
           )}
           style={{ backgroundColor: bgColor }}
         >
-          {app.id === 'calendar' ? (
+           {installedApp?.iconUrl ? (
+             <Image src={installedApp.iconUrl} alt={title} fill className="object-cover" />
+           ) : app.id === 'calendar' ? (
              <CalendarIcon />
           ) : (
              <Icon style={{ color }} className="w-[55%] h-[55%]" />

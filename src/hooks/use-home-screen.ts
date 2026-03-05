@@ -328,6 +328,23 @@ export const HomeScreenProvider = ({ children }: { children: ReactNode }) => {
       const app = findApp(appId);
       if (!app) return;
 
+      const alreadyInDock = homeScreenState.dockItems.some(
+        (item) => item.type === "app" && item.appId === appId,
+      );
+
+      if (alreadyInDock) {
+        return;
+      }
+
+      const existingPageIndex = homeScreenState.pages.findIndex((page) =>
+        page.items.some((item) => item.type === "app" && item.appId === appId),
+      );
+
+      if (existingPageIndex !== -1) {
+        setLastAddedPageIndex(existingPageIndex);
+        return;
+      }
+
       let pageIndex = -1;
       const newHomeScreenState = produce(homeScreenState, (draft) => {
         const newApp: GridItem = {
@@ -475,7 +492,11 @@ export const HomeScreenProvider = ({ children }: { children: ReactNode }) => {
             const originalItem = { ...item };
 
             if (item.type === "widget") {
-              const prospectiveItem = { ...item, ...updates };
+              const prospectiveItem: GridItem = {
+                ...item,
+                ...updates,
+                type: "widget",
+              };
               const tempItems = [...page.items];
               tempItems[itemIndex] = prospectiveItem;
 

@@ -1,24 +1,36 @@
 'use client';
 import type { App, AppCategory } from '@/lib/apps';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AppLibraryFolder from './AppLibraryFolder';
 import { useI18n } from '@/hooks/use-i18n';
 import AppIcon from './AppIcon';
-import { HOME_SCREEN_APPS, DOCK_APPS, findApp } from '@/lib/apps';
+import { getAvailableApps, findApp } from '@/lib/apps';
 import { X, Search } from 'lucide-react';
 import { useHomeScreen } from '@/hooks/use-home-screen';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { INSTALLED_APPS_UPDATED_EVENT } from '@/lib/installed-apps';
 
 const AppLibrary = () => {
     const { t } = useI18n();
     const [openCategory, setOpenCategory] = useState<AppCategory | 'search' | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [appsRefreshToken, setAppsRefreshToken] = useState(0);
     const { addApp } = useHomeScreen();
 
+    useEffect(() => {
+        const handleInstalledAppsUpdated = () => setAppsRefreshToken((current) => current + 1);
+        window.addEventListener(INSTALLED_APPS_UPDATED_EVENT, handleInstalledAppsUpdated);
+        window.addEventListener('storage', handleInstalledAppsUpdated);
+
+        return () => {
+            window.removeEventListener(INSTALLED_APPS_UPDATED_EVENT, handleInstalledAppsUpdated);
+            window.removeEventListener('storage', handleInstalledAppsUpdated);
+        };
+    }, []);
+
     const { suggestions, recentlyAdded, categorizedApps, allApps } = useMemo(() => {
-        const combinedApps = [...HOME_SCREEN_APPS, ...DOCK_APPS];
-        const uniqueApps = Array.from(new Map(combinedApps.map(app => [app.id, app])).values());
+        const uniqueApps = Array.from(new Map(getAvailableApps().map(app => [app.id, app])).values());
 
         const categories: Record<string, App[]> = {};
         const allAppsForProcessing = uniqueApps.map(app => ({...app, category: app.category || 'Utilities'}));
@@ -34,7 +46,7 @@ const AppLibrary = () => {
         const recentlyAdded = allAppsForProcessing.slice(4, 8);
 
         return { suggestions, recentlyAdded, categorizedApps: categories, allApps: allAppsForProcessing };
-    }, []);
+    }, [appsRefreshToken]);
 
     const searchResults = useMemo(() => {
         if (!searchQuery) return [];
