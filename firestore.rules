@@ -8,6 +8,28 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
 
+    function validText(value, min, max) {
+      return value is string && value.size() >= min && value.size() <= max;
+    }
+
+    function validOptionalText(value, max) {
+      return !(value is string) || value.size() <= max;
+    }
+
+    function validNickname(value) {
+      return value is string
+        && value.size() >= 3
+        && value.size() <= 30
+        && value.matches('^[A-Za-zÀ-ÖØ-öø-ÿÑñ0-9 ]+$');
+    }
+
+    function validCategory(value) {
+      return value is string
+        && value.size() >= 2
+        && value.size() <= 50
+        && value.matches('^[A-Za-zÀ-ÖØ-öø-ÿÑñ0-9 ]+$');
+    }
+
     // --- Blog Posts ---
     // Anyone can read blog posts, but they can only be written server-side.
     match /blog/{document=**} {
@@ -36,6 +58,51 @@ service cloud.firestore {
     // For this public app, anyone can read, create, update, and delete any note.
     match /notes/{document=**} {
       allow read, write: if true;
+    }
+
+    match /users/{userId} {
+      allow read: if true;
+      allow create, update: if isOwner(userId)
+        && request.resource.data.uid == userId
+        && validNickname(request.resource.data.nickname)
+        && validText(request.resource.data.displayName, 2, 60)
+        && validOptionalText(request.resource.data.bio, 240)
+        && validOptionalText(request.resource.data.avatarUrl, 300)
+        && request.resource.data.nicknameLower is string
+        && request.resource.data.nicknameLower.size() >= 3
+        && request.resource.data.nicknameLower.size() <= 30;
+      allow delete: if false;
+    }
+
+    match /usernames/{nicknameLower} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /apps/{appId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.ownerId == request.auth.uid
+        && validText(request.resource.data.ownerNickname, 3, 30)
+        && validText(request.resource.data.title, 2, 80)
+        && validText(request.resource.data.description, 10, 1200)
+        && validCategory(request.resource.data.category)
+        && request.resource.data.categoryLower is string
+        && request.resource.data.status in ['draft', 'published']
+        && request.resource.data.tags is list
+        && request.resource.data.tags.size() <= 8;
+      allow update: if request.auth != null
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.ownerNickname == resource.data.ownerNickname
+        && validText(request.resource.data.title, 2, 80)
+        && validText(request.resource.data.description, 10, 1200)
+        && validCategory(request.resource.data.category)
+        && request.resource.data.categoryLower is string
+        && request.resource.data.status in ['draft', 'published']
+        && request.resource.data.tags is list
+        && request.resource.data.tags.size() <= 8;
+      allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
     }
   }
 }
