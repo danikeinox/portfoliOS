@@ -3,9 +3,12 @@
 import dynamic from 'next/dynamic';
 import AppFrame from '@/components/apps/AppFrame';
 import AppCrashBoundary from '@/components/apps/AppCrashBoundary';
-import { HOME_SCREEN_APPS, DOCK_APPS } from '@/lib/apps';
+import { getAvailableApps } from '@/lib/apps';
 import { useI18n } from '@/hooks/use-i18n';
 import UnderDevelopment from '@/components/apps/UnderDevelopment';
+import GenericWebAppContainer from '@/components/apps/GenericWebAppContainer';
+import GenericWebAppErrorBoundary from '@/components/apps/GenericWebAppErrorBoundary';
+import { getInstalledAppBySlug } from '@/lib/installed-apps';
 
 const LoadingDark = () => <div className="h-full w-full bg-black" />;
 const LoadingLight = () => <div className="h-full w-full bg-white" />;
@@ -119,9 +122,14 @@ const getFrameBgClass = (slug: string): string | undefined => {
 
 const AppViewer = ({ slug }: { slug: string }) => {
     const { t } = useI18n();
-    const allApps = [...HOME_SCREEN_APPS, ...DOCK_APPS];
+    const allApps = getAvailableApps();
     const app = allApps.find(a => a.id === slug);
-    const appTitle = app ? t(app.title) : 'App';
+    const installedApp = getInstalledAppBySlug(slug);
+    const appTitle = installedApp
+        ? installedApp.name
+        : app
+            ? (app.title.startsWith('app.') ? t(app.title) : app.title)
+            : 'App';
 
     const renderApp = () => {
         switch (slug) {
@@ -151,8 +159,15 @@ const AppViewer = ({ slug }: { slug: string }) => {
             case 'podcasts': return <PodcastsApp />;
             case 'appstore': return <AppStoreApp />;
             case 'news': return <NewsApp />;
-
             default:
+                if (installedApp) {
+                    return (
+                        <GenericWebAppErrorBoundary>
+                            <GenericWebAppContainer appName={installedApp.name} externalUrl={installedApp.externalUrl} />
+                        </GenericWebAppErrorBoundary>
+                    );
+                }
+
                 return <UnderDevelopment />;
         }
     };
