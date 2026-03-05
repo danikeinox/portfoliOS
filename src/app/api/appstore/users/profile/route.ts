@@ -22,11 +22,20 @@ export async function GET(request: NextRequest) {
     uid = await requireAuthenticatedUser(request);
   } catch (error) {
     const code = asCode(error);
-    return fail(code, code === "INVALID_AUTH_TOKEN" ? "Invalid auth token" : "Missing auth token", 401);
+    return fail(
+      code,
+      code === "INVALID_AUTH_TOKEN"
+        ? "Invalid auth token"
+        : "Missing auth token",
+      401,
+    );
   }
 
   try {
-    const userDoc = await adminDb.collection(APPSTORE_COLLECTIONS.users).doc(uid).get();
+    const userDoc = await adminDb
+      .collection(APPSTORE_COLLECTIONS.users)
+      .doc(uid)
+      .get();
 
     if (!userDoc.exists) {
       return fail("PROFILE_NOT_FOUND", "Profile not found", 404);
@@ -46,19 +55,34 @@ export async function PUT(request: NextRequest) {
     uid = await requireAuthenticatedUser(request);
   } catch (error) {
     const code = asCode(error);
-    return fail(code, code === "INVALID_AUTH_TOKEN" ? "Invalid auth token" : "Missing auth token", 401);
+    return fail(
+      code,
+      code === "INVALID_AUTH_TOKEN"
+        ? "Invalid auth token"
+        : "Missing auth token",
+      401,
+    );
   }
 
   const contentType = request.headers.get("content-type") || "";
   if (!contentType.includes("application/json")) {
-    return fail("INVALID_CONTENT_TYPE", "Content-Type must be application/json", 415);
+    return fail(
+      "INVALID_CONTENT_TYPE",
+      "Content-Type must be application/json",
+      415,
+    );
   }
 
   const body = await request.json().catch(() => null);
   const parsed = upsertProfileSchema.safeParse(body);
 
   if (!parsed.success) {
-    return fail("INVALID_PROFILE_PAYLOAD", "Invalid profile payload", 400, parsed.error.flatten());
+    return fail(
+      "INVALID_PROFILE_PAYLOAD",
+      "Invalid profile payload",
+      400,
+      parsed.error.flatten(),
+    );
   }
 
   const payload = parsed.data;
@@ -67,7 +91,9 @@ export async function PUT(request: NextRequest) {
   try {
     const result = await adminDb.runTransaction(async (transaction) => {
       const userRef = adminDb.collection(APPSTORE_COLLECTIONS.users).doc(uid);
-      const usernameRef = adminDb.collection(APPSTORE_COLLECTIONS.usernames).doc(nicknameLower);
+      const usernameRef = adminDb
+        .collection(APPSTORE_COLLECTIONS.usernames)
+        .doc(nicknameLower);
 
       const [userSnapshot, usernameSnapshot] = await Promise.all([
         transaction.get(userRef),
@@ -79,10 +105,14 @@ export async function PUT(request: NextRequest) {
       }
 
       const existingUser = userSnapshot.data();
-      const currentNicknameLower = existingUser?.nicknameLower as string | undefined;
+      const currentNicknameLower = existingUser?.nicknameLower as
+        | string
+        | undefined;
 
       if (currentNicknameLower && currentNicknameLower !== nicknameLower) {
-        const oldUsernameRef = adminDb.collection(APPSTORE_COLLECTIONS.usernames).doc(currentNicknameLower);
+        const oldUsernameRef = adminDb
+          .collection(APPSTORE_COLLECTIONS.usernames)
+          .doc(currentNicknameLower);
         transaction.delete(oldUsernameRef);
       }
 
@@ -106,7 +136,8 @@ export async function PUT(request: NextRequest) {
         {
           uid,
           nickname: payload.nickname,
-          createdAt: usernameSnapshot.data()?.createdAt ?? FieldValue.serverTimestamp(),
+          createdAt:
+            usernameSnapshot.data()?.createdAt ?? FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
         },
         { merge: true },
@@ -117,7 +148,10 @@ export async function PUT(request: NextRequest) {
       };
     });
 
-    const updatedDoc = await adminDb.collection(APPSTORE_COLLECTIONS.users).doc(result.uid).get();
+    const updatedDoc = await adminDb
+      .collection(APPSTORE_COLLECTIONS.users)
+      .doc(result.uid)
+      .get();
     return ok(mapUserProfile(updatedDoc.data()!), 200);
   } catch (error) {
     const code = asCode(error);
@@ -127,6 +161,10 @@ export async function PUT(request: NextRequest) {
     }
 
     console.error("upsert profile error:", error);
-    return fail("UPSERT_PROFILE_ERROR", "Unexpected error updating profile", 500);
+    return fail(
+      "UPSERT_PROFILE_ERROR",
+      "Unexpected error updating profile",
+      500,
+    );
   }
 }

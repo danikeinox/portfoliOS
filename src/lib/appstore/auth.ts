@@ -1,7 +1,9 @@
 import type { NextRequest } from "next/server";
 import { adminAuth } from "@/lib/firebase-admin";
 
-export async function requireAuthenticatedUser(request: NextRequest): Promise<string> {
+export async function requireAuthenticatedUser(
+  request: NextRequest,
+): Promise<string> {
   const authorization = request.headers.get("authorization") || "";
 
   if (!authorization.startsWith("Bearer ")) {

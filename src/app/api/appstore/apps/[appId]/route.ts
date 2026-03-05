@@ -25,7 +25,13 @@ export async function PATCH(
     uid = await requireAuthenticatedUser(request);
   } catch (error) {
     const code = asCode(error);
-    return fail(code, code === "INVALID_AUTH_TOKEN" ? "Invalid auth token" : "Missing auth token", 401);
+    return fail(
+      code,
+      code === "INVALID_AUTH_TOKEN"
+        ? "Invalid auth token"
+        : "Missing auth token",
+      401,
+    );
   }
 
   const { appId } = context.params;
@@ -35,14 +41,23 @@ export async function PATCH(
 
   const contentType = request.headers.get("content-type") || "";
   if (!contentType.includes("application/json")) {
-    return fail("INVALID_CONTENT_TYPE", "Content-Type must be application/json", 415);
+    return fail(
+      "INVALID_CONTENT_TYPE",
+      "Content-Type must be application/json",
+      415,
+    );
   }
 
   const body = await request.json().catch(() => null);
   const parsed = appUpdateSchema.safeParse(body);
 
   if (!parsed.success) {
-    return fail("INVALID_APP_UPDATE", "Invalid app update payload", 400, parsed.error.flatten());
+    return fail(
+      "INVALID_APP_UPDATE",
+      "Invalid app update payload",
+      400,
+      parsed.error.flatten(),
+    );
   }
 
   try {

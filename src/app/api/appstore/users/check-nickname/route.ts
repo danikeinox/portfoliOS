@@ -9,7 +9,12 @@ export async function GET(request: NextRequest) {
 
   const parsed = nicknameSchema.safeParse(nicknameRaw ?? "");
   if (!parsed.success) {
-    return fail("INVALID_NICKNAME", "Invalid nickname", 400, parsed.error.flatten());
+    return fail(
+      "INVALID_NICKNAME",
+      "Invalid nickname",
+      400,
+      parsed.error.flatten(),
+    );
   }
 
   const nickname = parsed.data;
@@ -28,6 +33,10 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("check nickname error:", error);
-    return fail("CHECK_NICKNAME_ERROR", "Unexpected error validating nickname", 500);
+    return fail(
+      "CHECK_NICKNAME_ERROR",
+      "Unexpected error validating nickname",
+      500,
+    );
   }
 }

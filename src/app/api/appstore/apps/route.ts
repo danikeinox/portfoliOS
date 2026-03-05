@@ -24,13 +24,20 @@ export async function GET(request: NextRequest) {
   });
 
   if (!parsed.success) {
-    return fail("INVALID_APP_LIST_QUERY", "Invalid query params", 400, parsed.error.flatten());
+    return fail(
+      "INVALID_APP_LIST_QUERY",
+      "Invalid query params",
+      400,
+      parsed.error.flatten(),
+    );
   }
 
   const { ownerId, category, status, limit } = parsed.data;
 
   try {
-    let query: FirebaseFirestore.Query = adminDb.collection(APPSTORE_COLLECTIONS.apps);
+    let query: FirebaseFirestore.Query = adminDb.collection(
+      APPSTORE_COLLECTIONS.apps,
+    );
 
     if (ownerId) {
       query = query.where("ownerId", "==", ownerId);
@@ -44,7 +51,10 @@ export async function GET(request: NextRequest) {
       query = query.where("status", "==", status);
     }
 
-    const snapshot = await query.orderBy("updatedAt", "desc").limit(limit).get();
+    const snapshot = await query
+      .orderBy("updatedAt", "desc")
+      .limit(limit)
+      .get();
     const apps = snapshot.docs.map((doc) => mapApp(doc.data(), doc.id));
 
     return ok({ apps, count: apps.length });
@@ -61,26 +71,48 @@ export async function POST(request: NextRequest) {
     uid = await requireAuthenticatedUser(request);
   } catch (error) {
     const code = asCode(error);
-    return fail(code, code === "INVALID_AUTH_TOKEN" ? "Invalid auth token" : "Missing auth token", 401);
+    return fail(
+      code,
+      code === "INVALID_AUTH_TOKEN"
+        ? "Invalid auth token"
+        : "Missing auth token",
+      401,
+    );
   }
 
   const contentType = request.headers.get("content-type") || "";
   if (!contentType.includes("application/json")) {
-    return fail("INVALID_CONTENT_TYPE", "Content-Type must be application/json", 415);
+    return fail(
+      "INVALID_CONTENT_TYPE",
+      "Content-Type must be application/json",
+      415,
+    );
   }
 
   const body = await request.json().catch(() => null);
   const parsed = appCreateSchema.safeParse(body);
 
   if (!parsed.success) {
-    return fail("INVALID_APP_PAYLOAD", "Invalid app payload", 400, parsed.error.flatten());
+    return fail(
+      "INVALID_APP_PAYLOAD",
+      "Invalid app payload",
+      400,
+      parsed.error.flatten(),
+    );
   }
 
   try {
-    const userDoc = await adminDb.collection(APPSTORE_COLLECTIONS.users).doc(uid).get();
+    const userDoc = await adminDb
+      .collection(APPSTORE_COLLECTIONS.users)
+      .doc(uid)
+      .get();
 
     if (!userDoc.exists) {
-      return fail("PROFILE_REQUIRED", "User profile must exist before creating apps", 400);
+      return fail(
+        "PROFILE_REQUIRED",
+        "User profile must exist before creating apps",
+        400,
+      );
     }
 
     const userData = userDoc.data()!;
