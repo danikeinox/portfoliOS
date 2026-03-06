@@ -341,9 +341,9 @@ const AppStore = () => {
 
             if (!json.success) {
                 if (json.error.code === 'PROFILE_NOT_FOUND') {
-                    setNeedsProfileCompletion(true);
                     setDisplayName(firebaseUser.displayName ?? '');
                     setNickname(extractNickFromEmail(firebaseUser.email));
+                    setOwnProfile(null);
                     return;
                 }
 
@@ -446,9 +446,34 @@ const AppStore = () => {
             return false;
         }
 
-        const isAvailable = await checkNicknameAvailability(nickname);
-        if (!isAvailable) {
+        const normalizedNickname = nickname.trim();
+        const normalizedDisplayName = displayName.trim();
+        const normalizedBio = bio.trim();
+        const normalizedAvatar = avatarUrl.trim();
+
+        if (!normalizedNickname || !normalizedDisplayName) {
+            toast({
+                title: 'Perfil incompleto',
+                description: 'Nickname y nombre visible son obligatorios.',
+                variant: 'destructive',
+            });
             return false;
+        }
+
+        if (!/^[A-Za-zÀ-ÖØ-öø-ÿÑñ0-9 ]+$/.test(normalizedNickname)) {
+            toast({
+                title: 'Nickname inválido',
+                description: 'Solo se permiten letras, números y espacios.',
+                variant: 'destructive',
+            });
+            return false;
+        }
+
+        if (ownProfile?.nickname !== normalizedNickname) {
+            const isAvailable = await checkNicknameAvailability(normalizedNickname);
+            if (!isAvailable) {
+                return false;
+            }
         }
 
         const headers = await authHeaders();
@@ -460,10 +485,10 @@ const AppStore = () => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                nickname,
-                displayName,
-                bio,
-                avatarUrl,
+                nickname: normalizedNickname,
+                displayName: normalizedDisplayName,
+                bio: normalizedBio || undefined,
+                avatarUrl: normalizedAvatar || undefined,
             }),
         });
 
@@ -555,6 +580,13 @@ const AppStore = () => {
 
         if (!firebaseUser) {
             setAuthOpen(true);
+            return;
+        }
+
+        if (!ownProfile) {
+            setDisplayName(firebaseUser.displayName ?? '');
+            setNickname((current) => current || extractNickFromEmail(firebaseUser.email));
+            setNeedsProfileCompletion(true);
             return;
         }
 
@@ -658,6 +690,13 @@ const AppStore = () => {
     async function submitAppForm() {
         if (!firebaseUser) {
             setAuthOpen(true);
+            return;
+        }
+
+        if (!ownProfile) {
+            setDisplayName(firebaseUser.displayName ?? '');
+            setNickname((current) => current || extractNickFromEmail(firebaseUser.email));
+            setNeedsProfileCompletion(true);
             return;
         }
 
@@ -844,37 +883,54 @@ const AppStore = () => {
                     ? 'Tu perfil'
                     : 'Seguir';
     const reverseActionLabel = relation === 'friends' ? 'Dejar de ser Amigos' : 'Dejar de seguir';
+    const featuredApp = recentApps[0] ?? popularApps[0] ?? null;
 
     function renderCarouselSection(title: string, apps: AppStoreApp[]) {
         return (
-            <div className={`${cardBase} p-4`}>
-                <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-semibold">{title}</h3>
-                </div>
-                <div className="flex gap-3 overflow-x-auto pb-1">
+            <div>
+                <h3 className="text-2xl font-bold tracking-tight px-1 mb-3">{title}</h3>
+                <div className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden">
                     {apps.map((app) => (
-                        <button
-                            key={app.id}
-                            type="button"
-                            onClick={() => setDetailAppId(app.id)}
-                            className="w-44 shrink-0 rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 text-left"
-                        >
-                            <div className="relative w-14 h-14 mb-3">
-                                <Image
-                                    src={app.iconUrl || 'https://picsum.photos/seed/appicon-fallback/120/120'}
-                                    fill
-                                    alt={app.title}
-                                    className="rounded-2xl object-cover"
-                                />
+                        <div key={app.id} className="border-b border-neutral-200 dark:border-[#38383A] last:border-none ml-4 py-4 pr-4">
+                            <div className="flex items-center gap-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setDetailAppId(app.id)}
+                                    className="relative w-20 h-20 rounded-2xl overflow-hidden bg-neutral-200 shrink-0"
+                                >
+                                    <Image
+                                        src={app.iconUrl || 'https://picsum.photos/seed/appicon-fallback/120/120'}
+                                        fill
+                                        alt={app.title}
+                                        className="object-cover"
+                                    />
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setDetailAppId(app.id)}
+                                    className="flex-1 text-left min-w-0"
+                                >
+                                    <h4 className="font-bold text-lg truncate">{app.title}</h4>
+                                    <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93] truncate">{app.category}</p>
+                                </button>
+
+                                <div className="flex flex-col items-center">
+                                    <Button
+                                        className="bg-[#EFEFF4] text-[#0A84FF] dark:bg-[#2C2C2E] rounded-full font-bold px-6"
+                                        onClick={() => setDetailAppId(app.id)}
+                                    >
+                                        Obtener
+                                    </Button>
+                                    <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] mt-1">
+                                        Compras integradas
+                                    </p>
+                                </div>
                             </div>
-                            <p className="font-semibold text-sm truncate">{app.title}</p>
-                            <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] truncate">
-                                {app.ownerNickname}
-                            </p>
-                        </button>
+                        </div>
                     ))}
                     {apps.length === 0 && (
-                        <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">Sin resultados.</p>
+                        <div className="ml-4 py-5 pr-4 text-sm text-[#8A8A8E] dark:text-[#8E8E93]">Sin resultados.</div>
                     )}
                 </div>
             </div>
@@ -884,12 +940,12 @@ const AppStore = () => {
     return (
         <ScrollArea className="h-full w-full bg-[#F2F2F7] dark:bg-black text-black dark:text-white">
             <div className="max-w-xl mx-auto p-4 space-y-4">
-                <div className="flex justify-between items-end">
+                <div className="flex justify-between items-end mb-4">
                     <div>
                         <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] font-semibold uppercase">
                             {dateString}
                         </p>
-                        <h1 className="text-4xl font-bold tracking-tight">App Store</h1>
+                        <h1 className="text-5xl font-bold tracking-tight leading-none">Hoy</h1>
                     </div>
 
                     <button
@@ -1020,6 +1076,27 @@ const AppStore = () => {
 
                 {tab === 'home' ? (
                     <>
+                        {featuredApp && (
+                            <button
+                                type="button"
+                                onClick={() => setDetailAppId(featuredApp.id)}
+                                className="relative rounded-xl overflow-hidden mb-8 border border-neutral-200 dark:border-[#38383A] bg-white dark:bg-[#1C1C1E] text-left"
+                            >
+                                <Image
+                                    src={featuredApp.screenshotsUrls[0] || 'https://picsum.photos/seed/appstore-main/800/500'}
+                                    alt={featuredApp.title}
+                                    width={800}
+                                    height={500}
+                                    className="w-full h-full object-cover"
+                                />
+                                <div className="absolute bottom-0 left-0 p-4 text-white bg-gradient-to-t from-black/50 to-transparent w-full">
+                                    <p className="text-xs font-semibold uppercase">App destacada</p>
+                                    <h2 className="text-2xl font-bold">{featuredApp.title}</h2>
+                                    <p className="text-sm">Por @{featuredApp.ownerNickname}</p>
+                                </div>
+                            </button>
+                        )}
+
                         {renderCarouselSection('Recién añadidas', recentApps)}
                         {renderCarouselSection('Más descargadas', popularApps)}
 
