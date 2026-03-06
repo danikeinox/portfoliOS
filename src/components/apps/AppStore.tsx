@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import {
     GoogleAuthProvider,
     createUserWithEmailAndPassword,
@@ -83,6 +84,8 @@ const primaryButton =
 const cardBase =
     'rounded-3xl border border-neutral-200/60 dark:border-[#38383A]/80 bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-sm';
 
+const nativeAppIds = new Set(['safari', 'spotify', 'notes', 'settings', 'calendar']);
+
 function extractNickFromEmail(email: string | null | undefined): string {
     const candidate = (email ?? 'usuario').split('@')[0] ?? 'usuario';
     return (
@@ -122,6 +125,7 @@ function emptyAppForm(): AppFormState {
 
 const AppStore = () => {
     const { locale, t } = useI18n();
+    const router = useRouter();
     const { toast } = useToast();
     const auth = useAuth();
     const { data: firebaseUser } = useUser();
@@ -168,6 +172,7 @@ const AppStore = () => {
 
     const [publishOpen, setPublishOpen] = useState(false);
     const [publishLoading, setPublishLoading] = useState(false);
+    const [nativeSeedLoading, setNativeSeedLoading] = useState(false);
     const [form, setForm] = useState<AppFormState>(emptyAppForm());
 
     const nicknameCheckInFlightRef = useRef(false);
@@ -814,6 +819,74 @@ const AppStore = () => {
         }
     }
 
+    function isNativeApp(appId: string): boolean {
+        return nativeAppIds.has(appId);
+    }
+
+    function openNativeApp(appId: string) {
+        setDetailAppId(null);
+        router.push(`/app/${appId}`);
+    }
+
+    function actionLabelForApp(app: AppStoreApp): string {
+        if (isNativeApp(app.id)) {
+            return t('appstore.open');
+        }
+
+        return getInstalledAppById(app.id) ? t('appstore.installed') : t('appstore.get');
+    }
+
+    async function handleSeedNativeApps() {
+        if (!firebaseUser) {
+            setAuthOpen(true);
+            return;
+        }
+
+        setNativeSeedLoading(true);
+
+        try {
+            const headers = await authHeaders();
+            const response = await fetch('/api/appstore/admin/seed-native', {
+                method: 'POST',
+                headers,
+            });
+
+            const json = (await response.json()) as AppStoreApiResponse<{ seeded: number }>;
+
+            if (!json.success) {
+                toast({
+                    title: t('appstore.seedNativeErrorTitle'),
+                    description: json.error.message,
+                    variant: 'destructive',
+                });
+                return;
+            }
+
+            toast({
+                title: t('appstore.seedNativeSuccessTitle'),
+                description: t('appstore.seedNativeSuccessDescription', { count: json.data.seeded }),
+            });
+
+            await Promise.all([
+                fetchAppsBySort('recent', setRecentApps),
+                fetchAppsBySort('downloads', setPopularApps),
+                fetchCategories(categoriesSearch),
+            ]);
+
+            if (selectedCategory) {
+                await fetchAppsByCategory(selectedCategory);
+            }
+        } catch {
+            toast({
+                title: t('appstore.seedNativeErrorTitle'),
+                description: t('appstore.seedNativeErrorDescription'),
+                variant: 'destructive',
+            });
+        } finally {
+            setNativeSeedLoading(false);
+        }
+    }
+
     async function handleInstallApp() {
         if (!detailApp) {
             return;
@@ -967,9 +1040,16 @@ const AppStore = () => {
                                 <div className="flex flex-col items-center">
                                     <Button
                                         className="bg-[#EFEFF4] dark:bg-[#2C2C2E] text-[#0A84FF] rounded-full px-5 py-1 text-sm font-bold"
-                                        onClick={() => setDetailAppId(app.id)}
+                                        onClick={() => {
+                                            if (isNativeApp(app.id)) {
+                                                openNativeApp(app.id);
+                                                return;
+                                            }
+
+                                            setDetailAppId(app.id);
+                                        }}
                                     >
-                                        {t('appstore.get')}
+                                        {actionLabelForApp(app)}
                                     </Button>
                                     <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] mt-1">
                                         {t('appstore.inAppPurchases')}
@@ -1119,9 +1199,22 @@ const AppStore = () => {
                                                 @{app.ownerNickname}
                                             </p>
                                         </div>
-                                        <span className="bg-[#EFEFF4] dark:bg-[#3A3A3C] text-[#0A84FF] rounded-full font-bold px-5 py-1 text-sm">
-                                            {getInstalledAppById(app.id) ? t('appstore.installed') : t('appstore.get')}
-                                        </span>
+                                        <button
+                                            type="button"
+                                            className="bg-[#EFEFF4] dark:bg-[#3A3A3C] text-[#0A84FF] rounded-full font-bold px-5 py-1 text-sm"
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+
+                                                if (isNativeApp(app.id)) {
+                                                    openNativeApp(app.id);
+                                                    return;
+                                                }
+
+                                                setDetailAppId(app.id);
+                                            }}
+                                        >
+                                            {actionLabelForApp(app)}
+                                        </button>
                                     </button>
                                 ))}
 
@@ -1180,6 +1273,13 @@ const AppStore = () => {
                                             }}
                                         >
                                             {t('appstore.publishNewApp')}
+                                        </Button>
+                                        <Button
+                                            className="w-full h-11 rounded-full bg-[#5856D6] hover:bg-[#5856D6]/90 text-white font-semibold"
+                                            onClick={handleSeedNativeApps}
+                                            disabled={nativeSeedLoading}
+                                        >
+                                            {nativeSeedLoading ? t('appstore.seedingNativeApps') : t('appstore.seedNativeApps')}
                                         </Button>
                                     </div>
                                 ) : (
@@ -1321,9 +1421,16 @@ const AppStore = () => {
                                         <div className="mt-3">
                                             <Button
                                                 className="bg-[#EFEFF4] dark:bg-[#2C2C2E] text-[#0A84FF] rounded-full px-5 py-1 text-sm font-bold"
-                                                onClick={handleInstallApp}
+                                                onClick={() => {
+                                                    if (isNativeApp(detailApp.id)) {
+                                                        openNativeApp(detailApp.id);
+                                                        return;
+                                                    }
+
+                                                    void handleInstallApp();
+                                                }}
                                             >
-                                                {getInstalledAppById(detailApp.id) ? t('appstore.installed') : t('appstore.get')}
+                                                {actionLabelForApp(detailApp)}
                                             </Button>
                                         </div>
                                     </div>
@@ -1376,9 +1483,22 @@ const AppStore = () => {
                                                             @{app.ownerNickname}
                                                         </p>
                                                     </div>
-                                                    <span className="bg-[#EFEFF4] dark:bg-[#3A3A3C] text-[#0A84FF] rounded-full font-bold px-5 py-1 text-sm">
-                                                        {getInstalledAppById(app.id) ? t('appstore.installed') : t('appstore.get')}
-                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        className="bg-[#EFEFF4] dark:bg-[#3A3A3C] text-[#0A84FF] rounded-full font-bold px-5 py-1 text-sm"
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+
+                                                            if (isNativeApp(app.id)) {
+                                                                openNativeApp(app.id);
+                                                                return;
+                                                            }
+
+                                                            setDetailAppId(app.id);
+                                                        }}
+                                                    >
+                                                        {actionLabelForApp(app)}
+                                                    </button>
                                                 </button>
                                             ))}
                                         </div>
