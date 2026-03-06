@@ -95,6 +95,16 @@ const nativeAppIds = new Set([
     'camera',
 ]);
 const profileStorageKey = 'appstore.profile.v1';
+const NATIVE_ICONS: Record<string, string> = {
+    safari: 'https://picsum.photos/seed/native-safari/256/256',
+    spotify: 'https://picsum.photos/seed/native-spotify/256/256',
+    notes: 'https://picsum.photos/seed/native-notes/256/256',
+    settings: 'https://picsum.photos/seed/native-settings/256/256',
+    calendar: 'https://picsum.photos/seed/native-calendar/256/256',
+    weather: 'https://picsum.photos/seed/native-weather/256/256',
+    photos: 'https://picsum.photos/seed/native-photos/256/256',
+    camera: 'https://picsum.photos/seed/native-camera/256/256',
+};
 
 function readCachedProfile(): UserProfile | null {
     if (typeof window === 'undefined') {
@@ -124,6 +134,26 @@ function writeCachedProfile(profile: UserProfile | null) {
     }
 
     localStorage.setItem(profileStorageKey, JSON.stringify(profile));
+}
+
+function isValidImageSrc(value: string | undefined): value is string {
+    if (!value) {
+        return false;
+    }
+
+    return value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/');
+}
+
+function resolveAppIconUrl(app: Pick<AppStoreApp, 'id' | 'iconUrl'>, fallbackUrl: string): string {
+    if (NATIVE_ICONS[app.id]) {
+        return NATIVE_ICONS[app.id];
+    }
+
+    if (isValidImageSrc(app.iconUrl)) {
+        return app.iconUrl;
+    }
+
+    return fallbackUrl;
 }
 
 function extractNickFromEmail(email: string | null | undefined): string {
@@ -177,6 +207,7 @@ const AppStore = () => {
     const [authMode, setAuthMode] = useState<AuthMode>('login');
     const [authLoading, setAuthLoading] = useState(false);
     const [profileLoading, setProfileLoading] = useState(false);
+    const [ownProfileLoading, setOwnProfileLoading] = useState(false);
     const [socialLoading, setSocialLoading] = useState(false);
     const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
 
@@ -417,11 +448,12 @@ const AppStore = () => {
             setOwnProfile(null);
             setNeedsProfileCompletion(false);
             profileCompletionPromptedRef.current = false;
+            setOwnProfileLoading(false);
             writeCachedProfile(null);
             return;
         }
 
-        setProfileLoading(true);
+        setOwnProfileLoading(true);
 
         try {
             const headers = await authHeaders();
@@ -458,7 +490,7 @@ const AppStore = () => {
         } catch {
             setOwnProfile(null);
         } finally {
-            setProfileLoading(false);
+            setOwnProfileLoading(false);
         }
     }
 
@@ -686,6 +718,10 @@ const AppStore = () => {
         }
 
         if (!ownProfile) {
+            if (ownProfileLoading) {
+                return;
+            }
+
             setDisplayName(firebaseUser.displayName ?? '');
             setNickname((current) => current || extractNickFromEmail(firebaseUser.email));
             setNeedsProfileCompletion(true);
@@ -801,6 +837,10 @@ const AppStore = () => {
         }
 
         if (!ownProfile) {
+            if (ownProfileLoading) {
+                return;
+            }
+
             setDisplayName(firebaseUser.displayName ?? '');
             setNickname((current) => current || extractNickFromEmail(firebaseUser.email));
             setNeedsProfileCompletion(true);
@@ -1090,7 +1130,7 @@ const AppStore = () => {
                                     className="relative w-20 h-20 rounded-2xl overflow-hidden bg-neutral-200 shrink-0"
                                 >
                                     <Image
-                                        src={app.iconUrl || 'https://picsum.photos/seed/appicon-fallback/120/120'}
+                                        src={resolveAppIconUrl(app, 'https://picsum.photos/seed/appicon-fallback/120/120')}
                                         fill
                                         sizes="(max-width: 768px) 100vw, 33vw"
                                         alt={t('appstore.iconAlt', { title: app.title })}
@@ -1140,293 +1180,312 @@ const AppStore = () => {
     }
 
     return (
-        <div className="h-full w-full flex flex-col bg-[#F2F2F7] dark:bg-black text-black dark:text-white">
+        <div className="h-full w-full flex flex-col overflow-hidden bg-[#F2F2F7] dark:bg-black text-black dark:text-white">
             <ScrollArea className="flex-1 min-h-0">
                 <div className="max-w-xl mx-auto p-4 pb-6 space-y-4">
-                <div className="flex justify-between items-end mb-4">
-                    <div>
-                        <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] font-semibold uppercase">
-                            {dateString}
-                        </p>
-                        <h1 className="text-5xl font-bold tracking-tight leading-none">{t('appstore.today')}</h1>
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={() => {
-                            if (ownProfile?.nickname) {
-                                setSelectedNickname(ownProfile.nickname);
-                            } else {
-                                setAuthOpen(true);
-                            }
-                        }}
-                        aria-label={t('appstore.openProfile')}
-                        className="h-10 w-10 relative"
-                    >
-                        <Image
-                            src={ownProfile?.avatarUrl || 'https://s6.imgcdn.dev/Yrcy4v.png'}
-                            fill
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                            alt={t('appstore.profileAvatarAlt')}
-                            className="rounded-full object-cover"
-                        />
-                    </button>
-                </div>
-
-                {!firebaseUser && (
-                    <div className={`${cardBase} p-5`}>
-                        <p className="text-[15px] text-[#3A3A3C] dark:text-[#D1D1D6] mb-3">
-                            {t('appstore.signInPrompt')}
-                        </p>
-                        <Button className={`${primaryButton} w-full`} onClick={() => setAuthOpen(true)}>
-                            {t('appstore.signInCta')}
-                        </Button>
-                    </div>
-                )}
-
-                {tab === 'home' && (
-                    <>
-                        {featuredApp && (
-                            <button
-                                type="button"
-                                onClick={() => setDetailAppId(featuredApp.id)}
-                                className="relative rounded-3xl overflow-hidden mb-8 border border-neutral-200/60 dark:border-[#38383A]/80 bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-sm text-left"
-                            >
-                                <Image
-                                    src={featuredApp.screenshotsUrls[0] || 'https://picsum.photos/seed/appstore-main/800/500'}
-                                    alt={t('appstore.featuredImageAlt', { title: featuredApp.title })}
-                                    width={800}
-                                    height={500}
-                                    className="w-full h-full object-cover"
-                                />
-                                <div className="absolute bottom-0 left-0 p-4 text-white bg-gradient-to-t from-black/50 to-transparent w-full">
-                                    <p className="text-xs font-semibold uppercase tracking-tight">{t('appstore.featuredApp')}</p>
-                                    <h2 className="text-2xl font-bold tracking-tight">{featuredApp.title}</h2>
-                                    <p className="text-sm">{t('appstore.featuredBy', { nickname: featuredApp.ownerNickname })}</p>
-                                </div>
-                            </button>
-                        )}
-
-                        {renderCarouselSection(t('appstore.recentlyAdded'), recentApps)}
-                        {renderCarouselSection(t('appstore.mostDownloaded'), popularApps)}
-
-                        <div className={`${cardBase} p-4`}>
-                            <h3 className="text-lg font-semibold tracking-tight mb-3">{t('appstore.featuredCategories')}</h3>
-                            <div className="grid grid-cols-2 gap-3">
-                                {featuredCategories.map((item) => (
-                                    <button
-                                        key={item.category}
-                                        type="button"
-                                        onClick={() => {
-                                            setSearchQuery(item.category);
-                                            setTab('search');
-                                        }}
-                                        className={`${cardBase} p-3 text-left`}
-                                    >
-                                        <p className="font-semibold text-sm tracking-tight">{item.category}</p>
-                                        <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.appsCount', { count: item.count })}</p>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </>
-                )}
-
-                {tab === 'search' && (
-                    <div className={`${cardBase} p-4 space-y-4`}>
-                        <Input
-                            className={insetInput}
-                            placeholder={t('appstore.searchApps')}
-                            aria-label={t('appstore.searchApps')}
-                            value={searchQuery}
-                            onChange={(event) => setSearchQuery(event.target.value)}
-                        />
-
+                    <div className="flex justify-between items-end mb-4">
                         <div>
-                            <h3 className="text-lg font-semibold tracking-tight mb-3">
-                                {searchQuery.trim() ? t('appstore.searchResults') : t('appstore.recommendedApps')}
-                            </h3>
-
-                            <div className="space-y-2">
-                                {(searchQuery.trim() ? searchResults : recommendedApps).map((app) => (
-                                    <button
-                                        key={app.id}
-                                        type="button"
-                                        onClick={() => setDetailAppId(app.id)}
-                                        className="w-full rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 flex items-center gap-3 text-left"
-                                    >
-                                        <div className="relative h-12 w-12">
-                                            <Image
-                                                src={app.iconUrl || 'https://picsum.photos/seed/appicon-fallback-2/120/120'}
-                                                fill
-                                                sizes="(max-width: 768px) 100vw, 33vw"
-                                                alt={t('appstore.iconAlt', { title: app.title })}
-                                                className="rounded-xl object-cover"
-                                            />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-sm truncate">{app.title}</p>
-                                            <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] truncate">
-                                                @{app.ownerNickname}
-                                            </p>
-                                        </div>
-                                        <button
-                                            type="button"
-                                            className="bg-[#EFEFF4] dark:bg-[#3A3A3C] text-[#0A84FF] rounded-full font-bold px-5 py-1 text-sm"
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-
-                                                if (isNativeApp(app.id)) {
-                                                    openNativeApp(app.id);
-                                                    return;
-                                                }
-
-                                                setDetailAppId(app.id);
-                                            }}
-                                        >
-                                            {actionLabelForApp(app)}
-                                        </button>
-                                    </button>
-                                ))}
-
-                                {searchQuery.trim() && searchResults.length === 0 && (
-                                    <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.noSearchResults')}</p>
-                                )}
-                            </div>
+                            <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] font-semibold uppercase">
+                                {dateString}
+                            </p>
+                            <h1 className="text-5xl font-bold tracking-tight leading-none">{t('appstore.today')}</h1>
                         </div>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (ownProfile?.nickname) {
+                                    setSelectedNickname(ownProfile.nickname);
+                                } else {
+                                    setAuthOpen(true);
+                                }
+                            }}
+                            aria-label={t('appstore.openProfile')}
+                            className="h-10 w-10 relative"
+                        >
+                            <Image
+                                src={ownProfile?.avatarUrl || 'https://s6.imgcdn.dev/Yrcy4v.png'}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 33vw"
+                                alt={t('appstore.profileAvatarAlt')}
+                                className="rounded-full object-cover"
+                            />
+                        </button>
                     </div>
-                )}
 
-                {tab === 'profile' && (
-                    <>
-                        {publicProfile ? (
-                            <div className={`${cardBase} p-5`}>
-                                <div className="flex items-center gap-3">
-                                    <div className="relative h-16 w-16">
-                                        <Image
-                                            src={publicProfile.avatarUrl || 'https://s6.imgcdn.dev/Yrcy4v.png'}
-                                            fill
-                                            sizes="(max-width: 768px) 100vw, 33vw"
-                                            alt={publicProfile.nickname}
-                                            className="rounded-2xl object-cover"
-                                        />
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="text-lg font-semibold tracking-tight">{publicProfile.displayName}</p>
-                                        <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">@{publicProfile.nickname}</p>
-                                        {publicProfile.bio && (
-                                            <p className="text-sm mt-1 text-[#3A3A3C] dark:text-[#D1D1D6]">{publicProfile.bio}</p>
-                                        )}
-                                    </div>
-                                </div>
+                    {!firebaseUser && (
+                        <div className={`${cardBase} p-5`}>
+                            <p className="text-[15px] text-[#3A3A3C] dark:text-[#D1D1D6] mb-3">
+                                {t('appstore.signInPrompt')}
+                            </p>
+                            <Button className={`${primaryButton} w-full`} onClick={() => setAuthOpen(true)}>
+                                {t('appstore.signInCta')}
+                            </Button>
+                        </div>
+                    )}
 
-                                <div className="mt-4 grid grid-cols-2 gap-3">
-                                    <div className="rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 text-center">
-                                        <p className="text-2xl font-semibold">{publicProfile.followersCount}</p>
-                                        <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] uppercase">{t('appstore.followers')}</p>
+                    {tab === 'home' && (
+                        <>
+                            {featuredApp && (
+                                <button
+                                    type="button"
+                                    onClick={() => setDetailAppId(featuredApp.id)}
+                                    className="relative rounded-3xl overflow-hidden mb-8 border border-neutral-200/60 dark:border-[#38383A]/80 bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-sm text-left"
+                                >
+                                    <Image
+                                        src={featuredApp.screenshotsUrls[0] || 'https://picsum.photos/seed/appstore-main/800/500'}
+                                        alt={t('appstore.featuredImageAlt', { title: featuredApp.title })}
+                                        width={800}
+                                        height={500}
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute bottom-0 left-0 p-4 text-white bg-gradient-to-t from-black/50 to-transparent w-full">
+                                        <p className="text-xs font-semibold uppercase tracking-tight">{t('appstore.featuredApp')}</p>
+                                        <h2 className="text-2xl font-bold tracking-tight">{featuredApp.title}</h2>
+                                        <p className="text-sm">{t('appstore.featuredBy', { nickname: featuredApp.ownerNickname })}</p>
                                     </div>
-                                    <div className="rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 text-center">
-                                        <p className="text-2xl font-semibold">{publicProfile.followingCount}</p>
-                                        <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] uppercase">{t('appstore.following')}</p>
-                                    </div>
-                                </div>
+                                </button>
+                            )}
 
-                                {publicProfile.isOwner ? (
-                                    <div className="mt-4 space-y-2">
-                                        <Button className={`${primaryButton} w-full`} onClick={() => setEditProfileOpen(true)}>
-                                            {t('appstore.editProfile')}
-                                        </Button>
-                                        <Button
-                                            className="w-full h-11 rounded-full bg-[#34C759] hover:bg-[#34C759]/90 text-white font-semibold"
-                                            onClick={() => {
-                                                setForm(emptyAppForm());
-                                                setPublishOpen(true);
-                                            }}
-                                        >
-                                            {t('appstore.publishNewApp')}
-                                        </Button>
-                                        <Button
-                                            className="w-full h-11 rounded-full bg-[#5856D6] hover:bg-[#5856D6]/90 text-white font-semibold"
-                                            onClick={handleSeedNativeApps}
-                                            disabled={nativeSeedLoading}
-                                        >
-                                            {nativeSeedLoading ? t('appstore.seedingNativeApps') : t('appstore.seedNativeApps')}
-                                        </Button>
-                                    </div>
-                                ) : (
-                                    <div className="mt-4 space-y-2">
-                                        <Button
-                                            className={`${primaryButton} w-full ${relation !== 'not_following' ? 'bg-[#34C759] hover:bg-[#34C759]/90' : ''}`}
-                                            onClick={relation === 'not_following' ? handleFollow : undefined}
-                                            disabled={socialLoading || relation !== 'not_following' || publicProfile.isOwner}
-                                        >
-                                            {socialLoading ? t('appstore.updating') : relationLabel}
-                                        </Button>
-                                        {(relation === 'following' || relation === 'friends') && (
-                                            <Button
-                                                variant="ghost"
-                                                className="w-full h-10 rounded-full text-[#FF3B30] hover:text-[#FF3B30]"
-                                                onClick={handleUnfollow}
-                                                disabled={socialLoading}
-                                            >
-                                                {reverseActionLabel}
-                                            </Button>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className={`${cardBase} p-5`}>
-                                <p className="text-[15px] text-[#3A3A3C] dark:text-[#D1D1D6] mb-3">
-                                    {t('appstore.profileTabGuest')}
-                                </p>
-                                {!firebaseUser ? (
-                                    <Button className={`${primaryButton} w-full`} onClick={() => setAuthOpen(true)}>
-                                        {t('appstore.signInCta')}
-                                    </Button>
-                                ) : (
-                                    <Button className={`${primaryButton} w-full`} onClick={() => setNeedsProfileCompletion(true)}>
-                                        {t('appstore.completeProfileTitle')}
-                                    </Button>
-                                )}
-                            </div>
-                        )}
+                            {renderCarouselSection(t('appstore.recentlyAdded'), recentApps)}
+                            {renderCarouselSection(t('appstore.mostDownloaded'), popularApps)}
 
-                        {publicProfile?.isOwner && ownerApps.length > 0 && (
                             <div className={`${cardBase} p-4`}>
-                                <h3 className="text-lg font-semibold tracking-tight mb-3">{t('appstore.yourPublishedApps')}</h3>
-                                <div className="space-y-2">
-                                    {ownerApps.map((app) => (
-                                        <div key={app.id} className="rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 flex items-center gap-3">
-                                            <div className="relative h-12 w-12">
-                                                <Image src={app.iconUrl || 'https://picsum.photos/seed/ownerapp/120/120'} fill sizes="(max-width: 768px) 100vw, 33vw" alt={app.title} className="rounded-xl object-cover" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="font-semibold text-sm truncate">{app.title}</p>
-                                                <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">{app.status}</p>
-                                            </div>
-                                            <Button
-                                                className="h-9 rounded-full px-4"
-                                                onClick={() => {
-                                                    setFormFromApp(app);
-                                                    setPublishOpen(true);
-                                                }}
-                                            >
-                                                {t('appstore.edit')}
-                                            </Button>
-                                        </div>
+                                <h3 className="text-lg font-semibold tracking-tight mb-3">{t('appstore.featuredCategories')}</h3>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {featuredCategories.map((item) => (
+                                        <button
+                                            key={item.category}
+                                            type="button"
+                                            onClick={() => {
+                                                setSearchQuery(item.category);
+                                                setTab('search');
+                                            }}
+                                            className={`${cardBase} p-3 text-left`}
+                                        >
+                                            <p className="font-semibold text-sm tracking-tight">{item.category}</p>
+                                            <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.appsCount', { count: item.count })}</p>
+                                        </button>
                                     ))}
                                 </div>
                             </div>
-                        )}
-                    </>
-                )}
+                        </>
+                    )}
+
+                    {tab === 'search' && (
+                        <div className={`${cardBase} p-4 space-y-4`}>
+                            <Input
+                                className={insetInput}
+                                placeholder={t('appstore.searchApps')}
+                                aria-label={t('appstore.searchApps')}
+                                value={searchQuery}
+                                onChange={(event) => setSearchQuery(event.target.value)}
+                            />
+
+                            {!searchQuery.trim() && (
+                                <div>
+                                    <h3 className="text-lg font-semibold tracking-tight mb-3">{t('appstore.featuredCategories')}</h3>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {featuredCategories.map((item) => (
+                                            <button
+                                                key={`search-${item.category}`}
+                                                type="button"
+                                                onClick={() => setSearchQuery(item.category)}
+                                                className={`${cardBase} p-3 text-left`}
+                                            >
+                                                <p className="font-semibold text-sm tracking-tight">{item.category}</p>
+                                                <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.appsCount', { count: item.count })}</p>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div>
+                                <h3 className="text-lg font-semibold tracking-tight mb-3">
+                                    {searchQuery.trim() ? t('appstore.searchResults') : t('appstore.recommendedApps')}
+                                </h3>
+
+                                <div className="space-y-2">
+                                    {(searchQuery.trim() ? searchResults : recommendedApps).map((app) => (
+                                        <button
+                                            key={app.id}
+                                            type="button"
+                                            onClick={() => setDetailAppId(app.id)}
+                                            className="w-full rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 flex items-center gap-3 text-left"
+                                        >
+                                            <div className="relative h-12 w-12">
+                                                <Image
+                                                    src={resolveAppIconUrl(app, 'https://picsum.photos/seed/appicon-fallback-2/120/120')}
+                                                    fill
+                                                    sizes="(max-width: 768px) 100vw, 33vw"
+                                                    alt={t('appstore.iconAlt', { title: app.title })}
+                                                    className="rounded-xl object-cover"
+                                                />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-semibold text-sm truncate">{app.title}</p>
+                                                <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] truncate">
+                                                    @{app.ownerNickname}
+                                                </p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                className="bg-[#EFEFF4] dark:bg-[#3A3A3C] text-[#0A84FF] rounded-full font-bold px-5 py-1 text-sm"
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+
+                                                    if (isNativeApp(app.id)) {
+                                                        openNativeApp(app.id);
+                                                        return;
+                                                    }
+
+                                                    setDetailAppId(app.id);
+                                                }}
+                                            >
+                                                {actionLabelForApp(app)}
+                                            </button>
+                                        </button>
+                                    ))}
+
+                                    {searchQuery.trim() && searchResults.length === 0 && (
+                                        <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.noSearchResults')}</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {tab === 'profile' && (
+                        <>
+                            {publicProfile ? (
+                                <div className={`${cardBase} p-5`}>
+                                    <div className="flex items-center gap-3">
+                                        <div className="relative h-16 w-16">
+                                            <Image
+                                                src={publicProfile.avatarUrl || 'https://s6.imgcdn.dev/Yrcy4v.png'}
+                                                fill
+                                                sizes="(max-width: 768px) 100vw, 33vw"
+                                                alt={publicProfile.nickname}
+                                                className="rounded-2xl object-cover"
+                                            />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-lg font-semibold tracking-tight">{publicProfile.displayName}</p>
+                                            <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">@{publicProfile.nickname}</p>
+                                            {publicProfile.bio && (
+                                                <p className="text-sm mt-1 text-[#3A3A3C] dark:text-[#D1D1D6]">{publicProfile.bio}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4 grid grid-cols-2 gap-3">
+                                        <div className="rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 text-center">
+                                            <p className="text-2xl font-semibold">{publicProfile.followersCount}</p>
+                                            <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] uppercase">{t('appstore.followers')}</p>
+                                        </div>
+                                        <div className="rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 text-center">
+                                            <p className="text-2xl font-semibold">{publicProfile.followingCount}</p>
+                                            <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] uppercase">{t('appstore.following')}</p>
+                                        </div>
+                                    </div>
+
+                                    {publicProfile.isOwner ? (
+                                        <div className="mt-4 space-y-2">
+                                            <Button className={`${primaryButton} w-full`} onClick={() => setEditProfileOpen(true)}>
+                                                {t('appstore.editProfile')}
+                                            </Button>
+                                            <Button
+                                                className="w-full h-11 rounded-full bg-[#34C759] hover:bg-[#34C759]/90 text-white font-semibold"
+                                                onClick={() => {
+                                                    setForm(emptyAppForm());
+                                                    setPublishOpen(true);
+                                                }}
+                                            >
+                                                {t('appstore.publishNewApp')}
+                                            </Button>
+                                            <Button
+                                                className="w-full h-11 rounded-full bg-[#5856D6] hover:bg-[#5856D6]/90 text-white font-semibold"
+                                                onClick={handleSeedNativeApps}
+                                                disabled={nativeSeedLoading}
+                                            >
+                                                {nativeSeedLoading ? t('appstore.seedingNativeApps') : t('appstore.seedNativeApps')}
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <div className="mt-4 space-y-2">
+                                            <Button
+                                                className={`${primaryButton} w-full ${relation !== 'not_following' ? 'bg-[#34C759] hover:bg-[#34C759]/90' : ''}`}
+                                                onClick={relation === 'not_following' ? handleFollow : undefined}
+                                                disabled={socialLoading || relation !== 'not_following' || publicProfile.isOwner}
+                                            >
+                                                {socialLoading ? t('appstore.updating') : relationLabel}
+                                            </Button>
+                                            {(relation === 'following' || relation === 'friends') && (
+                                                <Button
+                                                    variant="ghost"
+                                                    className="w-full h-10 rounded-full text-[#FF3B30] hover:text-[#FF3B30]"
+                                                    onClick={handleUnfollow}
+                                                    disabled={socialLoading}
+                                                >
+                                                    {reverseActionLabel}
+                                                </Button>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className={`${cardBase} p-5`}>
+                                    <p className="text-[15px] text-[#3A3A3C] dark:text-[#D1D1D6] mb-3">
+                                        {t('appstore.profileTabGuest')}
+                                    </p>
+                                    {!firebaseUser ? (
+                                        <Button className={`${primaryButton} w-full`} onClick={() => setAuthOpen(true)}>
+                                            {t('appstore.signInCta')}
+                                        </Button>
+                                    ) : (
+                                        <Button className={`${primaryButton} w-full`} onClick={() => setNeedsProfileCompletion(true)}>
+                                            {t('appstore.completeProfileTitle')}
+                                        </Button>
+                                    )}
+                                </div>
+                            )}
+
+                            {publicProfile?.isOwner && ownerApps.length > 0 && (
+                                <div className={`${cardBase} p-4`}>
+                                    <h3 className="text-lg font-semibold tracking-tight mb-3">{t('appstore.yourPublishedApps')}</h3>
+                                    <div className="space-y-2">
+                                        {ownerApps.map((app) => (
+                                            <div key={app.id} className="rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 flex items-center gap-3">
+                                                <div className="relative h-12 w-12">
+                                                    <Image src={resolveAppIconUrl(app, 'https://picsum.photos/seed/ownerapp/120/120')} fill sizes="(max-width: 768px) 100vw, 33vw" alt={app.title} className="rounded-xl object-cover" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-semibold text-sm truncate">{app.title}</p>
+                                                    <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">{app.status}</p>
+                                                </div>
+                                                <Button
+                                                    className="h-9 rounded-full px-4"
+                                                    onClick={() => {
+                                                        setFormFromApp(app);
+                                                        setPublishOpen(true);
+                                                    }}
+                                                >
+                                                    {t('appstore.edit')}
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
 
                 </div>
             </ScrollArea>
 
-            <div className="w-full px-4 pb-4 pt-2 bg-gradient-to-t from-[#F2F2F7] dark:from-black to-transparent">
-                <div className="mx-auto max-w-xl rounded-3xl border border-neutral-200/70 dark:border-[#38383A]/90 bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md px-2 py-2 flex items-center justify-between">
+            <div className="w-full bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md border-t border-neutral-200/50">
+                <div className="mx-auto max-w-xl px-4 py-3 flex items-center justify-between">
                     <button
                         type="button"
                         className={`h-11 flex-1 rounded-2xl text-sm font-semibold transition ${tab === 'home' ? 'bg-[#E5F1FF] dark:bg-[#10233C] text-[#0A84FF]' : 'text-[#8A8A8E] dark:text-[#8E8E93]'}`}
@@ -1464,7 +1523,7 @@ const AppStore = () => {
                                 <div className="flex gap-4 items-start">
                                     <div className="relative h-28 w-28">
                                         <Image
-                                            src={detailApp.iconUrl || 'https://picsum.photos/seed/detail-icon/220/220'}
+                                            src={resolveAppIconUrl(detailApp, 'https://picsum.photos/seed/detail-icon/220/220')}
                                             fill
                                             sizes="(max-width: 768px) 100vw, 33vw"
                                             alt={detailApp.title}
@@ -1536,7 +1595,7 @@ const AppStore = () => {
                                                 >
                                                     <div className="relative h-11 w-11">
                                                         <Image
-                                                            src={app.iconUrl || 'https://picsum.photos/seed/related-app/120/120'}
+                                                            src={resolveAppIconUrl(app, 'https://picsum.photos/seed/related-app/120/120')}
                                                             fill
                                                             sizes="(max-width: 768px) 100vw, 33vw"
                                                             alt={t('appstore.iconAlt', { title: app.title })}
