@@ -84,7 +84,47 @@ const primaryButton =
 const cardBase =
     'rounded-3xl border border-neutral-200/60 dark:border-[#38383A]/80 bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-sm';
 
-const nativeAppIds = new Set(['safari', 'spotify', 'notes', 'settings', 'calendar']);
+const nativeAppIds = new Set([
+    'safari',
+    'spotify',
+    'notes',
+    'settings',
+    'calendar',
+    'weather',
+    'photos',
+    'camera',
+]);
+const profileStorageKey = 'appstore.profile.v1';
+
+function readCachedProfile(): UserProfile | null {
+    if (typeof window === 'undefined') {
+        return null;
+    }
+
+    try {
+        const raw = localStorage.getItem(profileStorageKey);
+        if (!raw) {
+            return null;
+        }
+
+        return JSON.parse(raw) as UserProfile;
+    } catch {
+        return null;
+    }
+}
+
+function writeCachedProfile(profile: UserProfile | null) {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    if (!profile) {
+        localStorage.removeItem(profileStorageKey);
+        return;
+    }
+
+    localStorage.setItem(profileStorageKey, JSON.stringify(profile));
+}
 
 function extractNickFromEmail(email: string | null | undefined): string {
     const candidate = (email ?? 'usuario').split('@')[0] ?? 'usuario';
@@ -147,7 +187,7 @@ const AppStore = () => {
     const [bio, setBio] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
 
-    const [ownProfile, setOwnProfile] = useState<UserProfile | null>(null);
+    const [ownProfile, setOwnProfile] = useState<UserProfile | null>(() => readCachedProfile());
     const [selectedNickname, setSelectedNickname] = useState<string | null>(null);
     const [publicProfile, setPublicProfile] = useState<PublicDeveloperProfile | null>(
         null,
@@ -179,6 +219,7 @@ const AppStore = () => {
     const lastNicknameCheckAtRef = useRef(0);
     const installInFlightRef = useRef(false);
     const lastInstallAtRef = useRef(0);
+    const profileCompletionPromptedRef = useRef(false);
 
     const today = new Date();
     const dateString = today.toLocaleDateString(locale, {
@@ -375,6 +416,8 @@ const AppStore = () => {
         if (!firebaseUser) {
             setOwnProfile(null);
             setNeedsProfileCompletion(false);
+            profileCompletionPromptedRef.current = false;
+            writeCachedProfile(null);
             return;
         }
 
@@ -390,14 +433,25 @@ const AppStore = () => {
                     setDisplayName(firebaseUser.displayName ?? '');
                     setNickname(extractNickFromEmail(firebaseUser.email));
                     setOwnProfile(null);
+                    writeCachedProfile(null);
+
+                    if (!profileCompletionPromptedRef.current) {
+                        setNeedsProfileCompletion(true);
+                        profileCompletionPromptedRef.current = true;
+                    }
+
                     return;
                 }
 
                 setOwnProfile(null);
+                writeCachedProfile(null);
                 return;
             }
 
             setOwnProfile(json.data);
+            writeCachedProfile(json.data);
+            setNeedsProfileCompletion(false);
+            profileCompletionPromptedRef.current = false;
             if (!selectedNickname) {
                 setSelectedNickname(json.data.nickname);
             }
@@ -545,8 +599,10 @@ const AppStore = () => {
         }
 
         setOwnProfile(json.data);
+        writeCachedProfile(json.data);
         setSelectedNickname(json.data.nickname);
         setNeedsProfileCompletion(false);
+        profileCompletionPromptedRef.current = false;
         toast({ title: 'Perfil actualizado', description: 'Tu perfil está listo.' });
         return true;
     }
@@ -947,6 +1003,20 @@ const AppStore = () => {
     }, []);
 
     useEffect(() => {
+        if (!firebaseUser || ownProfile) {
+            return;
+        }
+
+        const cached = readCachedProfile();
+        if (!cached) {
+            return;
+        }
+
+        setOwnProfile(cached);
+        setSelectedNickname(cached.nickname);
+    }, [firebaseUser, ownProfile]);
+
+    useEffect(() => {
         fetchOwnProfile();
     }, [firebaseUser]);
 
@@ -1070,8 +1140,9 @@ const AppStore = () => {
     }
 
     return (
-        <ScrollArea className="h-full w-full bg-[#F2F2F7] dark:bg-black text-black dark:text-white">
-            <div className="max-w-xl mx-auto p-4 pb-24 space-y-4">
+        <div className="h-full w-full flex flex-col bg-[#F2F2F7] dark:bg-black text-black dark:text-white">
+            <ScrollArea className="flex-1 min-h-0">
+                <div className="max-w-xl mx-auto p-4 pb-6 space-y-4">
                 <div className="flex justify-between items-end mb-4">
                     <div>
                         <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] font-semibold uppercase">
@@ -1150,7 +1221,7 @@ const AppStore = () => {
                                             setSearchQuery(item.category);
                                             setTab('search');
                                         }}
-                                        className="rounded-2xl border border-neutral-200/60 dark:border-[#38383A]/80 bg-[#F8F8FA] dark:bg-[#2C2C2E] p-3 text-left"
+                                        className={`${cardBase} p-3 text-left`}
                                     >
                                         <p className="font-semibold text-sm tracking-tight">{item.category}</p>
                                         <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.appsCount', { count: item.count })}</p>
@@ -1351,15 +1422,10 @@ const AppStore = () => {
                     </>
                 )}
 
-                {profileLoading && (
-                    <div className={`${cardBase} p-4 text-sm text-[#8A8A8E] dark:text-[#8E8E93]`}>
-                        {t('appstore.loadingProfile')}
-                    </div>
-                )}
+                </div>
+            </ScrollArea>
 
-            </div>
-
-            <div className="sticky bottom-0 z-20 px-4 pb-4 pt-2 bg-gradient-to-t from-[#F2F2F7] dark:from-black to-transparent">
+            <div className="w-full px-4 pb-4 pt-2 bg-gradient-to-t from-[#F2F2F7] dark:from-black to-transparent">
                 <div className="mx-auto max-w-xl rounded-3xl border border-neutral-200/70 dark:border-[#38383A]/90 bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md px-2 py-2 flex items-center justify-between">
                     <button
                         type="button"
@@ -1816,7 +1882,7 @@ const AppStore = () => {
                     </div>
                 </DialogContent>
             </Dialog>
-        </ScrollArea>
+        </div>
     );
 };
 

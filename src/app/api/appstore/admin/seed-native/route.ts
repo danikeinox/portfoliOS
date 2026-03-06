@@ -49,6 +49,27 @@ const nativeApps: NativeSeedItem[] = [
     description: "Gestiona tus eventos y organiza tu tiempo.",
     iconUrl: "tu-icono-calendario",
   },
+  {
+    id: "weather",
+    title: "Tiempo",
+    category: "Utilidades",
+    description: "Consulta el clima en tiempo real y tu pronóstico diario.",
+    iconUrl: "tu-icono-weather",
+  },
+  {
+    id: "photos",
+    title: "Fotos",
+    category: "Creatividad",
+    description: "Revive y organiza tus recuerdos en alta calidad.",
+    iconUrl: "tu-icono-photos",
+  },
+  {
+    id: "camera",
+    title: "Cámara",
+    category: "Creatividad",
+    description: "Captura momentos al instante con una experiencia fluida.",
+    iconUrl: "tu-icono-camera",
+  },
 ];
 
 function asCode(error: unknown): string {
