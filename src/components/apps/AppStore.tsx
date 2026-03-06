@@ -13,6 +13,7 @@ import { useI18n } from '@/hooks/use-i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 import {
     Dialog,
     DialogContent,
@@ -80,7 +81,7 @@ const primaryButton =
     'h-12 rounded-full bg-[#0A84FF] hover:bg-[#0A84FF]/90 text-white font-semibold text-[15px]';
 
 const cardBase =
-    'rounded-3xl border border-neutral-200 dark:border-[#38383A] bg-white dark:bg-[#1C1C1E]';
+    'rounded-3xl border border-neutral-200/60 dark:border-[#38383A]/80 bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-sm';
 
 function extractNickFromEmail(email: string | null | undefined): string {
     const candidate = (email ?? 'usuario').split('@')[0] ?? 'usuario';
@@ -120,7 +121,7 @@ function emptyAppForm(): AppFormState {
 }
 
 const AppStore = () => {
-    const { locale } = useI18n();
+    const { locale, t } = useI18n();
     const { toast } = useToast();
     const auth = useAuth();
     const { data: firebaseUser } = useUser();
@@ -877,34 +878,35 @@ const AppStore = () => {
     const relation = publicProfile?.relation ?? 'not_following';
     const relationLabel =
         relation === 'friends'
-            ? 'Amigos'
+            ? t('appstore.relation.friends')
             : relation === 'following'
-                ? 'Siguiendo'
+                ? t('appstore.relation.following')
                 : relation === 'self'
-                    ? 'Tu perfil'
-                    : 'Seguir';
-    const reverseActionLabel = relation === 'friends' ? 'Dejar de ser Amigos' : 'Dejar de seguir';
+                    ? t('appstore.relation.self')
+                    : t('appstore.relation.follow');
+    const reverseActionLabel =
+        relation === 'friends' ? t('appstore.relation.unfriend') : t('appstore.relation.unfollow');
     const featuredApp = recentApps[0] ?? popularApps[0] ?? null;
 
     function renderCarouselSection(title: string, apps: AppStoreApp[]) {
         return (
             <div>
                 <h3 className="text-2xl font-bold tracking-tight px-1 mb-3">{title}</h3>
-                <div className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden">
-                    {apps.map((app) => (
-                        <div key={app.id} className="border-b border-neutral-200 dark:border-[#38383A] last:border-none ml-4 py-4 pr-4">
+                <div className="bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-sm rounded-3xl overflow-hidden border border-neutral-200/60 dark:border-[#38383A]/80">
+                    {apps.map((app, index) => (
+                        <div key={app.id} className="ml-4 py-4 pr-4">
                             <div className="flex items-center gap-4">
                                 <button
                                     type="button"
                                     onClick={() => setDetailAppId(app.id)}
-                                    aria-label={`Abrir detalles de ${app.title}`}
+                                    aria-label={t('appstore.openDetails', { title: app.title })}
                                     className="relative w-20 h-20 rounded-2xl overflow-hidden bg-neutral-200 shrink-0"
                                 >
                                     <Image
                                         src={app.iconUrl || 'https://picsum.photos/seed/appicon-fallback/120/120'}
                                         fill
                                         sizes="(max-width: 768px) 100vw, 33vw"
-                                        alt={`Icono de ${app.title}`}
+                                        alt={t('appstore.iconAlt', { title: app.title })}
                                         className="object-cover"
                                     />
                                 </button>
@@ -920,20 +922,23 @@ const AppStore = () => {
 
                                 <div className="flex flex-col items-center">
                                     <Button
-                                        className="bg-[#EFEFF4] text-[#0A84FF] dark:bg-[#2C2C2E] rounded-full font-bold px-6"
+                                        className="bg-[#EFEFF4] dark:bg-[#2C2C2E] text-[#0A84FF] rounded-full px-5 py-1 text-sm font-bold"
                                         onClick={() => setDetailAppId(app.id)}
                                     >
-                                        Obtener
+                                        {t('appstore.get')}
                                     </Button>
                                     <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] mt-1">
-                                        Compras integradas
+                                        {t('appstore.inAppPurchases')}
                                     </p>
                                 </div>
                             </div>
+                            {index < apps.length - 1 && (
+                                <Separator className="mt-4 bg-neutral-200/60 dark:bg-[#38383A]/80" />
+                            )}
                         </div>
                     ))}
                     {apps.length === 0 && (
-                        <div className="ml-4 py-5 pr-4 text-sm text-[#8A8A8E] dark:text-[#8E8E93]">Sin resultados.</div>
+                        <div className="ml-4 py-5 pr-4 text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.noResults')}</div>
                     )}
                 </div>
             </div>
@@ -948,7 +953,7 @@ const AppStore = () => {
                         <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] font-semibold uppercase">
                             {dateString}
                         </p>
-                        <h1 className="text-5xl font-bold tracking-tight leading-none">Hoy</h1>
+                        <h1 className="text-5xl font-bold tracking-tight leading-none">{t('appstore.today')}</h1>
                     </div>
 
                     <button
@@ -960,14 +965,14 @@ const AppStore = () => {
                                 setAuthOpen(true);
                             }
                         }}
-                        aria-label="Abrir perfil de desarrollador"
+                        aria-label={t('appstore.openProfile')}
                         className="h-10 w-10 relative"
                     >
                         <Image
                             src={ownProfile?.avatarUrl || 'https://s6.imgcdn.dev/Yrcy4v.png'}
                             fill
                             sizes="(max-width: 768px) 100vw, 33vw"
-                            alt="Avatar del perfil"
+                            alt={t('appstore.profileAvatarAlt')}
                             className="rounded-full object-cover"
                         />
                     </button>
@@ -979,24 +984,24 @@ const AppStore = () => {
                         className={`rounded-xl h-10 ${tab === 'home' ? 'bg-[#0A84FF] text-white hover:bg-[#0A84FF]/90' : ''}`}
                         onClick={() => setTab('home')}
                     >
-                        Inicio
+                        {t('appstore.home')}
                     </Button>
                     <Button
                         variant={tab === 'categories' ? 'default' : 'ghost'}
                         className={`rounded-xl h-10 ${tab === 'categories' ? 'bg-[#0A84FF] text-white hover:bg-[#0A84FF]/90' : ''}`}
                         onClick={() => setTab('categories')}
                     >
-                        Categorías
+                        {t('appstore.categories')}
                     </Button>
                 </div>
 
                 {!firebaseUser && (
                     <div className={`${cardBase} p-5`}>
                         <p className="text-[15px] text-[#3A3A3C] dark:text-[#D1D1D6] mb-3">
-                            Inicia sesión para publicar y editar tus apps.
+                            {t('appstore.signInPrompt')}
                         </p>
                         <Button className={`${primaryButton} w-full`} onClick={() => setAuthOpen(true)}>
-                            Iniciar sesión / Registrarse
+                            {t('appstore.signInCta')}
                         </Button>
                     </div>
                 )}
@@ -1022,18 +1027,18 @@ const AppStore = () => {
                         <div className="mt-4 grid grid-cols-2 gap-3">
                             <div className="rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 text-center">
                                 <p className="text-2xl font-semibold">{publicProfile.followersCount}</p>
-                                <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] uppercase">Seguidores</p>
+                                <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] uppercase">{t('appstore.followers')}</p>
                             </div>
                             <div className="rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 text-center">
                                 <p className="text-2xl font-semibold">{publicProfile.followingCount}</p>
-                                <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] uppercase">Siguiendo</p>
+                                <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] uppercase">{t('appstore.following')}</p>
                             </div>
                         </div>
 
                         {publicProfile.isOwner ? (
                             <div className="mt-4 space-y-2">
                                 <Button className={`${primaryButton} w-full`} onClick={() => setEditProfileOpen(true)}>
-                                    Editar Perfil
+                                    {t('appstore.editProfile')}
                                 </Button>
                                 <Button
                                     className="w-full h-11 rounded-full bg-[#34C759] hover:bg-[#34C759]/90 text-white font-semibold"
@@ -1042,7 +1047,7 @@ const AppStore = () => {
                                         setPublishOpen(true);
                                     }}
                                 >
-                                    Publicar nueva App
+                                    {t('appstore.publishNewApp')}
                                 </Button>
                                 <Button
                                     variant="ghost"
@@ -1053,7 +1058,7 @@ const AppStore = () => {
                                         setSelectedNickname(null);
                                     }}
                                 >
-                                    Cerrar sesión
+                                    {t('appstore.signOut')}
                                 </Button>
                             </div>
                         ) : (
@@ -1063,7 +1068,7 @@ const AppStore = () => {
                                     onClick={relation === 'not_following' ? handleFollow : undefined}
                                     disabled={socialLoading || relation !== 'not_following'}
                                 >
-                                    {socialLoading ? 'Actualizando...' : relationLabel}
+                                    {socialLoading ? t('appstore.updating') : relationLabel}
                                 </Button>
                                 {(relation === 'following' || relation === 'friends') && (
                                     <Button
@@ -1090,24 +1095,24 @@ const AppStore = () => {
                             >
                                 <Image
                                     src={featuredApp.screenshotsUrls[0] || 'https://picsum.photos/seed/appstore-main/800/500'}
-                                    alt={`Imagen destacada de ${featuredApp.title}`}
+                                    alt={t('appstore.featuredImageAlt', { title: featuredApp.title })}
                                     width={800}
                                     height={500}
                                     className="w-full h-full object-cover"
                                 />
                                 <div className="absolute bottom-0 left-0 p-4 text-white bg-gradient-to-t from-black/50 to-transparent w-full">
-                                    <p className="text-xs font-semibold uppercase">App destacada</p>
+                                    <p className="text-xs font-semibold uppercase">{t('appstore.featuredApp')}</p>
                                     <h2 className="text-2xl font-bold">{featuredApp.title}</h2>
-                                    <p className="text-sm">Por @{featuredApp.ownerNickname}</p>
+                                    <p className="text-sm">{t('appstore.featuredBy', { nickname: featuredApp.ownerNickname })}</p>
                                 </div>
                             </button>
                         )}
 
-                        {renderCarouselSection('Recién añadidas', recentApps)}
-                        {renderCarouselSection('Más descargadas', popularApps)}
+                        {renderCarouselSection(t('appstore.recentlyAdded'), recentApps)}
+                        {renderCarouselSection(t('appstore.mostDownloaded'), popularApps)}
 
                         <div className={`${cardBase} p-4`}>
-                            <h3 className="text-lg font-semibold mb-3">Categorías destacadas</h3>
+                            <h3 className="text-lg font-semibold tracking-tight mb-3">{t('appstore.featuredCategories')}</h3>
                             <div className="flex gap-2 overflow-x-auto pb-1">
                                 {featuredCategories.map((item) => (
                                     <Button
@@ -1128,15 +1133,15 @@ const AppStore = () => {
                 ) : (
                     <div className={`${cardBase} p-4 space-y-3`}>
                         <div>
-                            <h3 className="text-lg font-semibold">Explorar por categorías</h3>
+                            <h3 className="text-lg font-semibold tracking-tight">{t('appstore.exploreByCategories')}</h3>
                             <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">
-                                Ordenadas de mayor a menor cantidad de apps.
+                                {t('appstore.categoriesSortedHint')}
                             </p>
                         </div>
 
                         <Input
                             className={insetInput}
-                            placeholder="Buscar categoría"
+                            placeholder={t('appstore.searchCategory')}
                             aria-label="Buscar categoría"
                             value={categoriesSearch}
                             onChange={(event) => setCategoriesSearch(event.target.value)}
@@ -1151,13 +1156,13 @@ const AppStore = () => {
                                     className={`rounded-2xl p-3 text-left border ${selectedCategory === item.category ? 'border-[#0A84FF] bg-[#E9F2FF] dark:bg-[#10233D]' : 'border-neutral-200 dark:border-[#38383A] bg-[#F8F8FA] dark:bg-[#2C2C2E]'}`}
                                 >
                                     <p className="font-semibold text-sm">{item.category}</p>
-                                    <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">{item.count} apps</p>
+                                    <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.appsCount', { count: item.count })}</p>
                                 </button>
                             ))}
                         </div>
 
                         {categoriesLoading && (
-                            <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">Cargando categorías...</p>
+                            <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.loadingCategories')}</p>
                         )}
 
                         {selectedCategory && (
@@ -1189,7 +1194,7 @@ const AppStore = () => {
                                 ))}
 
                                 {!appsLoading && categoryApps.length === 0 && (
-                                    <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">No hay apps en esta categoría.</p>
+                                    <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.noAppsInCategory')}</p>
                                 )}
                             </div>
                         )}
@@ -1198,13 +1203,13 @@ const AppStore = () => {
 
                 {profileLoading && (
                     <div className={`${cardBase} p-4 text-sm text-[#8A8A8E] dark:text-[#8E8E93]`}>
-                        Cargando perfil...
+                        {t('appstore.loadingProfile')}
                     </div>
                 )}
 
                 {publicProfile?.isOwner && ownerApps.length > 0 && (
                     <div className={`${cardBase} p-4`}>
-                        <h3 className="text-lg font-semibold mb-3">Tus apps publicadas</h3>
+                        <h3 className="text-lg font-semibold tracking-tight mb-3">{t('appstore.yourPublishedApps')}</h3>
                         <div className="space-y-2">
                             {ownerApps.map((app) => (
                                 <div key={app.id} className="rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 flex items-center gap-3">
@@ -1234,18 +1239,18 @@ const AppStore = () => {
             <Dialog open={detailAppId !== null} onOpenChange={(open) => !open && setDetailAppId(null)}>
                 <DialogContent className="sm:max-w-2xl rounded-3xl border-0 p-0 overflow-hidden bg-[#F2F2F7] dark:bg-[#1C1C1E]">
                     {detailLoading || !detailApp ? (
-                        <div className="p-6 text-sm text-[#8A8A8E] dark:text-[#8E8E93]">Cargando detalle de app...</div>
+                        <div className="p-6 text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.loadingAppDetail')}</div>
                     ) : (
                         <div className="max-h-[80vh] overflow-y-auto">
                             <div className="p-6">
                                 <div className="flex gap-4 items-start">
-                                    <div className="relative h-24 w-24">
+                                    <div className="relative h-28 w-28">
                                         <Image
                                             src={detailApp.iconUrl || 'https://picsum.photos/seed/detail-icon/220/220'}
                                             fill
                                             sizes="(max-width: 768px) 100vw, 33vw"
                                             alt={detailApp.title}
-                                            className="rounded-3xl object-cover"
+                                            className="rounded-[22%] object-cover"
                                         />
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -1262,29 +1267,29 @@ const AppStore = () => {
                                         </button>
                                         <div className="mt-3">
                                             <Button
-                                                className="h-10 rounded-full px-6 bg-[#0A84FF] hover:bg-[#0A84FF]/90 text-white"
+                                                className="bg-[#EFEFF4] dark:bg-[#2C2C2E] text-[#0A84FF] rounded-full px-5 py-1 text-sm font-bold"
                                                 onClick={handleInstallApp}
                                             >
-                                                {getInstalledAppById(detailApp.id) ? 'Instalada' : 'Obtener'}
+                                                {getInstalledAppById(detailApp.id) ? t('appstore.installed') : t('appstore.get')}
                                             </Button>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="mt-6">
-                                    <h4 className="font-semibold mb-2">Capturas</h4>
+                                    <h4 className="font-semibold tracking-tight mb-2">{t('appstore.screenshots')}</h4>
                                     <div className="flex gap-3 overflow-x-auto pb-1">
                                         {(detailApp.screenshotsUrls.length > 0
                                             ? detailApp.screenshotsUrls
                                             : ['https://picsum.photos/seed/screen-fallback-1/520/290']).map(
                                                 (url, index) => (
-                                                    <div key={`${url}-${index}`} className="relative w-64 h-36 shrink-0">
+                                                    <div key={`${url}-${index}`} className="relative w-64 aspect-video shrink-0">
                                                         <Image
                                                             src={url}
                                                             fill
                                                             sizes="(max-width: 768px) 100vw, 33vw"
                                                             alt={`Screenshot ${index + 1}`}
-                                                            className="rounded-2xl object-cover"
+                                                            className="rounded-[22px] object-cover"
                                                         />
                                                     </div>
                                                 ),
@@ -1293,7 +1298,7 @@ const AppStore = () => {
                                 </div>
 
                                 <div className="mt-6 space-y-2">
-                                    <h4 className="font-semibold">Descripción</h4>
+                                    <h4 className="font-semibold tracking-tight">{t('appstore.description')}</h4>
                                     <p className="text-sm text-[#3A3A3C] dark:text-[#D1D1D6] whitespace-pre-wrap">
                                         {detailApp.description}
                                     </p>
@@ -1318,10 +1323,10 @@ const AppStore = () => {
                 <DialogContent className="sm:max-w-2xl rounded-3xl border-0 p-0 overflow-hidden bg-[#F2F2F7] dark:bg-[#1C1C1E]">
                     <DialogHeader className="px-6 pt-6 pb-2 text-left">
                         <DialogTitle className="text-2xl font-semibold">
-                            {form.id ? 'Editar app' : 'Publicar nueva app'}
+                            {form.id ? t('appstore.editApp') : t('appstore.publishNewApp')}
                         </DialogTitle>
                         <DialogDescription className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">
-                            Dashboard de publicación estilo iOS (Inset Grouped).
+                            {t('appstore.publishSubtitle')}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -1329,14 +1334,14 @@ const AppStore = () => {
                         <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
                             <Input
                                 className={insetInput}
-                                placeholder="Nombre de la app"
+                                placeholder={t('appstore.appName')}
                                 aria-label="Nombre de la app"
                                 value={form.title}
                                 onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
                             />
                             <textarea
                                 className="w-full min-h-[110px] rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#1C1C1E] p-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0A84FF]"
-                                placeholder="Descripción"
+                                placeholder={t('appstore.description')}
                                 aria-label="Descripción de la app"
                                 value={form.description}
                                 onChange={(event) =>
@@ -1345,14 +1350,14 @@ const AppStore = () => {
                             />
                             <Input
                                 className={insetInput}
-                                placeholder="URL del icono"
+                                placeholder={t('appstore.iconUrl')}
                                 aria-label="URL del icono"
                                 value={form.iconUrl}
                                 onChange={(event) => setForm((current) => ({ ...current, iconUrl: event.target.value }))}
                             />
                             <Input
                                 className={insetInput}
-                                placeholder="URL de la web app (externalUrl)"
+                                placeholder={t('appstore.externalUrl')}
                                 aria-label="URL externa de la app"
                                 value={form.externalUrl}
                                 onChange={(event) =>
@@ -1361,7 +1366,7 @@ const AppStore = () => {
                             />
                             <textarea
                                 className="w-full min-h-[110px] rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#1C1C1E] p-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0A84FF]"
-                                placeholder="URLs de capturas (una por línea)"
+                                placeholder={t('appstore.screenshotsUrls')}
                                 aria-label="URLs de capturas"
                                 value={form.screenshotsText}
                                 onChange={(event) =>
@@ -1374,7 +1379,7 @@ const AppStore = () => {
                             <div className="flex gap-2">
                                 <Input
                                     className={insetInput}
-                                    placeholder="Categoría (Title Case)"
+                                    placeholder={t('appstore.categoryTitleCase')}
                                     aria-label="Categoría"
                                     value={form.categoryInput}
                                     onChange={(event) =>
@@ -1382,7 +1387,7 @@ const AppStore = () => {
                                     }
                                 />
                                 <Button className="rounded-xl h-12" onClick={addCategoryToForm}>
-                                    Añadir
+                                    {t('appstore.add')}
                                 </Button>
                             </div>
                             <div className="flex flex-wrap gap-2">
@@ -1403,7 +1408,7 @@ const AppStore = () => {
                                 ))}
                             </div>
                             <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">
-                                Máximo 5 categorías. Solo texto en Title Case y sin símbolos.
+                                {t('appstore.maxCategoriesHint')}
                             </p>
                         </div>
 
@@ -1413,19 +1418,19 @@ const AppStore = () => {
                                 className={`rounded-xl h-10 ${form.status === 'published' ? 'bg-[#0A84FF] text-white hover:bg-[#0A84FF]/90' : ''}`}
                                 onClick={() => setForm((current) => ({ ...current, status: 'published' }))}
                             >
-                                Publicada
+                                {t('appstore.published')}
                             </Button>
                             <Button
                                 variant={form.status === 'draft' ? 'default' : 'ghost'}
                                 className={`rounded-xl h-10 ${form.status === 'draft' ? 'bg-[#0A84FF] text-white hover:bg-[#0A84FF]/90' : ''}`}
                                 onClick={() => setForm((current) => ({ ...current, status: 'draft' }))}
                             >
-                                Borrador
+                                {t('appstore.draft')}
                             </Button>
                         </div>
 
                         <Button className={`${primaryButton} w-full`} onClick={submitAppForm} disabled={publishLoading}>
-                            {publishLoading ? 'Guardando...' : form.id ? 'Guardar cambios' : 'Publicar app'}
+                            {publishLoading ? t('appstore.saving') : form.id ? t('appstore.saveChanges') : t('appstore.publishApp')}
                         </Button>
                     </div>
                 </DialogContent>
@@ -1435,12 +1440,12 @@ const AppStore = () => {
                 <DialogContent className="sm:max-w-md rounded-3xl border-0 p-0 overflow-hidden bg-[#F2F2F7] dark:bg-[#1C1C1E]">
                     <DialogHeader className="px-6 pt-6 pb-2 text-left">
                         <DialogTitle className="text-2xl font-semibold">
-                            {authMode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
+                            {authMode === 'login' ? t('appstore.loginTitle') : t('appstore.registerTitle')}
                         </DialogTitle>
                         <DialogDescription className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">
                             {authMode === 'login'
-                                ? 'Accede con Email/Password o Google.'
-                                : 'Regístrate con nickname único de desarrollador.'}
+                                ? t('appstore.loginDescription')
+                                : t('appstore.registerDescription')}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -1451,14 +1456,14 @@ const AppStore = () => {
                                 className={`rounded-xl h-10 ${authMode === 'login' ? 'bg-[#0A84FF] text-white hover:bg-[#0A84FF]/90' : ''}`}
                                 onClick={() => setAuthMode('login')}
                             >
-                                Login
+                                {t('appstore.login')}
                             </Button>
                             <Button
                                 variant={authMode === 'register' ? 'default' : 'ghost'}
                                 className={`rounded-xl h-10 ${authMode === 'register' ? 'bg-[#0A84FF] text-white hover:bg-[#0A84FF]/90' : ''}`}
                                 onClick={() => setAuthMode('register')}
                             >
-                                Registro
+                                {t('appstore.register')}
                             </Button>
                         </div>
 
@@ -1474,12 +1479,12 @@ const AppStore = () => {
                             }}
                         >
                             <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
-                                <Input className={insetInput} placeholder="Email" aria-label="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
+                                <Input className={insetInput} placeholder={t('appstore.email')} aria-label={t('appstore.email')} value={email} onChange={(event) => setEmail(event.target.value)} />
                                 <Input
                                     type="password"
                                     className={insetInput}
-                                    placeholder="Contraseña"
-                                    aria-label="Contraseña"
+                                    placeholder={t('appstore.password')}
+                                    aria-label={t('appstore.password')}
                                     value={password}
                                     onChange={(event) => setPassword(event.target.value)}
                                 />
@@ -1487,15 +1492,15 @@ const AppStore = () => {
                                     <>
                                         <Input
                                             className={insetInput}
-                                            placeholder="Nickname"
-                                            aria-label="Nickname"
+                                            placeholder={t('appstore.nickname')}
+                                            aria-label={t('appstore.nickname')}
                                             value={nickname}
                                             onChange={(event) => setNickname(event.target.value)}
                                         />
                                         <Input
                                             className={insetInput}
-                                            placeholder="Nombre visible"
-                                            aria-label="Nombre visible"
+                                            placeholder={t('appstore.displayName')}
+                                            aria-label={t('appstore.displayName')}
                                             value={displayName}
                                             onChange={(event) => setDisplayName(event.target.value)}
                                         />
@@ -1508,7 +1513,7 @@ const AppStore = () => {
                                 className={`${primaryButton} w-full`}
                                 disabled={authLoading}
                             >
-                                {authLoading ? 'Procesando...' : authMode === 'login' ? 'Entrar' : 'Crear cuenta'}
+                                {authLoading ? t('appstore.processing') : authMode === 'login' ? t('appstore.enter') : t('appstore.createAccount')}
                             </Button>
                         </form>
 
@@ -1518,7 +1523,7 @@ const AppStore = () => {
                             onClick={handleGoogleLogin}
                             disabled={authLoading}
                         >
-                            Continuar con Google
+                            {t('appstore.continueGoogle')}
                         </Button>
                     </div>
                 </DialogContent>
@@ -1527,34 +1532,34 @@ const AppStore = () => {
             <Dialog open={needsProfileCompletion} onOpenChange={setNeedsProfileCompletion}>
                 <DialogContent className="sm:max-w-md rounded-3xl border-0 p-0 overflow-hidden bg-[#F2F2F7] dark:bg-[#1C1C1E]">
                     <DialogHeader className="px-6 pt-6 pb-2 text-left">
-                        <DialogTitle className="text-2xl font-semibold">Completa tu perfil</DialogTitle>
+                        <DialogTitle className="text-2xl font-semibold">{t('appstore.completeProfileTitle')}</DialogTitle>
                         <DialogDescription className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">
-                            Necesitas nickname único para usar AppStore.
+                            {t('appstore.completeProfileDescription')}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="px-6 pb-6 space-y-3">
                         <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
-                            <Input className={insetInput} placeholder="Nickname" aria-label="Nickname" value={nickname} onChange={(event) => setNickname(event.target.value)} />
+                            <Input className={insetInput} placeholder={t('appstore.nickname')} aria-label={t('appstore.nickname')} value={nickname} onChange={(event) => setNickname(event.target.value)} />
                             <Input
                                 className={insetInput}
-                                placeholder="Nombre visible"
-                                aria-label="Nombre visible"
+                                placeholder={t('appstore.displayName')}
+                                aria-label={t('appstore.displayName')}
                                 value={displayName}
                                 onChange={(event) => setDisplayName(event.target.value)}
                             />
-                            <Input className={insetInput} placeholder="Bio (opcional)" aria-label="Bio opcional" value={bio} onChange={(event) => setBio(event.target.value)} />
+                            <Input className={insetInput} placeholder={t('appstore.bioOptional')} aria-label={t('appstore.bioOptional')} value={bio} onChange={(event) => setBio(event.target.value)} />
                             <Input
                                 className={insetInput}
-                                placeholder="Avatar URL (opcional)"
-                                aria-label="URL de avatar opcional"
+                                placeholder={t('appstore.avatarUrlOptional')}
+                                aria-label={t('appstore.avatarUrlOptional')}
                                 value={avatarUrl}
                                 onChange={(event) => setAvatarUrl(event.target.value)}
                             />
                         </div>
 
                         <Button className={`${primaryButton} w-full`} onClick={upsertProfile}>
-                            Guardar perfil
+                            {t('appstore.saveProfile')}
                         </Button>
                     </div>
                 </DialogContent>
@@ -1563,27 +1568,27 @@ const AppStore = () => {
             <Dialog open={editProfileOpen} onOpenChange={setEditProfileOpen}>
                 <DialogContent className="sm:max-w-md rounded-3xl border-0 p-0 overflow-hidden bg-[#F2F2F7] dark:bg-[#1C1C1E]">
                     <DialogHeader className="px-6 pt-6 pb-2 text-left">
-                        <DialogTitle className="text-2xl font-semibold">Editar Perfil</DialogTitle>
+                        <DialogTitle className="text-2xl font-semibold">{t('appstore.editProfileTitle')}</DialogTitle>
                         <DialogDescription className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">
-                            Actualiza tu perfil de desarrollador.
+                            {t('appstore.editProfileDescription')}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="px-6 pb-6 space-y-3">
                         <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
-                            <Input className={insetInput} placeholder="Nickname" aria-label="Nickname" value={nickname} onChange={(event) => setNickname(event.target.value)} />
+                            <Input className={insetInput} placeholder={t('appstore.nickname')} aria-label={t('appstore.nickname')} value={nickname} onChange={(event) => setNickname(event.target.value)} />
                             <Input
                                 className={insetInput}
-                                placeholder="Nombre visible"
-                                aria-label="Nombre visible"
+                                placeholder={t('appstore.displayName')}
+                                aria-label={t('appstore.displayName')}
                                 value={displayName}
                                 onChange={(event) => setDisplayName(event.target.value)}
                             />
-                            <Input className={insetInput} placeholder="Bio" aria-label="Bio" value={bio} onChange={(event) => setBio(event.target.value)} />
+                            <Input className={insetInput} placeholder={t('appstore.bio')} aria-label={t('appstore.bio')} value={bio} onChange={(event) => setBio(event.target.value)} />
                             <Input
                                 className={insetInput}
-                                placeholder="Avatar URL"
-                                aria-label="URL de avatar"
+                                placeholder={t('appstore.avatarUrl')}
+                                aria-label={t('appstore.avatarUrl')}
                                 value={avatarUrl}
                                 onChange={(event) => setAvatarUrl(event.target.value)}
                             />
@@ -1598,7 +1603,7 @@ const AppStore = () => {
                                 }
                             }}
                         >
-                            Guardar cambios
+                            {t('appstore.saveChanges')}
                         </Button>
                     </div>
                 </DialogContent>
