@@ -329,6 +329,7 @@ const AppStore = () => {
     async function fetchOwnProfile() {
         if (!firebaseUser) {
             setOwnProfile(null);
+            setNeedsProfileCompletion(false);
             return;
         }
 
@@ -347,7 +348,7 @@ const AppStore = () => {
                     return;
                 }
 
-                toast({ title: 'Perfil', description: json.error.message, variant: 'destructive' });
+                setOwnProfile(null);
                 return;
             }
 
@@ -356,7 +357,7 @@ const AppStore = () => {
                 setSelectedNickname(json.data.nickname);
             }
         } catch {
-            toast({ title: 'Perfil', description: 'No se pudo cargar tu perfil.', variant: 'destructive' });
+            setOwnProfile(null);
         } finally {
             setProfileLoading(false);
         }
@@ -902,6 +903,7 @@ const AppStore = () => {
                                     <Image
                                         src={app.iconUrl || 'https://picsum.photos/seed/appicon-fallback/120/120'}
                                         fill
+                                        sizes="(max-width: 768px) 100vw, 33vw"
                                         alt={`Icono de ${app.title}`}
                                         className="object-cover"
                                     />
@@ -964,6 +966,7 @@ const AppStore = () => {
                         <Image
                             src={ownProfile?.avatarUrl || 'https://s6.imgcdn.dev/Yrcy4v.png'}
                             fill
+                            sizes="(max-width: 768px) 100vw, 33vw"
                             alt="Avatar del perfil"
                             className="rounded-full object-cover"
                         />
@@ -1005,6 +1008,7 @@ const AppStore = () => {
                                 <Image
                                     src={publicProfile.avatarUrl || 'https://s6.imgcdn.dev/Yrcy4v.png'}
                                     fill
+                                    sizes="(max-width: 768px) 100vw, 33vw"
                                     alt={publicProfile.nickname}
                                     className="rounded-2xl object-cover"
                                 />
@@ -1170,6 +1174,7 @@ const AppStore = () => {
                                             <Image
                                                 src={app.iconUrl || 'https://picsum.photos/seed/appicon-fallback-2/120/120'}
                                                 fill
+                                                sizes="(max-width: 768px) 100vw, 33vw"
                                                 alt={app.title}
                                                 className="rounded-xl object-cover"
                                             />
@@ -1204,7 +1209,7 @@ const AppStore = () => {
                             {ownerApps.map((app) => (
                                 <div key={app.id} className="rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 flex items-center gap-3">
                                     <div className="relative h-12 w-12">
-                                        <Image src={app.iconUrl || 'https://picsum.photos/seed/ownerapp/120/120'} fill alt={app.title} className="rounded-xl object-cover" />
+                                        <Image src={app.iconUrl || 'https://picsum.photos/seed/ownerapp/120/120'} fill sizes="(max-width: 768px) 100vw, 33vw" alt={app.title} className="rounded-xl object-cover" />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="font-semibold text-sm truncate">{app.title}</p>
@@ -1238,6 +1243,7 @@ const AppStore = () => {
                                         <Image
                                             src={detailApp.iconUrl || 'https://picsum.photos/seed/detail-icon/220/220'}
                                             fill
+                                            sizes="(max-width: 768px) 100vw, 33vw"
                                             alt={detailApp.title}
                                             className="rounded-3xl object-cover"
                                         />
@@ -1276,6 +1282,7 @@ const AppStore = () => {
                                                         <Image
                                                             src={url}
                                                             fill
+                                                            sizes="(max-width: 768px) 100vw, 33vw"
                                                             alt={`Screenshot ${index + 1}`}
                                                             className="rounded-2xl object-cover"
                                                         />
@@ -1323,12 +1330,14 @@ const AppStore = () => {
                             <Input
                                 className={insetInput}
                                 placeholder="Nombre de la app"
+                                aria-label="Nombre de la app"
                                 value={form.title}
                                 onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
                             />
                             <textarea
                                 className="w-full min-h-[110px] rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#1C1C1E] p-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0A84FF]"
                                 placeholder="Descripción"
+                                aria-label="Descripción de la app"
                                 value={form.description}
                                 onChange={(event) =>
                                     setForm((current) => ({ ...current, description: event.target.value }))
@@ -1337,12 +1346,14 @@ const AppStore = () => {
                             <Input
                                 className={insetInput}
                                 placeholder="URL del icono"
+                                aria-label="URL del icono"
                                 value={form.iconUrl}
                                 onChange={(event) => setForm((current) => ({ ...current, iconUrl: event.target.value }))}
                             />
                             <Input
                                 className={insetInput}
                                 placeholder="URL de la web app (externalUrl)"
+                                aria-label="URL externa de la app"
                                 value={form.externalUrl}
                                 onChange={(event) =>
                                     setForm((current) => ({ ...current, externalUrl: event.target.value }))
@@ -1351,6 +1362,7 @@ const AppStore = () => {
                             <textarea
                                 className="w-full min-h-[110px] rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#1C1C1E] p-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0A84FF]"
                                 placeholder="URLs de capturas (una por línea)"
+                                aria-label="URLs de capturas"
                                 value={form.screenshotsText}
                                 onChange={(event) =>
                                     setForm((current) => ({ ...current, screenshotsText: event.target.value }))
@@ -1363,6 +1375,7 @@ const AppStore = () => {
                                 <Input
                                     className={insetInput}
                                     placeholder="Categoría (Title Case)"
+                                    aria-label="Categoría"
                                     value={form.categoryInput}
                                     onChange={(event) =>
                                         setForm((current) => ({ ...current, categoryInput: event.target.value }))
@@ -1461,11 +1474,12 @@ const AppStore = () => {
                             }}
                         >
                             <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
-                                <Input className={insetInput} placeholder="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
+                                <Input className={insetInput} placeholder="Email" aria-label="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
                                 <Input
                                     type="password"
                                     className={insetInput}
                                     placeholder="Contraseña"
+                                    aria-label="Contraseña"
                                     value={password}
                                     onChange={(event) => setPassword(event.target.value)}
                                 />
@@ -1474,12 +1488,14 @@ const AppStore = () => {
                                         <Input
                                             className={insetInput}
                                             placeholder="Nickname"
+                                            aria-label="Nickname"
                                             value={nickname}
                                             onChange={(event) => setNickname(event.target.value)}
                                         />
                                         <Input
                                             className={insetInput}
                                             placeholder="Nombre visible"
+                                            aria-label="Nombre visible"
                                             value={displayName}
                                             onChange={(event) => setDisplayName(event.target.value)}
                                         />
@@ -1519,17 +1535,19 @@ const AppStore = () => {
 
                     <div className="px-6 pb-6 space-y-3">
                         <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
-                            <Input className={insetInput} placeholder="Nickname" value={nickname} onChange={(event) => setNickname(event.target.value)} />
+                            <Input className={insetInput} placeholder="Nickname" aria-label="Nickname" value={nickname} onChange={(event) => setNickname(event.target.value)} />
                             <Input
                                 className={insetInput}
                                 placeholder="Nombre visible"
+                                aria-label="Nombre visible"
                                 value={displayName}
                                 onChange={(event) => setDisplayName(event.target.value)}
                             />
-                            <Input className={insetInput} placeholder="Bio (opcional)" value={bio} onChange={(event) => setBio(event.target.value)} />
+                            <Input className={insetInput} placeholder="Bio (opcional)" aria-label="Bio opcional" value={bio} onChange={(event) => setBio(event.target.value)} />
                             <Input
                                 className={insetInput}
                                 placeholder="Avatar URL (opcional)"
+                                aria-label="URL de avatar opcional"
                                 value={avatarUrl}
                                 onChange={(event) => setAvatarUrl(event.target.value)}
                             />
@@ -1553,17 +1571,19 @@ const AppStore = () => {
 
                     <div className="px-6 pb-6 space-y-3">
                         <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
-                            <Input className={insetInput} placeholder="Nickname" value={nickname} onChange={(event) => setNickname(event.target.value)} />
+                            <Input className={insetInput} placeholder="Nickname" aria-label="Nickname" value={nickname} onChange={(event) => setNickname(event.target.value)} />
                             <Input
                                 className={insetInput}
                                 placeholder="Nombre visible"
+                                aria-label="Nombre visible"
                                 value={displayName}
                                 onChange={(event) => setDisplayName(event.target.value)}
                             />
-                            <Input className={insetInput} placeholder="Bio" value={bio} onChange={(event) => setBio(event.target.value)} />
+                            <Input className={insetInput} placeholder="Bio" aria-label="Bio" value={bio} onChange={(event) => setBio(event.target.value)} />
                             <Input
                                 className={insetInput}
                                 placeholder="Avatar URL"
+                                aria-label="URL de avatar"
                                 value={avatarUrl}
                                 onChange={(event) => setAvatarUrl(event.target.value)}
                             />
