@@ -47,6 +47,7 @@ export default function Home() {
 
   return (
     <div className="h-[100dvh] w-screen flex flex-col font-sans relative">
+                <h1 className="sr-only">Daniel Cabrera - Portfolio iOS</h1>
         
         <div className={cn(
             "w-full shrink-0 z-30 transition-opacity duration-200", 

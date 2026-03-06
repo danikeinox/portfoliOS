@@ -896,12 +896,13 @@ const AppStore = () => {
                                 <button
                                     type="button"
                                     onClick={() => setDetailAppId(app.id)}
+                                    aria-label={`Abrir detalles de ${app.title}`}
                                     className="relative w-20 h-20 rounded-2xl overflow-hidden bg-neutral-200 shrink-0"
                                 >
                                     <Image
                                         src={app.iconUrl || 'https://picsum.photos/seed/appicon-fallback/120/120'}
                                         fill
-                                        alt={app.title}
+                                        alt={`Icono de ${app.title}`}
                                         className="object-cover"
                                     />
                                 </button>
@@ -957,12 +958,13 @@ const AppStore = () => {
                                 setAuthOpen(true);
                             }
                         }}
+                        aria-label="Abrir perfil de desarrollador"
                         className="h-10 w-10 relative"
                     >
                         <Image
                             src={ownProfile?.avatarUrl || 'https://s6.imgcdn.dev/Yrcy4v.png'}
                             fill
-                            alt="Profile"
+                            alt="Avatar del perfil"
                             className="rounded-full object-cover"
                         />
                     </button>
@@ -1084,7 +1086,7 @@ const AppStore = () => {
                             >
                                 <Image
                                     src={featuredApp.screenshotsUrls[0] || 'https://picsum.photos/seed/appstore-main/800/500'}
-                                    alt={featuredApp.title}
+                                    alt={`Imagen destacada de ${featuredApp.title}`}
                                     width={800}
                                     height={500}
                                     className="w-full h-full object-cover"
@@ -1131,6 +1133,7 @@ const AppStore = () => {
                         <Input
                             className={insetInput}
                             placeholder="Buscar categoría"
+                            aria-label="Buscar categoría"
                             value={categoriesSearch}
                             onChange={(event) => setCategoriesSearch(event.target.value)}
                         />
