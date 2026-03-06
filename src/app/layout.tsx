@@ -108,9 +108,9 @@ export default function RootLayout({
                 <NotificationsProvider>
                   <GoogleCalendarProvider>
                     <HomeScreenProvider>
-                        <FirebaseClientProvider>
-                            {children}
-                        </FirebaseClientProvider>
+                      <FirebaseClientProvider>
+                        {children}
+                      </FirebaseClientProvider>
                     </HomeScreenProvider>
                     <Toaster />
                   </GoogleCalendarProvider>
