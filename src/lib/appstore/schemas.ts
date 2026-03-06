@@ -52,6 +52,14 @@ const categoriesSchema = z
 
 const screenshotsSchema = z.array(z.string().url().max(300)).max(8).default([]);
 
+const httpsUrlSchema = z
+  .string()
+  .url("External URL must be a valid URL")
+  .max(300)
+  .refine((value) => value.startsWith("https://"), {
+    message: "External URL must start with https://",
+  });
+
 const appCreatePayloadSchema = z.object({
   title: z
     .string()
@@ -78,7 +86,7 @@ const appCreatePayloadSchema = z.object({
     .default([]),
   iconUrl: z.string().url().max(300).optional(),
   screenshotsUrls: screenshotsSchema,
-  externalUrl: z.string().url().max(300),
+  externalUrl: httpsUrlSchema,
 });
 
 export const appCreateSchema = appCreatePayloadSchema.transform((payload) => {

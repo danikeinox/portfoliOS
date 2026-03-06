@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import {
     GoogleAuthProvider,
@@ -167,6 +167,11 @@ const AppStore = () => {
     const [publishOpen, setPublishOpen] = useState(false);
     const [publishLoading, setPublishLoading] = useState(false);
     const [form, setForm] = useState<AppFormState>(emptyAppForm());
+
+    const nicknameCheckInFlightRef = useRef(false);
+    const lastNicknameCheckAtRef = useRef(0);
+    const installInFlightRef = useRef(false);
+    const lastInstallAtRef = useRef(0);
 
     const today = new Date();
     const dateString = today.toLocaleDateString(locale, {
@@ -383,26 +388,57 @@ const AppStore = () => {
     }
 
     async function checkNicknameAvailability(candidate: string): Promise<boolean> {
-        const response = await fetch(
-            `/api/appstore/users/check-nickname?nickname=${encodeURIComponent(candidate)}`,
-        );
-        const json = (await response.json()) as AppStoreApiResponse<NicknameAvailability>;
-
-        if (!json.success) {
-            toast({ title: 'Nickname', description: json.error.message, variant: 'destructive' });
-            return false;
-        }
-
-        if (!json.data.available) {
+        const now = Date.now();
+        if (nicknameCheckInFlightRef.current) {
             toast({
-                title: 'Nickname ocupado',
-                description: 'Elige otro nickname para continuar.',
+                title: 'Espera un momento',
+                description: 'Ya estamos comprobando el nickname.',
                 variant: 'destructive',
             });
             return false;
         }
 
-        return true;
+        if (now - lastNicknameCheckAtRef.current < 900) {
+            toast({
+                title: 'Demasiadas peticiones',
+                description: 'Vuelve a intentarlo en un instante.',
+                variant: 'destructive',
+            });
+            return false;
+        }
+
+        nicknameCheckInFlightRef.current = true;
+        lastNicknameCheckAtRef.current = now;
+
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 300));
+
+            const response = await fetch(
+                `/api/appstore/users/check-nickname?nickname=${encodeURIComponent(candidate)}`,
+            );
+            const json = (await response.json()) as AppStoreApiResponse<NicknameAvailability>;
+
+            if (!json.success) {
+                toast({ title: 'Nickname', description: json.error.message, variant: 'destructive' });
+                return false;
+            }
+
+            if (!json.data.available) {
+                toast({
+                    title: 'Nickname ocupado',
+                    description: 'Elige otro nickname para continuar.',
+                    variant: 'destructive',
+                });
+                return false;
+            }
+
+            return true;
+        } catch {
+            toast({ title: 'Nickname', description: 'No se pudo validar el nickname.', variant: 'destructive' });
+            return false;
+        } finally {
+            nicknameCheckInFlightRef.current = false;
+        }
     }
 
     async function upsertProfile() {
@@ -698,6 +734,18 @@ const AppStore = () => {
             return;
         }
 
+        const now = Date.now();
+        if (installInFlightRef.current || now - lastInstallAtRef.current < 1200) {
+            toast({
+                title: 'Espera un momento',
+                description: 'Estamos procesando la instalación.',
+            });
+            return;
+        }
+
+        installInFlightRef.current = true;
+        lastInstallAtRef.current = now;
+
         const alreadyInstalled = getInstalledAppById(detailApp.id);
 
         saveInstalledApp({
@@ -711,23 +759,27 @@ const AppStore = () => {
 
         addApp(toInstalledSlug(detailApp.id));
 
-        if (!alreadyInstalled) {
-            try {
-                await fetch(`/api/appstore/apps/${detailApp.id}`, { method: 'POST' });
-            } catch {
-                toast({
-                    title: 'Instalación',
-                    description: 'La app se instaló, pero no se pudo actualizar el contador.',
-                });
+        try {
+            if (!alreadyInstalled) {
+                try {
+                    await fetch(`/api/appstore/apps/${detailApp.id}`, { method: 'POST' });
+                } catch {
+                    toast({
+                        title: 'Instalación',
+                        description: 'La app se instaló, pero no se pudo actualizar el contador.',
+                    });
+                }
             }
-        }
 
-        toast({
-            title: alreadyInstalled ? 'App ya instalada' : 'App instalada',
-            description: alreadyInstalled
-                ? 'La app ya estaba disponible en tu iPhone.'
-                : 'La app ya aparece en tu pantalla de inicio.',
-        });
+            toast({
+                title: alreadyInstalled ? 'App ya instalada' : 'App instalada',
+                description: alreadyInstalled
+                    ? 'La app ya estaba disponible en tu iPhone.'
+                    : 'La app ya aparece en tu pantalla de inicio.',
+            });
+        } finally {
+            installInFlightRef.current = false;
+        }
     }
 
     useEffect(() => {
@@ -1317,40 +1369,52 @@ const AppStore = () => {
                             </Button>
                         </div>
 
-                        <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
-                            <Input className={insetInput} placeholder="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
-                            <Input
-                                type="password"
-                                className={insetInput}
-                                placeholder="Contraseña"
-                                value={password}
-                                onChange={(event) => setPassword(event.target.value)}
-                            />
-                            {authMode === 'register' && (
-                                <>
-                                    <Input
-                                        className={insetInput}
-                                        placeholder="Nickname"
-                                        value={nickname}
-                                        onChange={(event) => setNickname(event.target.value)}
-                                    />
-                                    <Input
-                                        className={insetInput}
-                                        placeholder="Nombre visible"
-                                        value={displayName}
-                                        onChange={(event) => setDisplayName(event.target.value)}
-                                    />
-                                </>
-                            )}
-                        </div>
-
-                        <Button
-                            className={`${primaryButton} w-full`}
-                            onClick={authMode === 'login' ? handleLogin : handleRegister}
-                            disabled={authLoading}
+                        <form
+                            className="space-y-3"
+                            onSubmit={(event) => {
+                                event.preventDefault();
+                                if (authMode === 'login') {
+                                    void handleLogin();
+                                    return;
+                                }
+                                void handleRegister();
+                            }}
                         >
-                            {authLoading ? 'Procesando...' : authMode === 'login' ? 'Entrar' : 'Crear cuenta'}
-                        </Button>
+                            <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
+                                <Input className={insetInput} placeholder="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
+                                <Input
+                                    type="password"
+                                    className={insetInput}
+                                    placeholder="Contraseña"
+                                    value={password}
+                                    onChange={(event) => setPassword(event.target.value)}
+                                />
+                                {authMode === 'register' && (
+                                    <>
+                                        <Input
+                                            className={insetInput}
+                                            placeholder="Nickname"
+                                            value={nickname}
+                                            onChange={(event) => setNickname(event.target.value)}
+                                        />
+                                        <Input
+                                            className={insetInput}
+                                            placeholder="Nombre visible"
+                                            value={displayName}
+                                            onChange={(event) => setDisplayName(event.target.value)}
+                                        />
+                                    </>
+                                )}
+                            </div>
+
+                            <Button
+                                type="submit"
+                                className={`${primaryButton} w-full`}
+                                disabled={authLoading}
+                            >
+                                {authLoading ? 'Procesando...' : authMode === 'login' ? 'Entrar' : 'Crear cuenta'}
+                            </Button>
+                        </form>
 
                         <Button
                             variant="secondary"

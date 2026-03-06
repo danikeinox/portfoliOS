@@ -22,17 +22,38 @@ function getCredential() {
     });
   }
 
+  console.error(
+    "[firebase-admin] Missing FIREBASE_PROJECT_ID/FIREBASE_CLIENT_EMAIL/FIREBASE_PRIVATE_KEY. Falling back to application default credentials.",
+  );
+
   return applicationDefault();
 }
 
-const app = getApps().length
-  ? getApps()[0]
-  : initializeApp({
+function getOrInitializeApp() {
+  if (getApps().length) {
+    return getApps()[0];
+  }
+
+  const projectId =
+    process.env.FIREBASE_PROJECT_ID ||
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+
+  try {
+    return initializeApp({
       credential: getCredential(),
-      projectId:
-        process.env.FIREBASE_PROJECT_ID ||
-        process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      projectId,
     });
+  } catch (error) {
+    console.error(
+      "[firebase-admin] Failed to initialize with explicit credentials. Retrying with minimal config.",
+      error,
+    );
+
+    return initializeApp({ projectId });
+  }
+}
+
+const app = getOrInitializeApp();
 
 export const adminAuth = getAuth(app);
 export const adminDb = getFirestore(app);
