@@ -115,20 +115,20 @@ const Messages = () => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 px-4 pb-4">
-            <div className="flex-1 overflow-y-auto py-4 space-y-3">
-              <div className="max-w-[80%] rounded-2xl rounded-bl-md bg-[#0A84FF] text-white px-4 py-3 ml-auto">
-                <p className="text-sm">{form.watch('message') || t('messages.placeholderBubble')}</p>
-              </div>
+          <div className="flex-1 overflow-y-auto py-4 space-y-3">
+            <div className="max-w-[80%] rounded-2xl rounded-bl-md bg-[#0A84FF] text-white px-4 py-3 ml-auto">
+              <p className="text-sm">{form.watch('message') || t('messages.placeholderBubble')}</p>
             </div>
+          </div>
 
-            <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden mb-3 border border-neutral-200 dark:border-[#2C2C2E]">
+          <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden mb-3 border border-neutral-200 dark:border-[#2C2C2E]">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
-                    <FormItem className="p-3 border-b border-neutral-200 dark:border-[#38383A]">
+                <FormItem className="p-3 border-b border-neutral-200 dark:border-[#38383A]">
                   <FormControl>
-                            <Input placeholder={t('form.namePlaceholder')} {...field} className="bg-transparent border-none text-sm h-auto p-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-black dark:text-white" />
+                    <Input placeholder={t('form.namePlaceholder')} {...field} className="bg-transparent border-none text-sm h-auto p-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-black dark:text-white" />
                   </FormControl>
                   <FormMessage className="pt-1" />
                 </FormItem>
@@ -140,7 +140,7 @@ const Messages = () => {
               render={({ field }) => (
                 <FormItem className="p-3">
                   <FormControl>
-                      <Input placeholder={t('form.emailPlaceholder')} {...field} className="bg-transparent border-none text-sm h-auto p-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-black dark:text-white" />
+                    <Input placeholder={t('form.emailPlaceholder')} {...field} className="bg-transparent border-none text-sm h-auto p-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-black dark:text-white" />
                   </FormControl>
                   <FormMessage className="pt-1" />
                 </FormItem>
@@ -148,56 +148,56 @@ const Messages = () => {
             />
           </div>
 
-            {attachments.length > 0 && (
-              <div className="mb-3 flex flex-wrap gap-2">
-                {attachments.map((file, index) => (
-                  <div key={`${file.name}-${index}`} className="inline-flex items-center gap-2 rounded-full bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-[#2C2C2E] px-3 py-1.5">
-                    <Paperclip className="h-3.5 w-3.5 text-[#8A8A8E]" />
-                    <span className="text-xs max-w-[120px] truncate">{file.name}</span>
-                    <span className="text-[10px] text-[#8A8A8E]">{formatSize(file.size)}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeAttachment(index)}
-                      className="text-[#8A8A8E] hover:text-[#FF3B30]"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+          {attachments.length > 0 && (
+            <div className="mb-3 flex flex-wrap gap-2">
+              {attachments.map((file, index) => (
+                <div key={`${file.name}-${index}`} className="inline-flex items-center gap-2 rounded-full bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-[#2C2C2E] px-3 py-1.5">
+                  <Paperclip className="h-3.5 w-3.5 text-[#8A8A8E]" />
+                  <span className="text-xs max-w-[120px] truncate">{file.name}</span>
+                  <span className="text-[10px] text-[#8A8A8E]">{formatSize(file.size)}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeAttachment(index)}
+                    className="text-[#8A8A8E] hover:text-[#FF3B30]"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
-                <div className="relative mt-auto flex items-end gap-2 p-2 bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-[#38383A] rounded-3xl">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="text-neutral-400 hover:text-system-blue flex-shrink-0"
-                  onClick={() => setShowAttachmentMenu((current) => !current)}
-                >
-                    <PlusCircle size={28}/>
+          <div className="relative mt-auto flex items-end gap-2 p-2 bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-[#38383A] rounded-3xl">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="text-neutral-400 hover:text-system-blue flex-shrink-0"
+              onClick={() => setShowAttachmentMenu((current) => !current)}
+            >
+              <PlusCircle size={28} />
             </Button>
 
-                {showAttachmentMenu && (
-                  <div className="absolute bottom-14 left-2 rounded-2xl border border-neutral-200 dark:border-[#2C2C2E] bg-white dark:bg-[#1C1C1E] shadow-xl p-2 w-48">
-                    <button
-                      type="button"
-                      onClick={() => imageInputRef.current?.click()}
-                      className="w-full text-left text-sm px-3 py-2 rounded-xl hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] flex items-center gap-2"
-                    >
-                      <Camera className="h-4 w-4" />
-                      {t('messages.addImage')}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="w-full text-left text-sm px-3 py-2 rounded-xl hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] flex items-center gap-2"
-                    >
-                      <Paperclip className="h-4 w-4" />
-                      {t('messages.addFile')}
-                    </button>
-                  </div>
-                )}
+            {showAttachmentMenu && (
+              <div className="absolute bottom-14 left-2 rounded-2xl border border-neutral-200 dark:border-[#2C2C2E] bg-white dark:bg-[#1C1C1E] shadow-xl p-2 w-48">
+                <button
+                  type="button"
+                  onClick={() => imageInputRef.current?.click()}
+                  className="w-full text-left text-sm px-3 py-2 rounded-xl hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] flex items-center gap-2"
+                >
+                  <Camera className="h-4 w-4" />
+                  {t('messages.addImage')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full text-left text-sm px-3 py-2 rounded-xl hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] flex items-center gap-2"
+                >
+                  <Paperclip className="h-4 w-4" />
+                  {t('messages.addFile')}
+                </button>
+              </div>
+            )}
 
             <FormField
               control={form.control}
@@ -228,26 +228,26 @@ const Messages = () => {
               )}
             </Button>
           </div>
-            <input
-              ref={imageInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(event) => {
-                handleFilesSelected(event.target.files);
-                event.currentTarget.value = '';
-              }}
-            />
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              className="hidden"
-              onChange={(event) => {
-                handleFilesSelected(event.target.files);
-                event.currentTarget.value = '';
-              }}
-            />
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(event) => {
+              handleFilesSelected(event.target.files);
+              event.currentTarget.value = '';
+            }}
+          />
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            className="hidden"
+            onChange={(event) => {
+              handleFilesSelected(event.target.files);
+              event.currentTarget.value = '';
+            }}
+          />
           <FormMessage className="pt-1 pl-2 text-center text-red-500">{form.formState.errors.message?.message}</FormMessage>
         </form>
       </Form>
