@@ -70,6 +70,23 @@ function asCode(error: unknown): string {
   return "UNKNOWN_ERROR";
 }
 
+function isMissingIndexError(error: unknown): boolean {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const maybeCode =
+    "code" in error ? String((error as { code?: unknown }).code) : "";
+  const maybeMessage =
+    "message" in error ? String((error as { message?: unknown }).message) : "";
+
+  return (
+    maybeCode.includes("failed-precondition") ||
+    maybeCode === "9" ||
+    /requires an index|missing index|failed precondition/i.test(maybeMessage)
+  );
+}
+
 export async function GET(request: NextRequest) {
   const parsed = appListQuerySchema.safeParse({
     ownerId: request.nextUrl.searchParams.get("ownerId") ?? undefined,
@@ -91,6 +108,8 @@ export async function GET(request: NextRequest) {
 
   const { ownerId, category, status, sort, limit, lang } = parsed.data;
 
+  const orderField = sort === "downloads" ? "downloadCount" : "updatedAt";
+
   try {
     let query: FirebaseFirestore.Query = adminDb.collection(
       APPSTORE_COLLECTIONS.apps,
@@ -108,12 +127,49 @@ export async function GET(request: NextRequest) {
       query = query.where("status", "==", status);
     }
 
-    const orderField = sort === "downloads" ? "downloadCount" : "updatedAt";
     const snapshot = await query.orderBy(orderField, "desc").limit(limit).get();
     const apps = snapshot.docs.map((doc) => mapApp(doc.data(), doc.id, lang));
 
     return ok({ apps, count: apps.length });
   } catch (error) {
+    if (isMissingIndexError(error)) {
+      try {
+        const fallbackLimit = Math.max(limit * 6, 120);
+        const fallbackSnapshot = await adminDb
+          .collection(APPSTORE_COLLECTIONS.apps)
+          .orderBy(orderField, "desc")
+          .limit(fallbackLimit)
+          .get();
+
+        const filtered = fallbackSnapshot.docs
+          .filter((doc) => {
+            const data = doc.data();
+
+            if (ownerId && data.ownerId !== ownerId) {
+              return false;
+            }
+
+            if (category && data.category !== category) {
+              return false;
+            }
+
+            if (status && data.status !== status) {
+              return false;
+            }
+
+            return true;
+          })
+          .slice(0, limit)
+          .map((doc) => mapApp(doc.data(), doc.id, lang));
+
+        const response = ok({ apps: filtered, count: filtered.length });
+        response.headers.set("x-appstore-index-fallback", "1");
+        return response;
+      } catch (fallbackError) {
+        console.error("list apps fallback error:", fallbackError);
+      }
+    }
+
     console.error("list apps error:", error);
     return fail("LIST_APPS_ERROR", "Unexpected error fetching apps", 500);
   }

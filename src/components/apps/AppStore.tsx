@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { AlertCircle } from 'lucide-react';
 import {
     GoogleAuthProvider,
     createUserWithEmailAndPassword,
@@ -167,7 +168,7 @@ function resolveValidScreenshotUrls(app: Pick<AppStoreApp, 'screenshotsUrls'>): 
     return (app.screenshotsUrls ?? []).filter((url) => isValidImageSrc(url));
 }
 
-const genericProfileAvatar = 'https://picsum.photos/seed/profile-generic/160/160';
+const genericProfileAvatar = 'https://s6.imgcdn.dev/YrS4Sw.png';
 
 function extractNickFromEmail(email: string | null | undefined): string {
     const candidate = (email ?? 'usuario').split('@')[0] ?? 'usuario';
@@ -277,9 +278,11 @@ const AppStore = () => {
     const [publishLoading, setPublishLoading] = useState(false);
     const [avatarUploadLoading, setAvatarUploadLoading] = useState(false);
     const [iconUploadLoading, setIconUploadLoading] = useState(false);
+    const [screenshotsUploadLoading, setScreenshotsUploadLoading] = useState(false);
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
     const [form, setForm] = useState<AppFormState>(emptyAppForm());
     const [featuredImageError, setFeaturedImageError] = useState(false);
+    const [showPublishRequirements, setShowPublishRequirements] = useState(false);
 
     const nicknameCheckInFlightRef = useRef(false);
     const lastNicknameCheckAtRef = useRef(0);
@@ -287,8 +290,10 @@ const AppStore = () => {
     const lastInstallAtRef = useRef(0);
     const avatarFileInputRef = useRef<HTMLInputElement | null>(null);
     const appIconFileInputRef = useRef<HTMLInputElement | null>(null);
+    const screenshotsFileInputRef = useRef<HTMLInputElement | null>(null);
     const profileCompletionPromptedRef = useRef(false);
     const profileMenuRef = useRef<HTMLDivElement | null>(null);
+    const indexFallbackWarnedRef = useRef(false);
 
     const isGuestSession = !firebaseUser || firebaseUser.isAnonymous;
     const isAuthenticatedSession = !!firebaseUser && !firebaseUser.isAnonymous;
@@ -406,12 +411,33 @@ const AppStore = () => {
         return { Authorization: `Bearer ${token}` };
     }
 
+    function notifyIndexFallback(response: Response) {
+        if (process.env.NODE_ENV === 'production') {
+            return;
+        }
+
+        if (indexFallbackWarnedRef.current) {
+            return;
+        }
+
+        if (response.headers.get('x-appstore-index-fallback') !== '1') {
+            return;
+        }
+
+        indexFallbackWarnedRef.current = true;
+        toast({
+            title: 'AppStore (dev)',
+            description: 'Se ha usado fallback de consulta por falta de indice en Firestore. Conviene crear el indice para mejorar rendimiento.',
+        });
+    }
+
     async function fetchAppsBySort(sort: AppSort, target: (apps: AppStoreApp[]) => void) {
         setAppsLoading(true);
         try {
             const response = await fetch(
                 `/api/appstore/apps?status=published&sort=${sort}&limit=20&lang=${locale}`,
             );
+            notifyIndexFallback(response);
             const json = (await response.json()) as AppsListApi;
 
             if (!json.success) {
@@ -437,6 +463,7 @@ const AppStore = () => {
             const response = await fetch(
                 `/api/appstore/apps?status=published&category=${encodeURIComponent(category)}&limit=20&lang=${locale}`,
             );
+            notifyIndexFallback(response);
             const json = (await response.json()) as AppsListApi;
 
             if (!json.success) {
@@ -495,6 +522,7 @@ const AppStore = () => {
             }
 
             const response = await fetch(`/api/appstore/apps?${params.toString()}`);
+            notifyIndexFallback(response);
             const json = (await response.json()) as AppsListApi;
 
             if (!json.success) {
@@ -972,6 +1000,50 @@ const AppStore = () => {
         setIconUploadLoading(false);
     }
 
+    async function handleScreenshotsUpload(fileList: FileList | null) {
+        const files = Array.from(fileList ?? []).filter((file) => file.type.startsWith('image/'));
+        if (files.length === 0) {
+            return;
+        }
+
+        const existing = form.screenshotsText
+            .split('\n')
+            .map((item) => item.trim())
+            .filter(Boolean);
+
+        const slotsAvailable = Math.max(0, 8 - existing.length);
+        if (slotsAvailable === 0) {
+            toast({
+                title: 'Capturas',
+                description: 'Ya tienes el máximo de 8 capturas.',
+                variant: 'destructive',
+            });
+            return;
+        }
+
+        const queue = files.slice(0, slotsAvailable);
+        setScreenshotsUploadLoading(true);
+
+        const uploaded: string[] = [];
+        for (const file of queue) {
+            const url = await uploadImageToImgBB(file);
+            if (url) {
+                uploaded.push(url);
+            }
+        }
+
+        if (uploaded.length > 0) {
+            const merged = [...existing, ...uploaded].slice(0, 8);
+            setForm((current) => ({ ...current, screenshotsText: merged.join('\n') }));
+            toast({
+                title: 'Capturas subidas',
+                description: `${uploaded.length} captura(s) añadida(s).`,
+            });
+        }
+
+        setScreenshotsUploadLoading(false);
+    }
+
     function setFormFromApp(app: AppStoreApp | null) {
         if (!app) {
             setForm(emptyAppForm());
@@ -1045,6 +1117,8 @@ const AppStore = () => {
     }
 
     async function submitAppForm() {
+        setShowPublishRequirements(true);
+
         if (!isAuthenticatedSession) {
             setAuthOpen(true);
             return;
@@ -1060,8 +1134,28 @@ const AppStore = () => {
             return;
         }
 
-        if (form.categories.length < 1) {
+        if (missingCategory) {
             toast({ title: 'Categorías requeridas', description: 'Añade al menos una categoría.', variant: 'destructive' });
+            return;
+        }
+
+        if (missingExternalUrl || invalidExternalUrl) {
+            toast({ title: 'URL inválida', description: 'La URL externa debe comenzar con https://', variant: 'destructive' });
+            return;
+        }
+
+        if (missingVersion) {
+            toast({ title: 'Versión requerida', description: 'La versión no puede estar vacía.', variant: 'destructive' });
+            return;
+        }
+
+        if (invalidVersion) {
+            toast({ title: 'Versión inválida', description: 'Usa formato semántico, por ejemplo: 1.0.0', variant: 'destructive' });
+            return;
+        }
+
+        if (missingTranslatedTitle) {
+            toast({ title: 'Nombre traducido requerido', description: 'Añade el nombre traducido en Publicación avanzada.', variant: 'destructive' });
             return;
         }
 
@@ -1070,16 +1164,19 @@ const AppStore = () => {
             .map((item) => item.trim())
             .filter(Boolean);
 
+        if (screenshotsUrls.length > 8) {
+            toast({ title: 'Demasiadas capturas', description: 'Solo se permiten hasta 8 capturas.', variant: 'destructive' });
+            return;
+        }
+
         const secondaryLanguage: AppLanguage = form.defaultLanguage === 'es' ? 'en' : 'es';
         const translatedTags = parseTagsText(form.translatedTagsText);
         const secondaryTranslationPayload: {
-            title?: string;
+            title: string;
             description?: string;
             tags?: string[];
         } = {
-            ...(form.translatedTitle.trim()
-                ? { title: form.translatedTitle.trim() }
-                : {}),
+            title: publishTranslatedTitle,
             ...(form.translatedDescription.trim()
                 ? { description: form.translatedDescription.trim() }
                 : {}),
@@ -1091,26 +1188,22 @@ const AppStore = () => {
             const headers = await authHeaders();
             const payload = {
                 title: form.title,
-                description: form.description,
+                description: form.description.trim(),
                 iconUrl: form.iconUrl || undefined,
-                externalUrl: form.externalUrl,
+                externalUrl: publishExternalUrl,
                 screenshotsUrls,
                 categories: form.categories,
                 category: form.categories[0],
                 status: form.status,
-                tags: form.categories,
-                version: form.version,
+                tags: form.categories.map((category) => category.trim()).filter((category) => category.length > 0 && category.length <= 20),
+                version: publishVersion,
                 releaseNotes: form.releaseNotes,
                 inAppPurchases: form.inAppPurchases,
                 containsAds: form.containsAds,
                 defaultLanguage: form.defaultLanguage,
-                ...(Object.keys(secondaryTranslationPayload).length
-                    ? {
-                        translations: {
-                            [secondaryLanguage]: secondaryTranslationPayload,
-                        },
-                    }
-                    : {}),
+                translations: {
+                    [secondaryLanguage]: secondaryTranslationPayload,
+                },
             };
 
             const isEdit = !!form.id;
@@ -1148,6 +1241,10 @@ const AppStore = () => {
 
             if (selectedCategory) {
                 await fetchAppsByCategory(selectedCategory);
+            }
+
+            if (publicProfile) {
+                await fetchProfileApps(publicProfile.uid, publicProfile.isOwner);
             }
         } catch {
             toast({ title: 'Publicación', description: 'No se pudo guardar la app.', variant: 'destructive' });
@@ -1387,6 +1484,12 @@ const AppStore = () => {
     }, [recentApps, popularApps]);
 
     useEffect(() => {
+        if (!publishOpen) {
+            setShowPublishRequirements(false);
+        }
+    }, [publishOpen]);
+
+    useEffect(() => {
         if (!ownProfile) {
             return;
         }
@@ -1412,6 +1515,38 @@ const AppStore = () => {
     const featuredScreenshotUrl =
         (featuredApp ? resolveValidScreenshotUrls(featuredApp)[0] : undefined) ??
         featuredFallbackScreenshotUrl;
+    const publishExternalUrl = form.externalUrl.trim();
+    const publishVersion = form.version.trim();
+    const publishTranslatedTitle = form.translatedTitle.trim();
+    const missingAppName = form.title.trim().length < 2;
+    const missingCategory = form.categories.length < 1;
+    const missingExternalUrl = publishExternalUrl.length === 0;
+    const invalidExternalUrl =
+        !missingExternalUrl && !/^https:\/\//i.test(publishExternalUrl);
+    const missingVersion = publishVersion.length === 0;
+    const invalidVersion =
+        !missingVersion && !/^\d+\.\d+\.\d+$/.test(publishVersion);
+    const missingTranslatedTitle = publishTranslatedTitle.length === 0;
+    const publishMissingCount = [
+        missingAppName,
+        missingCategory,
+        missingExternalUrl || invalidExternalUrl,
+        missingVersion || invalidVersion,
+        missingTranslatedTitle,
+    ].filter(Boolean).length;
+
+    function RequiredFieldHint({ show, message }: { show: boolean; message: string }) {
+        if (!show) {
+            return null;
+        }
+
+        return (
+            <div className="flex items-center gap-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
+                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                <span>{message}</span>
+            </div>
+        );
+    }
 
     function renderCarouselSection(title: string, apps: AppStoreApp[]) {
         return (
@@ -1895,6 +2030,14 @@ const AppStore = () => {
 
             <Dialog open={detailAppId !== null} onOpenChange={(open) => !open && setDetailAppId(null)}>
                 <DialogContent className="sm:max-w-2xl rounded-3xl border border-neutral-300/70 dark:border-[#38383A]/80 p-0 overflow-hidden bg-white dark:bg-[#1C1C1E] text-black dark:text-white">
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>
+                            {detailApp ? `Detalles de ${detailApp.title}` : 'Detalle de app'}
+                        </DialogTitle>
+                        <DialogDescription>
+                            Vista detallada de la app seleccionada, con descripcion, capturas y apps relacionadas.
+                        </DialogDescription>
+                    </DialogHeader>
                     {detailLoading || !detailApp ? (
                         <div className="p-6 text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.loadingAppDetail')}</div>
                     ) : (
@@ -2062,6 +2205,10 @@ const AppStore = () => {
 
                     <div className="px-6 pb-6 space-y-3 max-h-[70vh] overflow-y-auto">
                         <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
+                            <RequiredFieldHint
+                                show={showPublishRequirements && missingAppName}
+                                message="Falta el nombre de la app (minimo 2 caracteres)."
+                            />
                             <Input
                                 className={insetInput}
                                 placeholder={t('appstore.appName')}
@@ -2103,6 +2250,12 @@ const AppStore = () => {
                                     setForm((current) => ({ ...current, externalUrl: event.target.value }))
                                 }
                             />
+                            <RequiredFieldHint
+                                show={showPublishRequirements && (missingExternalUrl || invalidExternalUrl)}
+                                message={missingExternalUrl
+                                    ? 'Falta la URL externa de la app.'
+                                    : 'La URL externa debe empezar por https://'}
+                            />
                             <textarea
                                 className="w-full min-h-[110px] rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#1C1C1E] p-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0A84FF]"
                                 placeholder={t('appstore.screenshotsUrls')}
@@ -2112,9 +2265,22 @@ const AppStore = () => {
                                     setForm((current) => ({ ...current, screenshotsText: event.target.value }))
                                 }
                             />
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                className="h-11 rounded-xl"
+                                onClick={() => screenshotsFileInputRef.current?.click()}
+                                disabled={screenshotsUploadLoading}
+                            >
+                                {screenshotsUploadLoading ? t('appstore.imageUploading') : 'Subir capturas'}
+                            </Button>
                         </div>
 
                         <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
+                            <RequiredFieldHint
+                                show={showPublishRequirements && missingCategory}
+                                message="Anade al menos una categoria para publicar."
+                            />
                             <div className="flex gap-2">
                                 <Input
                                     className={insetInput}
@@ -2207,6 +2373,12 @@ const AppStore = () => {
                                     setForm((current) => ({ ...current, version: event.target.value }))
                                 }
                             />
+                            <RequiredFieldHint
+                                show={showPublishRequirements && (missingVersion || invalidVersion)}
+                                message={missingVersion
+                                    ? 'Falta la version (obligatoria).'
+                                    : 'La version debe tener formato semantico (ej: 1.0.0).'}
+                            />
                             <textarea
                                 className="w-full min-h-[90px] rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#1C1C1E] p-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0A84FF]"
                                 placeholder={t('appstore.releaseNotes')}
@@ -2225,6 +2397,10 @@ const AppStore = () => {
                                 onChange={(event) =>
                                     setForm((current) => ({ ...current, translatedTitle: event.target.value }))
                                 }
+                            />
+                            <RequiredFieldHint
+                                show={showPublishRequirements && missingTranslatedTitle}
+                                message="Falta el nombre traducido (obligatorio)."
                             />
                             <textarea
                                 className="w-full min-h-[90px] rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#1C1C1E] p-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0A84FF]"
@@ -2270,7 +2446,14 @@ const AppStore = () => {
                         </div>
 
                         <Button className={`${primaryButton} w-full`} onClick={submitAppForm} disabled={publishLoading}>
-                            {publishLoading ? t('appstore.saving') : form.id ? t('appstore.saveChanges') : t('appstore.publishApp')}
+                            <span className="inline-flex items-center gap-2">
+                                <span>{publishLoading ? t('appstore.saving') : form.id ? t('appstore.saveChanges') : t('appstore.publishApp')}</span>
+                                {!publishLoading && showPublishRequirements && publishMissingCount > 0 && (
+                                    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white/20 px-1 text-[11px] font-bold">
+                                        {publishMissingCount}
+                                    </span>
+                                )}
+                            </span>
                         </Button>
                     </div>
                 </DialogContent>
@@ -2526,6 +2709,17 @@ const AppStore = () => {
                 className="hidden"
                 onChange={(event) => {
                     void handleAppIconUpload(event.target.files);
+                    event.currentTarget.value = '';
+                }}
+            />
+            <input
+                ref={screenshotsFileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(event) => {
+                    void handleScreenshotsUpload(event.target.files);
                     event.currentTarget.value = '';
                 }}
             />

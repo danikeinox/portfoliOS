@@ -65,7 +65,7 @@ const getForceTheme = (slug: string): 'light' | 'dark' | undefined => {
 const getHomeBarBackgroundClass = (slug: string): string | undefined => {
     switch (slug) {
         case 'appstore':
-            return 'bg-white/80 dark:bg-[#1C1C1E]/80';
+            return 'bg-white/95 dark:bg-[#1C1C1E]/80';
         case 'spotify':
             break;
         case 'camera':

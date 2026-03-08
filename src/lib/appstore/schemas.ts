@@ -70,7 +70,6 @@ const localizedFieldsSchema = z.object({
     .transform((value) => normalizeWhitespace(value)),
   description: z
     .string()
-    .min(10)
     .max(1200)
     .transform((value) => normalizeWhitespace(value)),
   tags: z
@@ -100,7 +99,6 @@ const appCreatePayloadSchema = z.object({
     .transform((value) => normalizeWhitespace(value)),
   description: z
     .string()
-    .min(10)
     .max(1200)
     .transform((value) => normalizeWhitespace(value)),
   category: categorySchema.optional(),
