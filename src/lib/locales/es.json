@@ -674,6 +674,7 @@
   },
   "services": {
     "subtitle": "Descubre los servicios profesionales que ofrezco para dar vida a tus proyectos digitales.",
+    "requestInfoTemplate": "Hola, me interesa el servicio de {service}. Quiero solicitar informacion y presupuesto.",
     "webDev": {
       "title": "Desarrollo Web",
       "desc": "Aplicaciones web modernas, responsivas y seguras usando React, Next.js y Node.js."

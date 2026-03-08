@@ -674,6 +674,7 @@
   },
   "services": {
     "subtitle": "Discover the professional services I offer to bring your digital projects to life.",
+    "requestInfoTemplate": "Hi, I am interested in the {service} service. I would like to request information and a quote.",
     "webDev": {
       "title": "Web Development",
       "desc": "Modern, responsive, and secure web applications using React, Next.js, and Node.js."

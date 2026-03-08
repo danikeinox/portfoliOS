@@ -11,10 +11,13 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowUp, PlusCircle } from 'lucide-react';
 import { useI18n } from '@/hooks/use-i18n';
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 const Messages = () => {
   const { toast } = useToast();
   const { t } = useI18n();
+  const searchParams = useSearchParams();
 
   const contactFormSchema = z.object({
     name: z.string().min(2, { message: t('form.validation.name') }),
@@ -28,6 +31,18 @@ const Messages = () => {
     resolver: zodResolver(contactFormSchema),
     defaultValues: { name: '', email: '', message: '' },
   });
+
+  useEffect(() => {
+    const prefilledMessage = searchParams.get('message')?.trim();
+    if (!prefilledMessage) {
+      return;
+    }
+
+    form.setValue('message', prefilledMessage, {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  }, [searchParams, form]);
 
   const onSubmit = async (data: ContactFormValues) => {
     const formData = new FormData();
