@@ -146,7 +146,7 @@ const AppIcon = forwardRef<HTMLDivElement, AppIconProps>(({
                 e.preventDefault();
                 e.stopPropagation();
               }}
-              className="absolute -top-2 -left-5 w-5 h-5 bg-neutral-500 rounded-full flex items-center justify-center border border-black/10 z-10 animate-in fade-in zoom-in-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className="absolute -top-2 -left-1 sm:left-12 w-5 h-5 bg-neutral-500 rounded-full flex items-center justify-center border border-black/10 z-10 animate-in fade-in zoom-in-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               <Minus size={14} color="white" />
             </button>

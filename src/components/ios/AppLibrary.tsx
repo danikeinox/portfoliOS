@@ -138,11 +138,11 @@ const AppLibrary = () => {
 
             {openCategory && (
                 <div
-                    className="absolute inset-0 z-[100] bg-black/40 backdrop-blur flex justify-center items-center pointer-events-auto"
+                    className="absolute inset-0 z-[100] flex justify-center items-center pointer-events-auto"
                     onClick={() => setOpenCategory(null)}
                 >
                     <div
-                        className="bg-neutral-800/90 backdrop-blur-xl border border-white/10 rounded-[2.5rem] text-white w-[340px] max-w-[90vw] p-3 flex flex-col shadow-2xl relative"
+                        className="bg-neutral-800/90 border backdrop-blur-xl border-white/10 rounded-[2.5rem] text-white w-[340px] max-w-[90vw] p-3 flex flex-col shadow-2xl relative"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <button
