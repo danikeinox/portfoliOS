@@ -44,58 +44,8 @@ function persistConsent(state: ConsentState) {
     window.dispatchEvent(new Event(CONSENT_EVENT));
 }
 
-function buildLegalText(locale: 'es' | 'en') {
-    if (locale === 'es') {
-        return {
-            terms: {
-                title: 'Terminos y Condiciones',
-                content: [
-                    'Al usar este portfolio aceptas un uso responsable de la plataforma y sus servicios integrados.',
-                    'No esta permitido abusar de formularios, APIs o funcionalidades para causar dano, saturacion o acceso no autorizado.',
-                    'El contenido publicado en el portfolio es informativo y puede cambiar sin previo aviso.',
-                    'El usuario es responsable de la informacion que envía en formularios de contacto o solicitudes.',
-                    'Si no aceptas estos terminos, no continúes navegando la plataforma.',
-                ],
-            },
-            cookies: {
-                title: 'Politica de Cookies',
-                content: [
-                    'Usamos cookies necesarias para mantener funcionamiento basico, idioma, tema y estado de sesion tecnica.',
-                    'Las cookies funcionales mejoran experiencia y preferencias visuales, pero no son imprescindibles.',
-                    'Las cookies analiticas (Google Analytics) solo se activan si das consentimiento explicito.',
-                    'Puedes cambiar tu consentimiento borrando datos locales del navegador y reiniciando la web.',
-                    'Nunca activamos cookies no necesarias sin una accion previa de aceptacion o personalizacion.',
-                ],
-            },
-        };
-    }
-
-    return {
-        terms: {
-            title: 'Terms and Conditions',
-            content: [
-                'By using this portfolio, you agree to responsible use of the platform and integrated services.',
-                'Abuse of forms, APIs, or features to cause harm, overload, or unauthorized access is prohibited.',
-                'Content published in this portfolio is informational and may change without notice.',
-                'Users are responsible for the information they submit in contact or request forms.',
-                'If you do not agree with these terms, do not continue using the platform.',
-            ],
-        },
-        cookies: {
-            title: 'Cookie Policy',
-            content: [
-                'We use necessary cookies for core behavior, language, theme, and technical session state.',
-                'Functional cookies improve experience and visual preferences but are not strictly required.',
-                'Analytics cookies (Google Analytics) are enabled only with explicit consent.',
-                'You can change consent by clearing local browser data and restarting the website.',
-                'Non-essential cookies are never enabled without explicit accept/customize action.',
-            ],
-        },
-    };
-}
-
 export default function StartupExperience({ children }: { children: React.ReactNode }) {
-    const { locale } = useI18n();
+    const { t } = useI18n();
     const [savedConsent, setSavedConsent] = useState<ConsentState | null>(() => readConsent());
     const [step, setStep] = useState<StartupStep>('welcome');
     const [legalDoc, setLegalDoc] = useState<LegalDoc>('terms');
@@ -103,53 +53,31 @@ export default function StartupExperience({ children }: { children: React.ReactN
     const [analytics, setAnalytics] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
 
-    const currentLocale = locale === 'en' ? 'en' : 'es';
-    const legal = useMemo(() => buildLegalText(currentLocale), [currentLocale]);
-
-    const content = {
-        es: {
-            welcome: 'welcome',
-            getStarted: 'Get Started',
-            introTitle: 'Antes de continuar',
-            introBody: 'Configura tu privacidad y acepta los terminos para acceder al portfolio.',
-            required: 'Necesarias',
-            requiredDesc: 'Requeridas para idioma, tema, seguridad y funciones esenciales.',
-            functional: 'Funcionales',
-            functionalDesc: 'Guardan personalizacion para mejorar experiencia de uso.',
-            analytics: 'Analiticas',
-            analyticsDesc: 'Nos ayudan a entender trafico y mejorar funcionalidades.',
-            alwaysActive: 'Siempre activas',
-            openTerms: 'Ver terminos y condiciones',
-            openCookies: 'Ver politica de cookies',
-            acceptTerms: 'Acepto terminos y condiciones y politica de cookies',
-            rejectAll: 'Rechazar no esenciales',
-            saveCustom: 'Guardar personalizacion',
-            acceptAll: 'Aceptar todo',
-            back: 'Atras',
-            done: 'Listo',
-        },
-        en: {
-            welcome: 'welcome',
-            getStarted: 'Get Started',
-            introTitle: 'Before you continue',
-            introBody: 'Set your privacy options and accept terms to enter the portfolio.',
-            required: 'Necessary',
-            requiredDesc: 'Required for language, theme, security, and core features.',
-            functional: 'Functional',
-            functionalDesc: 'Stores personalization preferences to improve experience.',
-            analytics: 'Analytics',
-            analyticsDesc: 'Helps us understand traffic and improve features.',
-            alwaysActive: 'Always active',
-            openTerms: 'View terms and conditions',
-            openCookies: 'View cookie policy',
-            acceptTerms: 'I accept terms and conditions and cookie policy',
-            rejectAll: 'Reject non-essential',
-            saveCustom: 'Save customization',
-            acceptAll: 'Accept all',
-            back: 'Back',
-            done: 'Done',
-        },
-    }[currentLocale];
+    const legal = useMemo(
+        () => ({
+            terms: {
+                title: t('startup.legal.termsTitle'),
+                content: [
+                    t('startup.legal.termsLine1'),
+                    t('startup.legal.termsLine2'),
+                    t('startup.legal.termsLine3'),
+                    t('startup.legal.termsLine4'),
+                    t('startup.legal.termsLine5'),
+                ],
+            },
+            cookies: {
+                title: t('startup.legal.cookiesTitle'),
+                content: [
+                    t('startup.legal.cookiesLine1'),
+                    t('startup.legal.cookiesLine2'),
+                    t('startup.legal.cookiesLine3'),
+                    t('startup.legal.cookiesLine4'),
+                    t('startup.legal.cookiesLine5'),
+                ],
+            },
+        }),
+        [t]
+    );
 
     const canEnter = !!savedConsent?.termsAccepted;
 
@@ -191,42 +119,42 @@ export default function StartupExperience({ children }: { children: React.ReactN
                         <div className="h-full flex flex-col justify-between p-6">
                             <div className="pt-4">
                                 <p className="text-6xl font-semibold lowercase tracking-tight text-white drop-shadow-sm text-center mt-20">
-                                    {content.welcome}
+                                    {t('startup.welcome')}
                                 </p>
                             </div>
                             <Button
                                 className="h-14 rounded-full text-lg font-semibold bg-white/70 hover:bg-white text-black"
                                 onClick={() => setStep('consent')}
                             >
-                                {content.getStarted}
+                                {t('startup.getStarted')}
                             </Button>
                         </div>
                     )}
 
                     {step === 'consent' && (
                         <div className="h-full flex flex-col p-6 gap-4 overflow-y-auto">
-                            <h2 className="text-3xl font-semibold tracking-tight">{content.introTitle}</h2>
-                            <p className="text-sm text-[#3A3A3C] dark:text-[#D1D1D6]">{content.introBody}</p>
+                            <h2 className="text-3xl font-semibold tracking-tight">{t('startup.introTitle')}</h2>
+                            <p className="text-sm text-[#3A3A3C] dark:text-[#D1D1D6]">{t('startup.introBody')}</p>
 
                             <div className="rounded-2xl bg-[#F2F2F7]/95 dark:bg-[#1C1C1E]/95 p-4 space-y-4 border border-black/5 dark:border-white/10">
                                 <div>
-                                    <p className="font-semibold">{content.required}</p>
-                                    <p className="text-xs text-[#636366] dark:text-[#AEAEB2]">{content.requiredDesc}</p>
-                                    <p className="text-xs mt-1 text-[#0A84FF]">{content.alwaysActive}</p>
+                                    <p className="font-semibold">{t('startup.required')}</p>
+                                    <p className="text-xs text-[#636366] dark:text-[#AEAEB2]">{t('startup.requiredDesc')}</p>
+                                    <p className="text-xs mt-1 text-[#0A84FF]">{t('startup.alwaysActive')}</p>
                                 </div>
 
                                 <label className="flex items-center justify-between gap-3">
                                     <div>
-                                        <p className="font-semibold">{content.functional}</p>
-                                        <p className="text-xs text-[#636366] dark:text-[#AEAEB2]">{content.functionalDesc}</p>
+                                        <p className="font-semibold">{t('startup.functional')}</p>
+                                        <p className="text-xs text-[#636366] dark:text-[#AEAEB2]">{t('startup.functionalDesc')}</p>
                                     </div>
                                     <input type="checkbox" checked={functional} onChange={(e) => setFunctional(e.target.checked)} />
                                 </label>
 
                                 <label className="flex items-center justify-between gap-3">
                                     <div>
-                                        <p className="font-semibold">{content.analytics}</p>
-                                        <p className="text-xs text-[#636366] dark:text-[#AEAEB2]">{content.analyticsDesc}</p>
+                                        <p className="font-semibold">{t('startup.analytics')}</p>
+                                        <p className="text-xs text-[#636366] dark:text-[#AEAEB2]">{t('startup.analyticsDesc')}</p>
                                     </div>
                                     <input type="checkbox" checked={analytics} onChange={(e) => setAnalytics(e.target.checked)} />
                                 </label>
@@ -241,7 +169,7 @@ export default function StartupExperience({ children }: { children: React.ReactN
                                         setStep('legal');
                                     }}
                                 >
-                                    {content.openTerms}
+                                    {t('startup.openTerms')}
                                 </button>
                                 <button
                                     type="button"
@@ -251,7 +179,7 @@ export default function StartupExperience({ children }: { children: React.ReactN
                                         setStep('legal');
                                     }}
                                 >
-                                    {content.openCookies}
+                                    {t('startup.openCookies')}
                                 </button>
                             </div>
 
@@ -262,7 +190,7 @@ export default function StartupExperience({ children }: { children: React.ReactN
                                     onChange={(e) => setTermsAccepted(e.target.checked)}
                                     className="mt-1"
                                 />
-                                <span>{content.acceptTerms}</span>
+                                <span>{t('startup.acceptTerms')}</span>
                             </label>
 
                             <div className="grid grid-cols-1 gap-2 mt-auto pb-2">
@@ -272,7 +200,7 @@ export default function StartupExperience({ children }: { children: React.ReactN
                                     onClick={() => commitConsent({ functional: false, analytics: false, termsAccepted })}
                                     disabled={!termsAccepted}
                                 >
-                                    {content.rejectAll}
+                                    {t('startup.rejectAll')}
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -280,14 +208,14 @@ export default function StartupExperience({ children }: { children: React.ReactN
                                     onClick={() => commitConsent({ functional, analytics, termsAccepted })}
                                     disabled={!termsAccepted}
                                 >
-                                    {content.saveCustom}
+                                    {t('startup.saveCustom')}
                                 </Button>
                                 <Button
                                     className="h-12 rounded-full bg-[#0A84FF] hover:bg-[#0A84FF]/90"
                                     onClick={() => commitConsent({ functional: true, analytics: true, termsAccepted })}
                                     disabled={!termsAccepted}
                                 >
-                                    {content.acceptAll}
+                                    {t('startup.acceptAll')}
                                 </Button>
                             </div>
                         </div>
@@ -297,10 +225,10 @@ export default function StartupExperience({ children }: { children: React.ReactN
                         <div className="h-full flex flex-col p-6 gap-4 overflow-y-auto">
                             <div className="flex items-center justify-between">
                                 <button type="button" className="text-[#0A84FF]" onClick={() => setStep('consent')}>
-                                    {content.back}
+                                    {t('startup.back')}
                                 </button>
                                 <button type="button" className="text-[#0A84FF]" onClick={() => setStep('consent')}>
-                                    {content.done}
+                                    {t('startup.done')}
                                 </button>
                             </div>
 

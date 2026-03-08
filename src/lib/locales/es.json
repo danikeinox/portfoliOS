@@ -215,7 +215,10 @@
     "language": "Idioma",
     "lang": {
       "en": "Inglés",
-      "es": "Español"
+      "es": "Español",
+      "system": "Sistema",
+      "useSystem": "Usar idioma del sistema",
+      "detected": "Idioma del sistema"
     },
     "wallpaper": "Fondo de pantalla",
     "addWallpaper": "Añadir nuevo",
@@ -250,6 +253,41 @@
     "clock": {
       "title": "Reloj",
       "timeFormat24": "Formato de 24 horas"
+    }
+  },
+  "startup": {
+    "welcome": "welcome",
+    "getStarted": "Comenzar",
+    "introTitle": "Antes de continuar",
+    "introBody": "Configura tu privacidad y acepta los terminos para acceder al portfolio.",
+    "required": "Necesarias",
+    "requiredDesc": "Requeridas para idioma, tema, seguridad y funciones esenciales.",
+    "functional": "Funcionales",
+    "functionalDesc": "Guardan personalizacion para mejorar experiencia de uso.",
+    "analytics": "Analiticas",
+    "analyticsDesc": "Nos ayudan a entender trafico y mejorar funcionalidades.",
+    "alwaysActive": "Siempre activas",
+    "openTerms": "Ver terminos y condiciones",
+    "openCookies": "Ver politica de cookies",
+    "acceptTerms": "Acepto terminos y condiciones y politica de cookies",
+    "rejectAll": "Rechazar no esenciales",
+    "saveCustom": "Guardar personalizacion",
+    "acceptAll": "Aceptar todo",
+    "back": "Atras",
+    "done": "Listo",
+    "legal": {
+      "termsTitle": "Terminos y Condiciones",
+      "termsLine1": "Al usar este portfolio aceptas un uso responsable de la plataforma y sus servicios integrados.",
+      "termsLine2": "No esta permitido abusar de formularios, APIs o funcionalidades para causar dano, saturacion o acceso no autorizado.",
+      "termsLine3": "El contenido publicado en el portfolio es informativo y puede cambiar sin previo aviso.",
+      "termsLine4": "El usuario es responsable de la informacion que envia en formularios de contacto o solicitudes.",
+      "termsLine5": "Si no aceptas estos terminos, no continues navegando la plataforma.",
+      "cookiesTitle": "Politica de Cookies",
+      "cookiesLine1": "Usamos cookies necesarias para mantener funcionamiento basico, idioma, tema y estado de sesion tecnica.",
+      "cookiesLine2": "Las cookies funcionales mejoran experiencia y preferencias visuales, pero no son imprescindibles.",
+      "cookiesLine3": "Las cookies analiticas (Google Analytics) solo se activan si das consentimiento explicito.",
+      "cookiesLine4": "Puedes cambiar tu consentimiento borrando datos locales del navegador y reiniciando la web.",
+      "cookiesLine5": "Nunca activamos cookies no necesarias sin una accion previa de aceptacion o personalizacion."
     }
   },
   "spotify": {

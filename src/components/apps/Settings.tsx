@@ -73,8 +73,14 @@ const GeneralSettings = () => {
 };
 
 const MainSettings = ({ setView }: { setView: (view: string) => void }) => {
-    const { locale, t } = useI18n();
+    const { locale, useSystemLocale, t } = useI18n();
     const { wifiEnabled, setWifiEnabled, bluetoothEnabled, setBluetoothEnabled } = useSystemState();
+
+    const languageValue = useSystemLocale
+        ? `${t('settings.lang.system')}: ${locale === 'es' ? t('settings.lang.es') : t('settings.lang.en')}`
+        : locale === 'es'
+            ? t('settings.lang.es')
+            : t('settings.lang.en');
 
     return (
         <div>
@@ -95,7 +101,7 @@ const MainSettings = ({ setView }: { setView: (view: string) => void }) => {
             <div className={IOS_GROUP}>
                 <SettingsRow icon={SettingsIcon} iconBgColor="bg-neutral-500" title={t('settings.general.title')} onClick={() => setView('general')} />
                 <div className={IOS_DIVIDER} />
-                <SettingsRow icon={Globe} iconBgColor="bg-green-500" title={t('settings.language')} value={locale === 'es' ? t('settings.lang.es') : t('settings.lang.en')} onClick={() => setView('language')} />
+                <SettingsRow icon={Globe} iconBgColor="bg-green-500" title={t('settings.language')} value={languageValue} onClick={() => setView('language')} />
                 <div className={IOS_DIVIDER} />
                 <SettingsRow icon={ImageIcon} iconBgColor="bg-purple-500" title={t('settings.wallpaper')} onClick={() => setView('wallpaper')} />
                 <div className={IOS_DIVIDER} />
@@ -106,18 +112,34 @@ const MainSettings = ({ setView }: { setView: (view: string) => void }) => {
 };
 
 const LanguageSettings = () => {
-    const { locale, setLocale, t } = useI18n();
+    const { locale, setLocale, useSystemLocale, setUseSystemLocale, systemLocale, t } = useI18n();
     return (
-        <div className={IOS_GROUP}>
-            <button onClick={() => setLocale('en')} className="w-full flex items-center justify-between py-3 px-4 text-black dark:text-white text-base">
-                <span>{t('settings.lang.en')}</span>
-                {locale === 'en' && <Check size={20} className="text-[#0A84FF]" />}
-            </button>
-            <div className={IOS_DIVIDER} />
-            <button onClick={() => setLocale('es')} className="w-full flex items-center justify-between py-3 px-4 text-black dark:text-white text-base">
-                <span>{t('settings.lang.es')}</span>
-                {locale === 'es' && <Check size={20} className="text-[#0A84FF]" />}
-            </button>
+        <div className="space-y-4">
+            <div className={IOS_GROUP}>
+                <SettingsToggleRow
+                    icon={Globe}
+                    iconBgColor="bg-green-500"
+                    title={t('settings.lang.useSystem')}
+                    checked={useSystemLocale}
+                    onCheckedChange={setUseSystemLocale}
+                />
+                <div className={IOS_DIVIDER} />
+                <div className="py-3 px-4 text-sm text-[#8A8A8E] dark:text-[#8E8E93]">
+                    {t('settings.lang.detected')}: {systemLocale === 'es' ? t('settings.lang.es') : t('settings.lang.en')}
+                </div>
+            </div>
+
+            <div className={IOS_GROUP}>
+                <button onClick={() => setLocale('en')} className="w-full flex items-center justify-between py-3 px-4 text-black dark:text-white text-base">
+                    <span>{t('settings.lang.en')}</span>
+                    {locale === 'en' && <Check size={20} className="text-[#0A84FF]" />}
+                </button>
+                <div className={IOS_DIVIDER} />
+                <button onClick={() => setLocale('es')} className="w-full flex items-center justify-between py-3 px-4 text-black dark:text-white text-base">
+                    <span>{t('settings.lang.es')}</span>
+                    {locale === 'es' && <Check size={20} className="text-[#0A84FF]" />}
+                </button>
+            </div>
         </div>
     );
 };
