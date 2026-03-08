@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   authors: [{ name: 'Daniel Cabrera' }],
   creator: 'Daniel Cabrera',
   publisher: 'Daniel Cabrera',
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
   manifest: '/manifest.webmanifest',
   robots: {
     index: true,

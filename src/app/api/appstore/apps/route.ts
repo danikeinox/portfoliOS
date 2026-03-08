@@ -87,6 +87,19 @@ function isMissingIndexError(error: unknown): boolean {
   );
 }
 
+function extractIndexUrl(error: unknown): string | null {
+  if (!error || typeof error !== "object") {
+    return null;
+  }
+
+  const maybeMessage =
+    "message" in error ? String((error as { message?: unknown }).message) : "";
+  const match = maybeMessage.match(
+    /https:\/\/console\.firebase\.google\.com\/[^\s)]+/i,
+  );
+  return match ? match[0] : null;
+}
+
 export async function GET(request: NextRequest) {
   const parsed = appListQuerySchema.safeParse({
     ownerId: request.nextUrl.searchParams.get("ownerId") ?? undefined,
@@ -164,6 +177,10 @@ export async function GET(request: NextRequest) {
 
         const response = ok({ apps: filtered, count: filtered.length });
         response.headers.set("x-appstore-index-fallback", "1");
+        const indexUrl = extractIndexUrl(error);
+        if (indexUrl) {
+          response.headers.set("x-appstore-index-url", indexUrl);
+        }
         return response;
       } catch (fallbackError) {
         console.error("list apps fallback error:", fallbackError);

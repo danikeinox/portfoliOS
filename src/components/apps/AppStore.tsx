@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { ToastAction } from '@/components/ui/toast';
 import {
     Dialog,
     DialogContent,
@@ -425,9 +426,22 @@ const AppStore = () => {
         }
 
         indexFallbackWarnedRef.current = true;
+        const indexUrl = response.headers.get('x-appstore-index-url');
         toast({
             title: 'AppStore (dev)',
             description: 'Se ha usado fallback de consulta por falta de indice en Firestore. Conviene crear el indice para mejorar rendimiento.',
+            ...(indexUrl
+                ? {
+                    action: (
+                        <ToastAction
+                            altText="Abrir indice de Firestore"
+                            onClick={() => window.open(indexUrl, '_blank', 'noopener,noreferrer')}
+                        >
+                            Abrir indice
+                        </ToastAction>
+                    ),
+                }
+                : {}),
         });
     }
 
@@ -1711,6 +1725,7 @@ const AppStore = () => {
                                         alt={t('appstore.featuredImageAlt', { title: featuredApp.title })}
                                         width={800}
                                         height={500}
+                                        priority
                                         className="w-full h-full object-cover"
                                         onError={() => setFeaturedImageError(true)}
                                     />
