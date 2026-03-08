@@ -156,7 +156,10 @@
     "title": "Nuevo Mensaje",
     "subtitle": "Esto será enviado a Daniel Cabrera.",
     "messagePlaceholder": "Mensaje",
-    "send": "Enviar"
+    "send": "Enviar",
+    "addImage": "Foto o video",
+    "addFile": "Archivo",
+    "placeholderBubble": "Escribe un mensaje..."
   },
   "form": {
     "name": "Nombre",

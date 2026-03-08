@@ -156,7 +156,10 @@
     "title": "New Message",
     "subtitle": "This will be sent to Daniel Cabrera.",
     "messagePlaceholder": "Message",
-    "send": "Send"
+    "send": "Send",
+    "addImage": "Photo or video",
+    "addFile": "File",
+    "placeholderBubble": "Type a message..."
   },
   "form": {
     "name": "Name",
