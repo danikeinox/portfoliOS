@@ -283,6 +283,8 @@ const AppStore = () => {
 
     const [publishOpen, setPublishOpen] = useState(false);
     const [publishLoading, setPublishLoading] = useState(false);
+    const [avatarUploadLoading, setAvatarUploadLoading] = useState(false);
+    const [iconUploadLoading, setIconUploadLoading] = useState(false);
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
     const [form, setForm] = useState<AppFormState>(emptyAppForm());
 
@@ -290,6 +292,8 @@ const AppStore = () => {
     const lastNicknameCheckAtRef = useRef(0);
     const installInFlightRef = useRef(false);
     const lastInstallAtRef = useRef(0);
+    const avatarFileInputRef = useRef<HTMLInputElement | null>(null);
+    const appIconFileInputRef = useRef<HTMLInputElement | null>(null);
     const profileCompletionPromptedRef = useRef(false);
     const profileMenuRef = useRef<HTMLDivElement | null>(null);
 
@@ -886,6 +890,85 @@ const AppStore = () => {
         } finally {
             setSocialLoading(false);
         }
+    }
+
+    async function uploadImageToImgBB(file: File): Promise<string | null> {
+        if (!file.type.startsWith('image/')) {
+            toast({
+                title: t('appstore.imageUploadErrorTitle'),
+                description: t('appstore.imageUploadInvalidType'),
+                variant: 'destructive',
+            });
+            return null;
+        }
+
+        const data = new FormData();
+        data.append('file', file);
+
+        try {
+            const response = await fetch('/api/upload-image', {
+                method: 'POST',
+                body: data,
+            });
+
+            const json = (await response.json()) as
+                | { success: true; data: { url?: string } }
+                | { success: false; error?: { message?: string } };
+
+            if (!response.ok || !json.success || !json.data?.url) {
+                toast({
+                    title: t('appstore.imageUploadErrorTitle'),
+                    description: json.success ? t('appstore.imageUploadFailed') : json.error?.message ?? t('appstore.imageUploadFailed'),
+                    variant: 'destructive',
+                });
+                return null;
+            }
+
+            return json.data.url;
+        } catch {
+            toast({
+                title: t('appstore.imageUploadErrorTitle'),
+                description: t('appstore.imageUploadFailed'),
+                variant: 'destructive',
+            });
+            return null;
+        }
+    }
+
+    async function handleAvatarUpload(fileList: FileList | null) {
+        const file = fileList?.[0];
+        if (!file) {
+            return;
+        }
+
+        setAvatarUploadLoading(true);
+        const uploadedUrl = await uploadImageToImgBB(file);
+        if (uploadedUrl) {
+            setAvatarUrl(uploadedUrl);
+            toast({
+                title: t('appstore.imageUploadSuccessTitle'),
+                description: t('appstore.imageUploadAvatarSuccessDescription'),
+            });
+        }
+        setAvatarUploadLoading(false);
+    }
+
+    async function handleAppIconUpload(fileList: FileList | null) {
+        const file = fileList?.[0];
+        if (!file) {
+            return;
+        }
+
+        setIconUploadLoading(true);
+        const uploadedUrl = await uploadImageToImgBB(file);
+        if (uploadedUrl) {
+            setForm((current) => ({ ...current, iconUrl: uploadedUrl }));
+            toast({
+                title: t('appstore.imageUploadSuccessTitle'),
+                description: t('appstore.imageUploadIconSuccessDescription'),
+            });
+        }
+        setIconUploadLoading(false);
     }
 
     function setFormFromApp(app: AppStoreApp | null) {
@@ -1997,6 +2080,15 @@ const AppStore = () => {
                                 value={form.iconUrl}
                                 onChange={(event) => setForm((current) => ({ ...current, iconUrl: event.target.value }))}
                             />
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                className="h-11 rounded-xl"
+                                onClick={() => appIconFileInputRef.current?.click()}
+                                disabled={iconUploadLoading}
+                            >
+                                {iconUploadLoading ? t('appstore.imageUploading') : t('appstore.uploadImage')}
+                            </Button>
                             <Input
                                 className={insetInput}
                                 placeholder={t('appstore.externalUrl')}
@@ -2264,6 +2356,15 @@ const AppStore = () => {
                                             value={avatarUrl}
                                             onChange={(event) => setAvatarUrl(event.target.value)}
                                         />
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            className="h-11 rounded-xl"
+                                            onClick={() => avatarFileInputRef.current?.click()}
+                                            disabled={avatarUploadLoading}
+                                        >
+                                            {avatarUploadLoading ? t('appstore.imageUploading') : t('appstore.uploadImage')}
+                                        </Button>
                                     </>
                                 )}
                             </div>
@@ -2324,6 +2425,15 @@ const AppStore = () => {
                                 value={avatarUrl}
                                 onChange={(event) => setAvatarUrl(event.target.value)}
                             />
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                className="h-11 rounded-xl"
+                                onClick={() => avatarFileInputRef.current?.click()}
+                                disabled={avatarUploadLoading}
+                            >
+                                {avatarUploadLoading ? t('appstore.imageUploading') : t('appstore.uploadImage')}
+                            </Button>
                         </div>
 
                         <Button className={`${primaryButton} w-full`} onClick={upsertProfile}>
@@ -2368,6 +2478,15 @@ const AppStore = () => {
                                 value={avatarUrl}
                                 onChange={(event) => setAvatarUrl(event.target.value)}
                             />
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                className="h-11 rounded-xl"
+                                onClick={() => avatarFileInputRef.current?.click()}
+                                disabled={avatarUploadLoading}
+                            >
+                                {avatarUploadLoading ? t('appstore.imageUploading') : t('appstore.uploadImage')}
+                            </Button>
                         </div>
 
                         <Button
@@ -2384,6 +2503,27 @@ const AppStore = () => {
                     </div>
                 </DialogContent>
             </Dialog>
+
+            <input
+                ref={avatarFileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(event) => {
+                    void handleAvatarUpload(event.target.files);
+                    event.currentTarget.value = '';
+                }}
+            />
+            <input
+                ref={appIconFileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(event) => {
+                    void handleAppIconUpload(event.target.files);
+                    event.currentTarget.value = '';
+                }}
+            />
         </div>
     );
 };
