@@ -41,7 +41,6 @@ export async function POST(request: NextRequest) {
       return parsedBody.error;
     }
 
-    const { calendar, CALENDAR_ID } = getGoogleCalendarClient();
     const validation = createEventSchema.safeParse(parsedBody.data);
 
     if (!validation.success) {
@@ -54,6 +53,8 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
+
+    const { calendar, CALENDAR_ID } = getGoogleCalendarClient();
 
     const { summary, description, startDateTime, guestEmail } = validation.data;
 
