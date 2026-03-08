@@ -1263,17 +1263,6 @@ const AppStore = () => {
                 description: isEdit ? 'Tus cambios se han guardado.' : 'Tu app ya aparece en AppStore.',
             });
 
-            const appToSync = json.data;
-            if (getInstalledAppById(appToSync.id)) {
-                saveInstalledApp({
-                    id: appToSync.id,
-                    name: appToSync.title,
-                    iconUrl: resolveAppIconUrl(appToSync, fallbackAppIconUrl),
-                    externalUrl: appToSync.externalUrl,
-                    version: appToSync.version,
-                });
-            }
-
             setPublishOpen(false);
             setForm(emptyAppForm());
 
