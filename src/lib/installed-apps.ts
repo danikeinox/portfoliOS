@@ -12,6 +12,7 @@ export type InstalledAppRecord = {
   name: string;
   iconUrl: string;
   externalUrl: string;
+  version?: string;
   installedAt: string;
 };
 
@@ -44,7 +45,8 @@ function parseStoredApps(raw: string | null): InstalledAppRecord[] {
         typeof item.id === "string" &&
         typeof item.name === "string" &&
         typeof item.iconUrl === "string" &&
-        typeof item.externalUrl === "string"
+        typeof item.externalUrl === "string" &&
+        (item.version === undefined || typeof item.version === "string")
       );
     });
   } catch {

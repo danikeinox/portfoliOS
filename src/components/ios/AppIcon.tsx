@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import React, { ComponentType, forwardRef } from 'react';
+import React, { ComponentType, forwardRef, useEffect, useState } from 'react';
 import { useI18n } from '@/hooks/use-i18n';
 import { useNotifications } from '@/hooks/use-notifications';
 import {
@@ -26,7 +26,7 @@ import {
 import { SiAppstore, SiSpotify } from 'react-icons/si';
 import CalendarIcon from './CalendarIcon';
 import { useHomeScreen } from '@/hooks/use-home-screen';
-import { getInstalledAppBySlug } from '@/lib/installed-apps';
+import { getInstalledAppBySlug, INSTALLED_APPS_UPDATED_EVENT } from '@/lib/installed-apps';
 
 export const systemIconMapping: { [key: string]: { icon: GenericIcon, bgColor?: string, color?: string } } = {
   notes: { icon: StickyNote, bgColor: '#fff', color: '#1c1c1e' },
@@ -86,7 +86,19 @@ const AppIcon = forwardRef<HTMLDivElement, AppIconProps>(({
   const { removeItem } = useHomeScreen();
 
   const notificationCount = getNotificationCountForApp(app.id) + (app.notifications || 0);
-  const installedApp = getInstalledAppBySlug(app.id);
+  const [installedApp, setInstalledApp] = useState(() => getInstalledAppBySlug(app.id));
+
+  useEffect(() => {
+    const syncInstalledApp = () => {
+      setInstalledApp(getInstalledAppBySlug(app.id));
+    };
+
+    syncInstalledApp();
+    window.addEventListener(INSTALLED_APPS_UPDATED_EVENT, syncInstalledApp);
+    return () => {
+      window.removeEventListener(INSTALLED_APPS_UPDATED_EVENT, syncInstalledApp);
+    };
+  }, [app.id]);
 
   const systemStyle = systemIconMapping[app.id] || {};
   const Icon = systemStyle.icon || app.icon;

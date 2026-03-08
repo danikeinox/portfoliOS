@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import AppFrame from '@/components/apps/AppFrame';
 import AppCrashBoundary from '@/components/apps/AppCrashBoundary';
@@ -8,7 +9,21 @@ import { useI18n } from '@/hooks/use-i18n';
 import UnderDevelopment from '@/components/apps/UnderDevelopment';
 import GenericWebAppContainer from '@/components/apps/GenericWebAppContainer';
 import GenericWebAppErrorBoundary from '@/components/apps/GenericWebAppErrorBoundary';
-import { getInstalledAppBySlug } from '@/lib/installed-apps';
+import {
+    fromInstalledSlug,
+    getInstalledAppBySlug,
+    INSTALLED_APPS_UPDATED_EVENT,
+    saveInstalledApp,
+} from '@/lib/installed-apps';
+import type { AppStoreApiResponse, AppStoreApp } from '@/lib/appstore/contracts';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 
 const LoadingDark = () => <div className="h-full w-full bg-black" />;
 const LoadingLight = () => <div className="h-full w-full bg-white" />;
@@ -122,11 +137,115 @@ const getFrameBgClass = (slug: string): string | undefined => {
     return undefined;
 };
 
+function compareSemver(left: string, right: string): number {
+    const leftParts = left.split('.').map((part) => Number(part));
+    const rightParts = right.split('.').map((part) => Number(part));
+    const max = Math.max(leftParts.length, rightParts.length);
+
+    for (let index = 0; index < max; index += 1) {
+        const leftValue = Number.isFinite(leftParts[index]) ? leftParts[index] : 0;
+        const rightValue = Number.isFinite(rightParts[index]) ? rightParts[index] : 0;
+        if (leftValue > rightValue) {
+            return 1;
+        }
+        if (leftValue < rightValue) {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+type AppDetailApi = AppStoreApiResponse<AppStoreApp>;
+
 const AppViewer = ({ slug }: { slug: string }) => {
-    const { t } = useI18n();
+    const { locale, t } = useI18n();
+    const installedAppId = useMemo(() => fromInstalledSlug(slug), [slug]);
+    const [installedApp, setInstalledApp] = useState(() => getInstalledAppBySlug(slug));
+    const [updateCandidate, setUpdateCandidate] = useState<AppStoreApp | null>(null);
+    const [isApplyingUpdate, setIsApplyingUpdate] = useState(false);
+
+    useEffect(() => {
+        if (!installedAppId) {
+            setInstalledApp(null);
+            return;
+        }
+
+        const syncInstalledApp = () => {
+            setInstalledApp(getInstalledAppBySlug(slug));
+        };
+
+        syncInstalledApp();
+        window.addEventListener(INSTALLED_APPS_UPDATED_EVENT, syncInstalledApp);
+        return () => {
+            window.removeEventListener(INSTALLED_APPS_UPDATED_EVENT, syncInstalledApp);
+        };
+    }, [slug, installedAppId]);
+
+    useEffect(() => {
+        if (!installedAppId || !installedApp) {
+            setUpdateCandidate(null);
+            return;
+        }
+
+        let cancelled = false;
+
+        const checkForUpdates = async () => {
+            try {
+                const response = await fetch(`/api/appstore/apps/${installedAppId}?lang=${locale}`);
+                const json = (await response.json()) as AppDetailApi;
+                if (!json.success || cancelled) {
+                    return;
+                }
+
+                const remoteApp = json.data;
+                const installedVersion = installedApp.version?.trim() || '0.0.0';
+                const hasNewVersion = compareSemver(remoteApp.version, installedVersion) > 0;
+                const hasMetadataChanges =
+                    remoteApp.title !== installedApp.name ||
+                    remoteApp.externalUrl !== installedApp.externalUrl ||
+                    (remoteApp.iconUrl && remoteApp.iconUrl !== installedApp.iconUrl);
+
+                if (hasNewVersion || hasMetadataChanges) {
+                    setUpdateCandidate(remoteApp);
+                    return;
+                }
+
+                setUpdateCandidate(null);
+            } catch {
+                if (!cancelled) {
+                    setUpdateCandidate(null);
+                }
+            }
+        };
+
+        void checkForUpdates();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [installedAppId, installedApp, locale]);
+
+    const applyInstalledUpdate = () => {
+        if (!installedAppId || !updateCandidate || !installedApp) {
+            return;
+        }
+
+        setIsApplyingUpdate(true);
+        saveInstalledApp({
+            id: installedAppId,
+            name: updateCandidate.title,
+            iconUrl: updateCandidate.iconUrl?.trim() || installedApp.iconUrl,
+            externalUrl: updateCandidate.externalUrl,
+            version: updateCandidate.version,
+        });
+
+        // Force a clean return to home so HomeScreen/AppLibrary reload the updated app state.
+        window.location.assign('/');
+    };
+
     const allApps = getAvailableApps();
     const app = allApps.find(a => a.id === slug);
-    const installedApp = getInstalledAppBySlug(slug);
     const appTitle = installedApp
         ? installedApp.name
         : app
@@ -180,9 +299,46 @@ const AppViewer = ({ slug }: { slug: string }) => {
     const frameBgClass = getFrameBgClass(slug);
 
     return (
-        <AppFrame appName={appTitle} forceTheme={forceTheme} homeBarBackgroundClass={homeBarBackgroundClass} frameBgClass={frameBgClass}>
-            <AppCrashBoundary appName={appTitle}>{renderApp()}</AppCrashBoundary>
-        </AppFrame>
+        <>
+            <Dialog open={updateCandidate !== null} onOpenChange={(open) => !open && setUpdateCandidate(null)}>
+                <DialogContent className="sm:max-w-md rounded-3xl border border-neutral-300/70 dark:border-[#38383A]/80 p-0 overflow-hidden bg-white dark:bg-[#1C1C1E] text-black dark:text-white">
+                    <DialogHeader className="px-6 pt-6 pb-2 text-left">
+                        <DialogTitle className="text-xl font-semibold">{t('appstore.updateAvailableTitle')}</DialogTitle>
+                        <DialogDescription className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">
+                            {updateCandidate
+                                ? t('appstore.updateAvailableDescriptionWithVersion', {
+                                    title: updateCandidate.title,
+                                    version: updateCandidate.version,
+                                })
+                                : t('appstore.updateAvailableDescription')}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="px-6 pb-6 space-y-2">
+                        <Button
+                            type="button"
+                            className="h-11 w-full rounded-full bg-[#0A84FF] text-white"
+                            onClick={applyInstalledUpdate}
+                            disabled={isApplyingUpdate}
+                        >
+                            {isApplyingUpdate ? t('appstore.updating') : t('appstore.updateNow')}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            className="h-11 w-full rounded-full"
+                            onClick={() => setUpdateCandidate(null)}
+                            disabled={isApplyingUpdate}
+                        >
+                            {t('appstore.updateLater')}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            <AppFrame appName={appTitle} forceTheme={forceTheme} homeBarBackgroundClass={homeBarBackgroundClass} frameBgClass={frameBgClass}>
+                <AppCrashBoundary appName={appTitle}>{renderApp()}</AppCrashBoundary>
+            </AppFrame>
+        </>
     );
 }
 

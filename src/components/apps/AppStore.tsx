@@ -787,6 +787,20 @@ const AppStore = () => {
         setOwnProfile(json.data);
         writeCachedProfile(firebaseUser.uid, json.data);
         setSelectedNickname(json.data.nickname);
+        setPublicProfile((current) =>
+            current && current.uid === json.data.uid
+                ? {
+                    ...current,
+                    ...json.data,
+                    relation: current.relation,
+                    isOwner: current.isOwner,
+                }
+                : current,
+        );
+        await Promise.all([
+            fetchPublicProfile(json.data.nickname),
+            fetchProfileApps(json.data.uid, true),
+        ]);
         setNeedsProfileCompletion(false);
         profileCompletionPromptedRef.current = false;
         toast({ title: 'Perfil actualizado', description: 'Tu perfil está listo.' });
@@ -1249,6 +1263,17 @@ const AppStore = () => {
                 description: isEdit ? 'Tus cambios se han guardado.' : 'Tu app ya aparece en AppStore.',
             });
 
+            const appToSync = json.data;
+            if (getInstalledAppById(appToSync.id)) {
+                saveInstalledApp({
+                    id: appToSync.id,
+                    name: appToSync.title,
+                    iconUrl: resolveAppIconUrl(appToSync, fallbackAppIconUrl),
+                    externalUrl: appToSync.externalUrl,
+                    version: appToSync.version,
+                });
+            }
+
             setPublishOpen(false);
             setForm(emptyAppForm());
 
@@ -1410,6 +1435,7 @@ const AppStore = () => {
             name: detailApp.title,
             iconUrl: resolveAppIconUrl(detailApp, fallbackAppIconUrl),
             externalUrl: detailApp.externalUrl,
+            version: detailApp.version,
         });
 
         addApp(toInstalledSlug(detailApp.id));
@@ -1944,7 +1970,7 @@ const AppStore = () => {
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                                         <div className="relative h-16 w-16">
                                             <Image
-                                                src={publicProfile.avatarUrl || fallbackAvatarUrl}
+                                                src={publicProfile.avatarUrl || genericProfileAvatar}
                                                 fill
                                                 sizes="(max-width: 768px) 100vw, 33vw"
                                                 alt={publicProfile.nickname}
