@@ -1944,7 +1944,7 @@ const AppStore = () => {
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                                         <div className="relative h-16 w-16">
                                             <Image
-                                                src={publicProfile.avatarUrl || 'https://s6.imgcdn.dev/Yrcy4v.png'}
+                                                src={publicProfile.avatarUrl || fallbackAvatarUrl}
                                                 fill
                                                 sizes="(max-width: 768px) 100vw, 33vw"
                                                 alt={publicProfile.nickname}
