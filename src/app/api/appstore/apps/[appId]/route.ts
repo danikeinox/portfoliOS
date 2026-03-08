@@ -413,3 +413,48 @@ export async function POST(
     return fail("INSTALL_APP_ERROR", "Unexpected error installing app", 500);
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  context: { params: { appId: string } },
+) {
+  let uid: string;
+
+  try {
+    uid = await requireAuthenticatedUser(request);
+  } catch (error) {
+    const code = asCode(error);
+    return fail(
+      code,
+      code === "INVALID_AUTH_TOKEN"
+        ? "Invalid auth token"
+        : "Missing auth token",
+      401,
+    );
+  }
+
+  const { appId } = context.params;
+  if (!appId) {
+    return fail("INVALID_APP_ID", "App id is required", 400);
+  }
+
+  try {
+    const appRef = adminDb.collection(APPSTORE_COLLECTIONS.apps).doc(appId);
+    const appDoc = await appRef.get();
+
+    if (!appDoc.exists) {
+      return fail("APP_NOT_FOUND", "App not found", 404);
+    }
+
+    const appData = appDoc.data();
+    if (!appData || appData.ownerId !== uid) {
+      return fail("FORBIDDEN", "You cannot delete this app", 403);
+    }
+
+    await appRef.delete();
+    return ok({ deleted: true, appId });
+  } catch (error) {
+    console.error("delete app error:", error);
+    return fail("DELETE_APP_ERROR", "Unexpected error deleting app", 500);
+  }
+}

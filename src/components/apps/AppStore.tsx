@@ -54,6 +54,7 @@ type OwnProfileApi = AppStoreApiResponse<UserProfile>;
 type AppsListApi = AppStoreApiResponse<{ apps: AppStoreApp[]; count: number }>;
 type RelationApi = AppStoreApiResponse<{ relation: SocialRelationStatus }>;
 type AppDetailApi = AppStoreApiResponse<AppStoreApp>;
+type DeleteAppApi = AppStoreApiResponse<{ deleted: boolean; appId: string }>;
 type CategoriesApi = AppStoreApiResponse<{
     categories: Array<{ category: string; count: number }>;
 }>;
@@ -277,6 +278,10 @@ const AppStore = () => {
 
     const [publishOpen, setPublishOpen] = useState(false);
     const [publishLoading, setPublishLoading] = useState(false);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const [appPendingDelete, setAppPendingDelete] = useState<AppStoreApp | null>(null);
+    const [deleteConfirmInput, setDeleteConfirmInput] = useState('');
     const [avatarUploadLoading, setAvatarUploadLoading] = useState(false);
     const [iconUploadLoading, setIconUploadLoading] = useState(false);
     const [screenshotsUploadLoading, setScreenshotsUploadLoading] = useState(false);
@@ -1267,6 +1272,63 @@ const AppStore = () => {
         }
     }
 
+    async function handleDeletePublishedApp() {
+        if (!appPendingDelete) {
+            return;
+        }
+
+        if (!isAuthenticatedSession) {
+            setAuthOpen(true);
+            return;
+        }
+
+        if (deleteConfirmInput.trim() !== appPendingDelete.title) {
+            toast({
+                title: 'Confirmación inválida',
+                description: 'Escribe el nombre exacto de la app para eliminarla.',
+                variant: 'destructive',
+            });
+            return;
+        }
+
+        setDeleteLoading(true);
+        try {
+            const headers = await authHeaders();
+            const response = await fetch(`/api/appstore/apps/${appPendingDelete.id}`, {
+                method: 'DELETE',
+                headers,
+            });
+
+            const json = (await response.json()) as DeleteAppApi;
+            if (!json.success) {
+                toast({ title: 'No se pudo eliminar', description: json.error.message, variant: 'destructive' });
+                return;
+            }
+
+            setProfileApps((current) => current.filter((app) => app.id !== appPendingDelete.id));
+            setRecentApps((current) => current.filter((app) => app.id !== appPendingDelete.id));
+            setPopularApps((current) => current.filter((app) => app.id !== appPendingDelete.id));
+            setCategoryApps((current) => current.filter((app) => app.id !== appPendingDelete.id));
+
+            if (detailAppId === appPendingDelete.id) {
+                setDetailAppId(null);
+            }
+
+            toast({
+                title: 'App eliminada',
+                description: `Se eliminó ${appPendingDelete.title} de AppStore.`,
+            });
+
+            setDeleteConfirmOpen(false);
+            setDeleteConfirmInput('');
+            setAppPendingDelete(null);
+        } catch {
+            toast({ title: 'No se pudo eliminar', description: 'Inténtalo de nuevo.', variant: 'destructive' });
+        } finally {
+            setDeleteLoading(false);
+        }
+    }
+
     function isNativeApp(appId: string): boolean {
         return nativeAppIds.has(appId);
     }
@@ -1504,6 +1566,14 @@ const AppStore = () => {
     }, [publishOpen]);
 
     useEffect(() => {
+        if (!deleteConfirmOpen) {
+            setDeleteConfirmInput('');
+            setDeleteLoading(false);
+            setAppPendingDelete(null);
+        }
+    }, [deleteConfirmOpen]);
+
+    useEffect(() => {
         if (!ownProfile) {
             return;
         }
@@ -1548,6 +1618,7 @@ const AppStore = () => {
         missingVersion || invalidVersion,
         missingTranslatedTitle,
     ].filter(Boolean).length;
+    const deleteNameMatches = !!appPendingDelete && deleteConfirmInput.trim() === appPendingDelete.title;
 
     function RequiredFieldHint({ show, message }: { show: boolean; message: string }) {
         if (!show) {
@@ -1567,57 +1638,66 @@ const AppStore = () => {
             <div>
                 <h3 className="text-2xl font-bold tracking-tight px-1 mb-3">{title}</h3>
                 <div className={`${cardBase} overflow-hidden`}>
-                    {apps.map((app, index) => (
-                        <div key={app.id} className="ml-4 py-4 pr-4">
-                            <div className="flex items-center gap-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setDetailAppId(app.id)}
-                                    aria-label={t('appstore.openDetails', { title: app.title })}
-                                    className="relative w-20 h-20 rounded-2xl overflow-hidden bg-neutral-200 shrink-0"
-                                >
-                                    <Image
-                                        src={resolveAppIconUrl(app, fallbackAppIconUrl)}
-                                        fill
-                                        sizes="(max-width: 768px) 100vw, 33vw"
-                                        alt={t('appstore.iconAlt', { title: app.title })}
-                                        className="object-cover"
-                                    />
-                                </button>
+                    {apps.map((app, index) => {
+                        const monetizationLabels = [
+                            app.inAppPurchases ? t('appstore.inAppPurchases') : null,
+                            app.containsAds ? t('appstore.containsAds') : null,
+                        ].filter(Boolean) as string[];
 
-                                <button
-                                    type="button"
-                                    onClick={() => setDetailAppId(app.id)}
-                                    className="flex-1 text-left min-w-0"
-                                >
-                                    <h4 className="font-bold text-lg truncate">{app.title}</h4>
-                                    <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93] truncate">{app.category}</p>
-                                </button>
-
-                                <div className="flex flex-col items-center">
-                                    <Button
-                                        className="bg-[#EFEFF4] dark:bg-[#2C2C2E] text-[#0A84FF] rounded-full px-5 py-1 text-sm font-bold"
-                                        onClick={() => {
-                                            if (isNativeApp(app.id)) {
-                                                openNativeApp(app.id);
-                                                return;
-                                            }
-
-                                            setDetailAppId(app.id);
-                                        }}
+                        return (
+                            <div key={app.id} className="ml-4 py-4 pr-4">
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setDetailAppId(app.id)}
+                                        aria-label={t('appstore.openDetails', { title: app.title })}
+                                        className="relative w-20 h-20 rounded-2xl overflow-hidden bg-neutral-200 shrink-0"
                                     >
-                                        {actionLabelForApp(app)}
-                                    </Button>
-                                    <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] mt-1">
-                                        {t('appstore.inAppPurchases')}
-                                    </p>
+                                        <Image
+                                            src={resolveAppIconUrl(app, fallbackAppIconUrl)}
+                                            fill
+                                            sizes="(max-width: 768px) 100vw, 33vw"
+                                            alt={t('appstore.iconAlt', { title: app.title })}
+                                            className="object-cover"
+                                        />
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setDetailAppId(app.id)}
+                                        className="flex-1 text-left min-w-0"
+                                    >
+                                        <h4 className="font-bold text-lg truncate">{app.title}</h4>
+                                        <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93] truncate">{app.category}</p>
+                                    </button>
+
+                                    <div className="flex flex-col items-center">
+                                        <Button
+                                            className="bg-[#EFEFF4] dark:bg-[#2C2C2E] text-[#0A84FF] rounded-full px-5 py-1 text-sm font-bold"
+                                            onClick={() => {
+                                                if (isNativeApp(app.id)) {
+                                                    openNativeApp(app.id);
+                                                    return;
+                                                }
+
+                                                setDetailAppId(app.id);
+                                            }}
+                                        >
+                                            {actionLabelForApp(app)}
+                                        </Button>
+                                        {monetizationLabels.length > 0 && (
+                                            <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] mt-1 text-center">
+                                                {monetizationLabels.join(' · ')}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
+                                {index < apps.length - 1 && (
+                                    <Separator className="mt-4 bg-neutral-200/60 dark:bg-[#38383A]/80" />
+                                )}
                             </div>
-                            {index < apps.length - 1 && (
-                                <Separator className="mt-4 bg-neutral-200/60 dark:bg-[#38383A]/80" />
-                            )}
-                        </div>
-                    ))}
+                        );
+                    })}
                     {apps.length === 0 && (
                         <div className="ml-4 py-5 pr-4 text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.noResults')}</div>
                     )}
@@ -1976,30 +2056,49 @@ const AppStore = () => {
                                                         <p className="font-semibold text-sm truncate">{app.title}</p>
                                                         <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">{app.status}</p>
                                                     </div>
-                                                    <Button
-                                                        className="h-9 rounded-full px-4"
-                                                        onClick={() => {
-                                                            if (publicProfile.isOwner) {
-                                                                setFormFromApp(app);
-                                                                setPublishOpen(true);
-                                                                return;
-                                                            }
+                                                    {publicProfile.isOwner ? (
+                                                        <div className="flex items-center gap-2">
+                                                            <Button
+                                                                className="h-9 rounded-full px-4"
+                                                                onClick={() => {
+                                                                    setFormFromApp(app);
+                                                                    setPublishOpen(true);
+                                                                }}
+                                                            >
+                                                                {t('appstore.edit')}
+                                                            </Button>
+                                                            <Button
+                                                                variant="outline"
+                                                                className="h-9 rounded-full px-4 border-[#FF3B30]/40 text-[#FF3B30] hover:text-[#FF3B30]"
+                                                                onClick={() => {
+                                                                    setAppPendingDelete(app);
+                                                                    setDeleteConfirmInput('');
+                                                                    setDeleteConfirmOpen(true);
+                                                                }}
+                                                            >
+                                                                Eliminar
+                                                            </Button>
+                                                        </div>
+                                                    ) : (
+                                                        <Button
+                                                            className="h-9 rounded-full px-4"
+                                                            onClick={() => {
+                                                                if (isNativeApp(app.id)) {
+                                                                    openNativeApp(app.id);
+                                                                    return;
+                                                                }
 
-                                                            if (isNativeApp(app.id)) {
-                                                                openNativeApp(app.id);
-                                                                return;
-                                                            }
+                                                                if (getInstalledAppById(app.id)) {
+                                                                    openInstalledApp(app.id);
+                                                                    return;
+                                                                }
 
-                                                            if (getInstalledAppById(app.id)) {
-                                                                openInstalledApp(app.id);
-                                                                return;
-                                                            }
-
-                                                            setDetailAppId(app.id);
-                                                        }}
-                                                    >
-                                                        {publicProfile.isOwner ? t('appstore.edit') : actionLabelForApp(app)}
-                                                    </Button>
+                                                                setDetailAppId(app.id);
+                                                            }}
+                                                        >
+                                                            {actionLabelForApp(app)}
+                                                        </Button>
+                                                    )}
                                                 </div>
                                             ))}
                                         </div>
@@ -2470,6 +2569,51 @@ const AppStore = () => {
                                 )}
                             </span>
                         </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+                <DialogContent className="sm:max-w-md rounded-3xl border border-neutral-300/70 dark:border-[#38383A]/80 p-0 overflow-hidden bg-white dark:bg-[#1C1C1E] text-black dark:text-white">
+                    <DialogHeader className="px-6 pt-6 pb-2 text-left">
+                        <DialogTitle className="text-xl font-semibold">Eliminar app</DialogTitle>
+                        <DialogDescription className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">
+                            Esta acción es permanente. Escribe el nombre exacto para confirmar.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="px-6 pb-6 space-y-3">
+                        <p className="text-sm text-[#3A3A3C] dark:text-[#D1D1D6]">
+                            Nombre a escribir: <span className="font-semibold">{appPendingDelete?.title ?? '-'}</span>
+                        </p>
+
+                        <Input
+                            className={insetInput}
+                            value={deleteConfirmInput}
+                            onChange={(event) => setDeleteConfirmInput(event.target.value)}
+                            placeholder={appPendingDelete?.title ?? 'Nombre de la app'}
+                            aria-label="Confirmar nombre de la app"
+                        />
+
+                        <div className="grid grid-cols-2 gap-2 pt-1">
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                className="h-11 rounded-xl"
+                                onClick={() => setDeleteConfirmOpen(false)}
+                                disabled={deleteLoading}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                type="button"
+                                className="h-11 rounded-xl bg-[#FF3B30] hover:bg-[#FF3B30]/90 text-white"
+                                onClick={handleDeletePublishedApp}
+                                disabled={deleteLoading || !deleteNameMatches}
+                            >
+                                {deleteLoading ? 'Eliminando...' : 'Eliminar'}
+                            </Button>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>
