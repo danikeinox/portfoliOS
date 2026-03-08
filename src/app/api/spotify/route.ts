@@ -1,4 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { z } from "zod";
+import { applyRateLimit, enforceSameOrigin } from "@/lib/api/security";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +18,28 @@ const RECOMMENDATIONS_ENDPOINT = `https://api.spotify.com/v1/recommendations`;
 const SEARCH_ENDPOINT = `https://api.spotify.com/v1/search`;
 const PLAYLISTS_ENDPOINT = `https://api.spotify.com/v1/me/playlists?limit=20`;
 const SAVED_TRACKS_ENDPOINT = `https://api.spotify.com/v1/me/tracks?limit=20`;
+
+const spotifyQuerySchema = z
+  .object({
+    action: z.enum([
+      "now-playing",
+      "recently-played",
+      "playlists",
+      "saved-tracks",
+      "recommendations",
+      "search",
+    ]),
+    q: z.string().trim().min(1).max(120).optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.action === "search" && !value.q) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["q"],
+        message: "q is required when action=search",
+      });
+    }
+  });
 
 const parseResponseBody = async (response: Response) => {
   const text = await response.text();
@@ -83,7 +107,21 @@ const spotifyApiRequest = async (endpoint: string, access_token: string) => {
 };
 
 export async function GET(request: NextRequest) {
-  if (!refresh_token) {
+  const rateLimitResponse = applyRateLimit(request, {
+    key: "spotify:get",
+    windowMs: 60 * 1000,
+    maxRequests: 80,
+  });
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
+  const sameOriginResponse = enforceSameOrigin(request);
+  if (sameOriginResponse) {
+    return sameOriginResponse;
+  }
+
+  if (!client_id || !client_secret || !refresh_token) {
     return NextResponse.json(
       { error: "Spotify service unavailable." },
       { status: 500 },
@@ -92,7 +130,23 @@ export async function GET(request: NextRequest) {
 
   try {
     const { access_token } = await getAccessToken();
-    const action = request.nextUrl.searchParams.get("action");
+    const queryResult = spotifyQuerySchema.safeParse({
+      action: request.nextUrl.searchParams.get("action"),
+      q: request.nextUrl.searchParams.get("q") ?? undefined,
+    });
+
+    if (!queryResult.success) {
+      return NextResponse.json(
+        {
+          code: "INVALID_SPOTIFY_QUERY",
+          error: "Invalid query params",
+          details: queryResult.error.flatten(),
+        },
+        { status: 400 },
+      );
+    }
+
+    const { action } = queryResult.data;
 
     switch (action) {
       case "now-playing": {
@@ -161,12 +215,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(data);
       }
       case "search": {
-        const q = request.nextUrl.searchParams.get("q")?.trim() ?? "";
-        if (!q)
-          return NextResponse.json({
-            tracks: { items: [] },
-            playlists: { items: [] },
-          });
+        const q = queryResult.data.q ?? "";
         const data = await spotifyApiRequest(
           `${SEARCH_ENDPOINT}?q=${encodeURIComponent(q)}&type=track,playlist&limit=10`,
           access_token,
@@ -179,7 +228,7 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error("Error in Spotify API route:", error);
     return NextResponse.json(
-      { error: "Spotify service unavailable." },
+      { code: "SPOTIFY_ROUTE_ERROR", error: "Spotify service unavailable." },
       { status: 500 },
     );
   }

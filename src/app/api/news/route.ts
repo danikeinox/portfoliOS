@@ -1,6 +1,26 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { z } from "zod";
+import { applyRateLimit, enforceSameOrigin } from "@/lib/api/security";
+
+const newsQuerySchema = z.object({
+  locale: z.enum(["es", "en"]).default("en"),
+});
 
 export async function GET(request: NextRequest) {
+  const rateLimitResponse = applyRateLimit(request, {
+    key: "news:get",
+    windowMs: 60 * 1000,
+    maxRequests: 60,
+  });
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
+  const sameOriginResponse = enforceSameOrigin(request);
+  if (sameOriginResponse) {
+    return sameOriginResponse;
+  }
+
   const apiKey = process.env.NEWS_API_KEY;
 
   if (!apiKey) {
@@ -13,8 +33,22 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const locale =
-    request.nextUrl.searchParams.get("locale") === "es" ? "es" : "us,gb";
+  const queryResult = newsQuerySchema.safeParse({
+    locale: request.nextUrl.searchParams.get("locale") ?? undefined,
+  });
+
+  if (!queryResult.success) {
+    return NextResponse.json(
+      {
+        code: "INVALID_NEWS_QUERY",
+        error: "Invalid query params",
+        details: queryResult.error.flatten(),
+      },
+      { status: 400 },
+    );
+  }
+
+  const locale = queryResult.data.locale === "es" ? "es" : "us,gb";
   const url = `https://api.thenewsapi.com/v1/news/top?api_token=${apiKey}&locale=${locale}&limit=10`;
 
   try {
