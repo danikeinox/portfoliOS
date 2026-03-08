@@ -131,6 +131,7 @@ interface HomeScreenContextType {
   visiblePages: boolean[];
   setVisiblePages: React.Dispatch<React.SetStateAction<boolean[]>>;
   addApp: (appId: string) => void;
+  removeApp: (appId: string) => void;
   addWidget: (widgetType: string, pageIndex: number) => void;
   removeItem: (itemId: string) => void;
   findItem: (itemId: string) => FindResult | null;
@@ -465,6 +466,23 @@ export const HomeScreenProvider = ({ children }: { children: ReactNode }) => {
     );
   }, []);
 
+  const removeApp = useCallback((appId: string) => {
+    setHomeScreenState(
+      produce((draft) => {
+        draft.pages = draft.pages.map((page) => ({
+          ...page,
+          items: page.items.filter(
+            (item) => !(item.type === "app" && item.appId === appId),
+          ),
+        }));
+
+        draft.dockItems = draft.dockItems.filter(
+          (item) => !(item.type === "app" && item.appId === appId),
+        );
+      }),
+    );
+  }, []);
+
   const updateWidget = useCallback(
     (
       itemId: string,
@@ -545,6 +563,7 @@ export const HomeScreenProvider = ({ children }: { children: ReactNode }) => {
       visiblePages,
       setVisiblePages,
       addApp,
+      removeApp,
       addWidget,
       removeItem,
       findItem,
@@ -559,6 +578,7 @@ export const HomeScreenProvider = ({ children }: { children: ReactNode }) => {
       visiblePages,
       setVisiblePages,
       addApp,
+      removeApp,
       addWidget,
       removeItem,
       findItem,

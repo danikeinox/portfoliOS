@@ -4,6 +4,7 @@ import { Globe } from "lucide-react";
 import type { App } from "@/lib/apps";
 
 export const INSTALLED_APPS_STORAGE_KEY = "installedApps.v1";
+export const INSTALLED_APPS_HISTORY_STORAGE_KEY = "installedApps.history.v1";
 export const INSTALLED_APPS_UPDATED_EVENT = "installed-apps-updated";
 
 export type InstalledAppRecord = {
@@ -51,6 +52,23 @@ function parseStoredApps(raw: string | null): InstalledAppRecord[] {
   }
 }
 
+function parseHistory(raw: string | null): string[] {
+  if (!raw) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.filter((item): item is string => typeof item === "string");
+  } catch {
+    return [];
+  }
+}
+
 export function getInstalledAppRecords(): InstalledAppRecord[] {
   if (typeof window === "undefined") {
     return [];
@@ -73,6 +91,17 @@ export function getInstalledAppBySlug(slug: string): InstalledAppRecord | null {
   return getInstalledAppById(appId);
 }
 
+export function hasInstalledAppHistory(appId: string): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const history = parseHistory(
+    localStorage.getItem(INSTALLED_APPS_HISTORY_STORAGE_KEY),
+  );
+  return history.includes(appId);
+}
+
 export function saveInstalledApp(
   record: Omit<InstalledAppRecord, "installedAt">,
 ) {
@@ -90,6 +119,17 @@ export function saveInstalledApp(
   ];
 
   localStorage.setItem(INSTALLED_APPS_STORAGE_KEY, JSON.stringify(next));
+
+  const history = parseHistory(
+    localStorage.getItem(INSTALLED_APPS_HISTORY_STORAGE_KEY),
+  );
+  if (!history.includes(record.id)) {
+    localStorage.setItem(
+      INSTALLED_APPS_HISTORY_STORAGE_KEY,
+      JSON.stringify([...history, record.id]),
+    );
+  }
+
   window.dispatchEvent(new CustomEvent(INSTALLED_APPS_UPDATED_EVENT));
 }
 

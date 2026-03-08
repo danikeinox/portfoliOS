@@ -28,6 +28,8 @@ import { useAuth, useUser } from '@/firebase';
 import { useHomeScreen } from '@/hooks/use-home-screen';
 import {
     getInstalledAppById,
+    hasInstalledAppHistory,
+    removeInstalledApp,
     saveInstalledApp,
     toInstalledSlug,
 } from '@/lib/installed-apps';
@@ -235,7 +237,7 @@ const AppStore = () => {
     const { toast } = useToast();
     const auth = useAuth();
     const { data: firebaseUser } = useUser();
-    const { addApp } = useHomeScreen();
+    const { addApp, removeApp } = useHomeScreen();
 
     const [tab, setTab] = useState<AppStoreTab>('home');
     const [searchQuery, setSearchQuery] = useState('');
@@ -1079,12 +1081,21 @@ const AppStore = () => {
         router.push(`/app/${appId}`);
     }
 
+    function openInstalledApp(appId: string) {
+        setDetailAppId(null);
+        router.push(`/app/${toInstalledSlug(appId)}`);
+    }
+
     function actionLabelForApp(app: AppStoreApp): string {
         if (isNativeApp(app.id)) {
             return t('appstore.open');
         }
 
-        return getInstalledAppById(app.id) ? t('appstore.installed') : t('appstore.get');
+        if (getInstalledAppById(app.id)) {
+            return t('appstore.open');
+        }
+
+        return hasInstalledAppHistory(app.id) ? t('appstore.reinstall') : t('appstore.get');
     }
 
     async function handleLogoutToGuest() {
@@ -1169,6 +1180,29 @@ const AppStore = () => {
         } finally {
             installInFlightRef.current = false;
         }
+    }
+
+    async function handleUninstallApp() {
+        if (!detailApp || isNativeApp(detailApp.id)) {
+            return;
+        }
+
+        const installed = getInstalledAppById(detailApp.id);
+        if (!installed) {
+            toast({
+                title: t('appstore.uninstallNotInstalledTitle'),
+                description: t('appstore.uninstallNotInstalledDescription'),
+            });
+            return;
+        }
+
+        removeInstalledApp(detailApp.id);
+        removeApp(toInstalledSlug(detailApp.id));
+
+        toast({
+            title: t('appstore.uninstallSuccessTitle'),
+            description: t('appstore.uninstallSuccessDescription'),
+        });
     }
 
     useEffect(() => {
@@ -1558,6 +1592,11 @@ const AppStore = () => {
                                                         return;
                                                     }
 
+                                                    if (getInstalledAppById(app.id)) {
+                                                        openInstalledApp(app.id);
+                                                        return;
+                                                    }
+
                                                     setDetailAppId(app.id);
                                                 }}
                                             >
@@ -1711,6 +1750,11 @@ const AppStore = () => {
                                                                 return;
                                                             }
 
+                                                            if (getInstalledAppById(app.id)) {
+                                                                openInstalledApp(app.id);
+                                                                return;
+                                                            }
+
                                                             setDetailAppId(app.id);
                                                         }}
                                                     >
@@ -1798,11 +1842,25 @@ const AppStore = () => {
                                                         return;
                                                     }
 
+                                                    if (getInstalledAppById(detailApp.id)) {
+                                                        openInstalledApp(detailApp.id);
+                                                        return;
+                                                    }
+
                                                     void handleInstallApp();
                                                 }}
                                             >
                                                 {actionLabelForApp(detailApp)}
                                             </Button>
+                                            {!isNativeApp(detailApp.id) && getInstalledAppById(detailApp.id) && (
+                                                <Button
+                                                    variant="ghost"
+                                                    className="mt-2 text-[#FF3B30] hover:text-[#FF3B30]"
+                                                    onClick={() => void handleUninstallApp()}
+                                                >
+                                                    {t('appstore.uninstall')}
+                                                </Button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -1862,6 +1920,11 @@ const AppStore = () => {
 
                                                             if (isNativeApp(app.id)) {
                                                                 openNativeApp(app.id);
+                                                                return;
+                                                            }
+
+                                                            if (getInstalledAppById(app.id)) {
+                                                                openInstalledApp(app.id);
                                                                 return;
                                                             }
 
