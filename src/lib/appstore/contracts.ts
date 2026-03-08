@@ -40,6 +40,14 @@ export type PublicDeveloperProfile = UserProfile & {
   isOwner: boolean;
 };
 
+export type AppLanguage = "es" | "en";
+
+export type AppLocalizedFields = {
+  title: string;
+  description: string;
+  tags: string[];
+};
+
 export type AppStoreApp = {
   id: string;
   ownerId: string;
@@ -51,9 +59,20 @@ export type AppStoreApp = {
   categories: string[];
   status: "draft" | "published";
   tags: string[];
+  defaultLanguage: AppLanguage;
+  translations: Partial<Record<AppLanguage, AppLocalizedFields>>;
   iconUrl?: string;
   screenshotsUrls: string[];
   externalUrl: string;
+  version: string;
+  releaseNotes?: string;
+  inAppPurchases: boolean;
+  containsAds: boolean;
+  releaseHistory: Array<{
+    version: string;
+    notes?: string;
+    updatedAt: string;
+  }>;
   downloadCount: number;
   createdAt: string;
   updatedAt: string;

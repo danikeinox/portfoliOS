@@ -60,6 +60,38 @@ const httpsUrlSchema = z
     message: "External URL must start with https://",
   });
 
+const appLanguageSchema = z.enum(["es", "en"]);
+
+const localizedFieldsSchema = z.object({
+  title: z
+    .string()
+    .min(2)
+    .max(80)
+    .transform((value) => normalizeWhitespace(value)),
+  description: z
+    .string()
+    .min(10)
+    .max(1200)
+    .transform((value) => normalizeWhitespace(value)),
+  tags: z
+    .array(
+      z
+        .string()
+        .min(1)
+        .max(20)
+        .transform((value) => normalizeWhitespace(value)),
+    )
+    .max(8)
+    .default([]),
+});
+
+const appTranslationsSchema = z
+  .object({
+    es: localizedFieldsSchema.partial().optional(),
+    en: localizedFieldsSchema.partial().optional(),
+  })
+  .optional();
+
 const appCreatePayloadSchema = z.object({
   title: z
     .string()
@@ -87,6 +119,19 @@ const appCreatePayloadSchema = z.object({
   iconUrl: z.string().url().max(300).optional(),
   screenshotsUrls: screenshotsSchema,
   externalUrl: httpsUrlSchema,
+  version: z
+    .string()
+    .regex(/^\d+\.\d+\.\d+$/, "Version must use semantic format, e.g. 1.0.0")
+    .default("1.0.0"),
+  releaseNotes: z
+    .string()
+    .max(500)
+    .transform((value) => normalizeWhitespace(value))
+    .optional(),
+  inAppPurchases: z.boolean().default(false),
+  containsAds: z.boolean().default(false),
+  defaultLanguage: appLanguageSchema.default("es"),
+  translations: appTranslationsSchema,
 });
 
 export const appCreateSchema = appCreatePayloadSchema.transform((payload) => {
@@ -130,6 +175,7 @@ export const appListQuerySchema = z.object({
   status: z.enum(["draft", "published"]).optional(),
   sort: z.enum(["recent", "downloads"]).default("recent"),
   limit: z.coerce.number().int().min(1).max(50).default(20),
+  lang: appLanguageSchema.optional(),
 });
 
 export const publicProfileQuerySchema = z.object({

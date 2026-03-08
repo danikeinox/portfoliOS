@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import {
     GoogleAuthProvider,
     createUserWithEmailAndPassword,
+    signInAnonymously,
     signInWithEmailAndPassword,
     signInWithPopup,
     signOut,
@@ -31,6 +32,7 @@ import {
     toInstalledSlug,
 } from '@/lib/installed-apps';
 import type {
+    AppLanguage,
     AppStoreApiResponse,
     AppStoreApp,
     NicknameAvailability,
@@ -62,6 +64,14 @@ type AppFormState = {
     categories: string[];
     categoryInput: string;
     status: 'draft' | 'published';
+    version: string;
+    releaseNotes: string;
+    inAppPurchases: boolean;
+    containsAds: boolean;
+    defaultLanguage: AppLanguage;
+    translatedTitle: string;
+    translatedDescription: string;
+    translatedTagsText: string;
 };
 
 const fallbackCategories = [
@@ -94,7 +104,10 @@ const nativeAppIds = new Set([
     'photos',
     'camera',
 ]);
-const profileStorageKey = 'appstore.profile.v1';
+const profileStoragePrefix = 'appstore.profile.v1';
+const MAX_NICKNAME_LENGTH = 30;
+const MAX_DISPLAY_NAME_LENGTH = 60;
+const MAX_BIO_LENGTH = 240;
 const NATIVE_ICONS: Record<string, string> = {
     safari: 'https://picsum.photos/seed/native-safari/256/256',
     spotify: 'https://picsum.photos/seed/native-spotify/256/256',
@@ -106,13 +119,17 @@ const NATIVE_ICONS: Record<string, string> = {
     camera: 'https://picsum.photos/seed/native-camera/256/256',
 };
 
-function readCachedProfile(): UserProfile | null {
+function profileStorageKey(uid: string): string {
+    return `${profileStoragePrefix}:${uid}`;
+}
+
+function readCachedProfile(uid: string): UserProfile | null {
     if (typeof window === 'undefined') {
         return null;
     }
 
     try {
-        const raw = localStorage.getItem(profileStorageKey);
+        const raw = localStorage.getItem(profileStorageKey(uid));
         if (!raw) {
             return null;
         }
@@ -123,17 +140,17 @@ function readCachedProfile(): UserProfile | null {
     }
 }
 
-function writeCachedProfile(profile: UserProfile | null) {
+function writeCachedProfile(uid: string, profile: UserProfile | null) {
     if (typeof window === 'undefined') {
         return;
     }
 
     if (!profile) {
-        localStorage.removeItem(profileStorageKey);
+        localStorage.removeItem(profileStorageKey(uid));
         return;
     }
 
-    localStorage.setItem(profileStorageKey, JSON.stringify(profile));
+    localStorage.setItem(profileStorageKey(uid), JSON.stringify(profile));
 }
 
 function isValidImageSrc(value: string | undefined): value is string {
@@ -155,6 +172,8 @@ function resolveAppIconUrl(app: Pick<AppStoreApp, 'id' | 'iconUrl'>, fallbackUrl
 
     return fallbackUrl;
 }
+
+const genericProfileAvatar = 'https://picsum.photos/seed/profile-generic/160/160';
 
 function extractNickFromEmail(email: string | null | undefined): string {
     const candidate = (email ?? 'usuario').split('@')[0] ?? 'usuario';
@@ -190,7 +209,24 @@ function emptyAppForm(): AppFormState {
         categories: [],
         categoryInput: '',
         status: 'published',
+        version: '1.0.0',
+        releaseNotes: '',
+        inAppPurchases: false,
+        containsAds: false,
+        defaultLanguage: 'es',
+        translatedTitle: '',
+        translatedDescription: '',
+        translatedTagsText: '',
     };
+}
+
+function parseTagsText(value: string): string[] {
+    const tags = value
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+    return [...new Set(tags)].slice(0, 8);
 }
 
 const AppStore = () => {
@@ -218,7 +254,7 @@ const AppStore = () => {
     const [bio, setBio] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
 
-    const [ownProfile, setOwnProfile] = useState<UserProfile | null>(() => readCachedProfile());
+    const [ownProfile, setOwnProfile] = useState<UserProfile | null>(null);
     const [selectedNickname, setSelectedNickname] = useState<string | null>(null);
     const [publicProfile, setPublicProfile] = useState<PublicDeveloperProfile | null>(
         null,
@@ -228,7 +264,9 @@ const AppStore = () => {
     const [recentApps, setRecentApps] = useState<AppStoreApp[]>([]);
     const [popularApps, setPopularApps] = useState<AppStoreApp[]>([]);
     const [categoryApps, setCategoryApps] = useState<AppStoreApp[]>([]);
+    const [profileApps, setProfileApps] = useState<AppStoreApp[]>([]);
     const [appsLoading, setAppsLoading] = useState(false);
+    const [profileAppsLoading, setProfileAppsLoading] = useState(false);
 
     const [categories, setCategories] = useState<Array<{ category: string; count: number }>>(
         [],
@@ -243,7 +281,7 @@ const AppStore = () => {
 
     const [publishOpen, setPublishOpen] = useState(false);
     const [publishLoading, setPublishLoading] = useState(false);
-    const [nativeSeedLoading, setNativeSeedLoading] = useState(false);
+    const [profileMenuOpen, setProfileMenuOpen] = useState(false);
     const [form, setForm] = useState<AppFormState>(emptyAppForm());
 
     const nicknameCheckInFlightRef = useRef(false);
@@ -251,6 +289,14 @@ const AppStore = () => {
     const installInFlightRef = useRef(false);
     const lastInstallAtRef = useRef(0);
     const profileCompletionPromptedRef = useRef(false);
+    const profileMenuRef = useRef<HTMLDivElement | null>(null);
+
+    const isGuestSession = !firebaseUser || firebaseUser.isAnonymous;
+    const isAuthenticatedSession = !!firebaseUser && !firebaseUser.isAnonymous;
+    const profileAvatar =
+        ownProfile?.avatarUrl && isValidImageSrc(ownProfile.avatarUrl)
+            ? ownProfile.avatarUrl
+            : genericProfileAvatar;
 
     const today = new Date();
     const dateString = today.toLocaleDateString(locale, {
@@ -294,16 +340,34 @@ const AppStore = () => {
         return [...dedupe.values()];
     }, [recentApps, popularApps, categoryApps]);
 
-    const searchResults = useMemo(() => {
-        const query = searchQuery.trim().toLocaleLowerCase('es-ES');
-        if (!query) {
+    const normalizedSearchQuery = useMemo(
+        () => searchQuery.trim().toLocaleLowerCase(locale),
+        [searchQuery, locale],
+    );
+
+    const appSearchResults = useMemo(() => {
+        if (!normalizedSearchQuery) {
             return [] as AppStoreApp[];
         }
 
         return allPublishedApps.filter((app) =>
-            app.title.toLocaleLowerCase('es-ES').includes(query),
+            app.title.toLocaleLowerCase(locale).includes(normalizedSearchQuery) ||
+            app.category.toLocaleLowerCase(locale).includes(normalizedSearchQuery) ||
+            (app.categories ?? []).some((category) =>
+                category.toLocaleLowerCase(locale).includes(normalizedSearchQuery),
+            ),
         );
-    }, [allPublishedApps, searchQuery]);
+    }, [allPublishedApps, normalizedSearchQuery, locale]);
+
+    const categorySearchResults = useMemo(() => {
+        if (!normalizedSearchQuery) {
+            return featuredCategories;
+        }
+
+        return mergedCategories.filter((item) =>
+            item.category.toLocaleLowerCase(locale).includes(normalizedSearchQuery),
+        );
+    }, [featuredCategories, mergedCategories, normalizedSearchQuery, locale]);
 
     const recommendedApps = useMemo(() => {
         const source = popularApps.length > 0 ? popularApps : recentApps;
@@ -326,21 +390,6 @@ const AppStore = () => {
             .slice(0, 8);
     }, [allPublishedApps, detailApp]);
 
-    const ownerApps = useMemo(() => {
-        if (!ownProfile) {
-            return [] as AppStoreApp[];
-        }
-
-        const all = [...recentApps, ...popularApps, ...categoryApps];
-        const dedupe = new Map<string, AppStoreApp>();
-        all.forEach((app) => {
-            if (app.ownerId === ownProfile.uid) {
-                dedupe.set(app.id, app);
-            }
-        });
-        return [...dedupe.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-    }, [ownProfile, recentApps, popularApps, categoryApps]);
-
     async function authHeaders(): Promise<Record<string, string>> {
         if (!firebaseUser) {
             return {};
@@ -354,7 +403,7 @@ const AppStore = () => {
         setAppsLoading(true);
         try {
             const response = await fetch(
-                `/api/appstore/apps?status=published&sort=${sort}&limit=20`,
+                `/api/appstore/apps?status=published&sort=${sort}&limit=20&lang=${locale}`,
             );
             const json = (await response.json()) as AppsListApi;
 
@@ -379,7 +428,7 @@ const AppStore = () => {
         setAppsLoading(true);
         try {
             const response = await fetch(
-                `/api/appstore/apps?status=published&category=${encodeURIComponent(category)}&limit=20`,
+                `/api/appstore/apps?status=published&category=${encodeURIComponent(category)}&limit=20&lang=${locale}`,
             );
             const json = (await response.json()) as AppsListApi;
 
@@ -424,10 +473,40 @@ const AppStore = () => {
         }
     }
 
+    async function fetchProfileApps(ownerId: string, includeDrafts: boolean) {
+        setProfileAppsLoading(true);
+        try {
+            const params = new URLSearchParams({
+                ownerId,
+                sort: 'recent',
+                limit: '50',
+                lang: locale,
+            });
+
+            if (!includeDrafts) {
+                params.set('status', 'published');
+            }
+
+            const response = await fetch(`/api/appstore/apps?${params.toString()}`);
+            const json = (await response.json()) as AppsListApi;
+
+            if (!json.success) {
+                toast({ title: 'Perfil', description: json.error.message, variant: 'destructive' });
+                return;
+            }
+
+            setProfileApps(json.data.apps);
+        } catch {
+            toast({ title: 'Perfil', description: 'No se pudieron cargar las apps del perfil.', variant: 'destructive' });
+        } finally {
+            setProfileAppsLoading(false);
+        }
+    }
+
     async function fetchAppDetail(appId: string) {
         setDetailLoading(true);
         try {
-            const response = await fetch(`/api/appstore/apps/${appId}`);
+            const response = await fetch(`/api/appstore/apps/${appId}?lang=${locale}`);
             const json = (await response.json()) as AppDetailApi;
 
             if (!json.success) {
@@ -449,7 +528,6 @@ const AppStore = () => {
             setNeedsProfileCompletion(false);
             profileCompletionPromptedRef.current = false;
             setOwnProfileLoading(false);
-            writeCachedProfile(null);
             return;
         }
 
@@ -465,23 +543,18 @@ const AppStore = () => {
                     setDisplayName(firebaseUser.displayName ?? '');
                     setNickname(extractNickFromEmail(firebaseUser.email));
                     setOwnProfile(null);
-                    writeCachedProfile(null);
-
-                    if (!profileCompletionPromptedRef.current) {
-                        setNeedsProfileCompletion(true);
-                        profileCompletionPromptedRef.current = true;
-                    }
+                    writeCachedProfile(firebaseUser.uid, null);
 
                     return;
                 }
 
                 setOwnProfile(null);
-                writeCachedProfile(null);
+                writeCachedProfile(firebaseUser.uid, null);
                 return;
             }
 
             setOwnProfile(json.data);
-            writeCachedProfile(json.data);
+            writeCachedProfile(firebaseUser.uid, json.data);
             setNeedsProfileCompletion(false);
             profileCompletionPromptedRef.current = false;
             if (!selectedNickname) {
@@ -583,6 +656,33 @@ const AppStore = () => {
         const normalizedBio = bio.trim();
         const normalizedAvatar = avatarUrl.trim();
 
+        if (normalizedNickname.length > MAX_NICKNAME_LENGTH) {
+            toast({
+                title: 'Nickname demasiado largo',
+                description: `El nickname permite hasta ${MAX_NICKNAME_LENGTH} caracteres.`,
+                variant: 'destructive',
+            });
+            return false;
+        }
+
+        if (normalizedDisplayName.length > MAX_DISPLAY_NAME_LENGTH) {
+            toast({
+                title: 'Nombre demasiado largo',
+                description: `El nombre permite hasta ${MAX_DISPLAY_NAME_LENGTH} caracteres.`,
+                variant: 'destructive',
+            });
+            return false;
+        }
+
+        if (normalizedBio.length > MAX_BIO_LENGTH) {
+            toast({
+                title: 'Bio demasiado larga',
+                description: `La bio permite hasta ${MAX_BIO_LENGTH} caracteres.`,
+                variant: 'destructive',
+            });
+            return false;
+        }
+
         if (!normalizedNickname || !normalizedDisplayName) {
             toast({
                 title: 'Perfil incompleto',
@@ -631,7 +731,7 @@ const AppStore = () => {
         }
 
         setOwnProfile(json.data);
-        writeCachedProfile(json.data);
+        writeCachedProfile(firebaseUser.uid, json.data);
         setSelectedNickname(json.data.nickname);
         setNeedsProfileCompletion(false);
         profileCompletionPromptedRef.current = false;
@@ -644,17 +744,21 @@ const AppStore = () => {
             toast({ title: 'Faltan datos', description: 'Introduce email y contraseña.', variant: 'destructive' });
             return;
         }
+        if (!isAuthenticatedSession) {
+            setAuthLoading(true);
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                setAuthOpen(false);
+                setEmail('');
+                if (ownProfileLoading) {
+                    return;
+                }
 
-        setAuthLoading(true);
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-            setAuthOpen(false);
-            setEmail('');
-            setPassword('');
-        } catch {
-            toast({ title: 'Login fallido', description: 'No se pudo iniciar sesión.', variant: 'destructive' });
-        } finally {
-            setAuthLoading(false);
+                setPassword('');
+            } catch {
+            } finally {
+                setAuthLoading(false);
+            }
         }
     }
 
@@ -712,7 +816,7 @@ const AppStore = () => {
             return;
         }
 
-        if (!firebaseUser) {
+        if (!isAuthenticatedSession) {
             setAuthOpen(true);
             return;
         }
@@ -724,7 +828,6 @@ const AppStore = () => {
 
             setDisplayName(firebaseUser.displayName ?? '');
             setNickname((current) => current || extractNickFromEmail(firebaseUser.email));
-            setNeedsProfileCompletion(true);
             return;
         }
 
@@ -789,16 +892,41 @@ const AppStore = () => {
             return;
         }
 
+        const defaultLanguage = app.defaultLanguage ?? 'es';
+        const secondaryLanguage: AppLanguage = defaultLanguage === 'es' ? 'en' : 'es';
+        const defaultTranslation = app.translations?.[defaultLanguage];
+        const secondaryTranslation = app.translations?.[secondaryLanguage];
+        const baseTags = defaultTranslation?.tags ?? app.tags ?? app.categories ?? [app.category];
+        const translatedTags = secondaryTranslation?.tags ?? baseTags;
+        const hasTranslatedTags =
+            translatedTags.length !== baseTags.length ||
+            translatedTags.some((tag, index) => tag !== baseTags[index]);
+
         setForm({
             id: app.id,
-            title: app.title,
-            description: app.description,
+            title: defaultTranslation?.title ?? app.title,
+            description: defaultTranslation?.description ?? app.description,
             iconUrl: app.iconUrl ?? '',
             externalUrl: app.externalUrl ?? '',
             screenshotsText: (app.screenshotsUrls ?? []).join('\n'),
             categories: app.categories ?? [app.category],
             categoryInput: '',
             status: app.status,
+            version: app.version ?? '1.0.0',
+            releaseNotes: app.releaseNotes ?? '',
+            inAppPurchases: app.inAppPurchases ?? false,
+            containsAds: app.containsAds ?? false,
+            defaultLanguage,
+            translatedTitle:
+                secondaryTranslation?.title && secondaryTranslation.title !== app.title
+                    ? secondaryTranslation.title
+                    : '',
+            translatedDescription:
+                secondaryTranslation?.description &&
+                    secondaryTranslation.description !== app.description
+                    ? secondaryTranslation.description
+                    : '',
+            translatedTagsText: hasTranslatedTags ? translatedTags.join(', ') : '',
         });
     }
 
@@ -831,7 +959,7 @@ const AppStore = () => {
     }
 
     async function submitAppForm() {
-        if (!firebaseUser) {
+        if (!isAuthenticatedSession) {
             setAuthOpen(true);
             return;
         }
@@ -843,7 +971,6 @@ const AppStore = () => {
 
             setDisplayName(firebaseUser.displayName ?? '');
             setNickname((current) => current || extractNickFromEmail(firebaseUser.email));
-            setNeedsProfileCompletion(true);
             return;
         }
 
@@ -856,6 +983,22 @@ const AppStore = () => {
             .split('\n')
             .map((item) => item.trim())
             .filter(Boolean);
+
+        const secondaryLanguage: AppLanguage = form.defaultLanguage === 'es' ? 'en' : 'es';
+        const translatedTags = parseTagsText(form.translatedTagsText);
+        const secondaryTranslationPayload: {
+            title?: string;
+            description?: string;
+            tags?: string[];
+        } = {
+            ...(form.translatedTitle.trim()
+                ? { title: form.translatedTitle.trim() }
+                : {}),
+            ...(form.translatedDescription.trim()
+                ? { description: form.translatedDescription.trim() }
+                : {}),
+            ...(translatedTags.length ? { tags: translatedTags } : {}),
+        };
 
         setPublishLoading(true);
         try {
@@ -870,6 +1013,18 @@ const AppStore = () => {
                 category: form.categories[0],
                 status: form.status,
                 tags: form.categories,
+                version: form.version,
+                releaseNotes: form.releaseNotes,
+                inAppPurchases: form.inAppPurchases,
+                containsAds: form.containsAds,
+                defaultLanguage: form.defaultLanguage,
+                ...(Object.keys(secondaryTranslationPayload).length
+                    ? {
+                        translations: {
+                            [secondaryLanguage]: secondaryTranslationPayload,
+                        },
+                    }
+                    : {}),
             };
 
             const isEdit = !!form.id;
@@ -932,55 +1087,35 @@ const AppStore = () => {
         return getInstalledAppById(app.id) ? t('appstore.installed') : t('appstore.get');
     }
 
-    async function handleSeedNativeApps() {
-        if (!firebaseUser) {
-            setAuthOpen(true);
+    async function handleLogoutToGuest() {
+        try {
+            await signOut(auth);
+            await signInAnonymously(auth);
+        } catch {
+            toast({ title: t('appstore.logoutErrorTitle'), description: t('appstore.logoutErrorDescription'), variant: 'destructive' });
+        } finally {
+            setProfileMenuOpen(false);
+            setOwnProfile(null);
+            setPublicProfile(null);
+            setSelectedNickname(null);
+            setNeedsProfileCompletion(false);
+            if (ownProfile?.uid) {
+                writeCachedProfile(ownProfile.uid, null);
+            }
+            profileCompletionPromptedRef.current = false;
+        }
+    }
+
+    function openProfileFromMenu() {
+        setProfileMenuOpen(false);
+
+        if (ownProfile?.nickname) {
+            setSelectedNickname(ownProfile.nickname);
+            setTab('profile');
             return;
         }
 
-        setNativeSeedLoading(true);
-
-        try {
-            const headers = await authHeaders();
-            const response = await fetch('/api/appstore/admin/seed-native', {
-                method: 'POST',
-                headers,
-            });
-
-            const json = (await response.json()) as AppStoreApiResponse<{ seeded: number }>;
-
-            if (!json.success) {
-                toast({
-                    title: t('appstore.seedNativeErrorTitle'),
-                    description: json.error.message,
-                    variant: 'destructive',
-                });
-                return;
-            }
-
-            toast({
-                title: t('appstore.seedNativeSuccessTitle'),
-                description: t('appstore.seedNativeSuccessDescription', { count: json.data.seeded }),
-            });
-
-            await Promise.all([
-                fetchAppsBySort('recent', setRecentApps),
-                fetchAppsBySort('downloads', setPopularApps),
-                fetchCategories(categoriesSearch),
-            ]);
-
-            if (selectedCategory) {
-                await fetchAppsByCategory(selectedCategory);
-            }
-        } catch {
-            toast({
-                title: t('appstore.seedNativeErrorTitle'),
-                description: t('appstore.seedNativeErrorDescription'),
-                variant: 'destructive',
-            });
-        } finally {
-            setNativeSeedLoading(false);
-        }
+        setAuthOpen(true);
     }
 
     async function handleInstallApp() {
@@ -1040,21 +1175,51 @@ const AppStore = () => {
         fetchAppsBySort('recent', setRecentApps);
         fetchAppsBySort('downloads', setPopularApps);
         fetchCategories();
-    }, []);
+    }, [locale]);
 
     useEffect(() => {
-        if (!firebaseUser || ownProfile) {
+        if (!firebaseUser || firebaseUser.isAnonymous) {
+            setOwnProfile(null);
+            setPublicProfile(null);
+            setSelectedNickname(null);
+            setProfileApps([]);
             return;
         }
 
-        const cached = readCachedProfile();
+        setOwnProfile(null);
+        setPublicProfile(null);
+        setSelectedNickname(null);
+        setProfileApps([]);
+
+        const cached = readCachedProfile(firebaseUser.uid);
         if (!cached) {
             return;
         }
 
         setOwnProfile(cached);
         setSelectedNickname(cached.nickname);
-    }, [firebaseUser, ownProfile]);
+    }, [firebaseUser?.uid, firebaseUser?.isAnonymous]);
+
+    useEffect(() => {
+        if (!profileMenuOpen) {
+            return;
+        }
+
+        const onPointerDown = (event: PointerEvent) => {
+            if (!profileMenuRef.current) {
+                return;
+            }
+
+            if (profileMenuRef.current.contains(event.target as Node)) {
+                return;
+            }
+
+            setProfileMenuOpen(false);
+        };
+
+        window.addEventListener('pointerdown', onPointerDown);
+        return () => window.removeEventListener('pointerdown', onPointerDown);
+    }, [profileMenuOpen]);
 
     useEffect(() => {
         fetchOwnProfile();
@@ -1063,11 +1228,21 @@ const AppStore = () => {
     useEffect(() => {
         if (!selectedNickname) {
             setPublicProfile(null);
+            setProfileApps([]);
             return;
         }
 
         fetchPublicProfile(selectedNickname);
     }, [selectedNickname, firebaseUser]);
+
+    useEffect(() => {
+        if (!publicProfile) {
+            setProfileApps([]);
+            return;
+        }
+
+        void fetchProfileApps(publicProfile.uid, publicProfile.isOwner);
+    }, [publicProfile, locale]);
 
     useEffect(() => {
         if (!detailAppId) {
@@ -1076,7 +1251,7 @@ const AppStore = () => {
         }
 
         fetchAppDetail(detailAppId);
-    }, [detailAppId]);
+    }, [detailAppId, locale]);
 
     useEffect(() => {
         if (!selectedCategory) {
@@ -1085,7 +1260,7 @@ const AppStore = () => {
         }
 
         fetchAppsByCategory(selectedCategory);
-    }, [selectedCategory]);
+    }, [selectedCategory, locale]);
 
     useEffect(() => {
         fetchCategories(categoriesSearch);
@@ -1185,35 +1360,76 @@ const AppStore = () => {
                 <div className="max-w-xl mx-auto p-4 pb-6 space-y-4">
                     <div className="flex justify-between items-end mb-4">
                         <div>
-                            <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] font-semibold uppercase">
-                                {dateString}
-                            </p>
-                            <h1 className="text-5xl font-bold tracking-tight leading-none">{t('appstore.today')}</h1>
+                            {tab === 'home' && (
+                                <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] font-semibold uppercase">
+                                    {dateString}
+                                </p>
+                            )}
+                            <h1 className="text-5xl font-bold tracking-tight leading-none">
+                                {tab === 'home'
+                                    ? t('appstore.today')
+                                    : tab === 'search'
+                                        ? t('appstore.tabSearch')
+                                        : t('appstore.tabProfile')}
+                            </h1>
                         </div>
 
-                        <button
-                            type="button"
-                            onClick={() => {
-                                if (ownProfile?.nickname) {
-                                    setSelectedNickname(ownProfile.nickname);
-                                } else {
-                                    setAuthOpen(true);
-                                }
-                            }}
-                            aria-label={t('appstore.openProfile')}
-                            className="h-10 w-10 relative"
-                        >
-                            <Image
-                                src={ownProfile?.avatarUrl || 'https://s6.imgcdn.dev/Yrcy4v.png'}
-                                fill
-                                sizes="(max-width: 768px) 100vw, 33vw"
-                                alt={t('appstore.profileAvatarAlt')}
-                                className="rounded-full object-cover"
-                            />
-                        </button>
+                        <div className="relative" ref={profileMenuRef}>
+                            <button
+                                type="button"
+                                onClick={() => setProfileMenuOpen((current) => !current)}
+                                aria-label={t('appstore.openProfile')}
+                                className="h-10 w-10 relative"
+                            >
+                                <Image
+                                    src={profileAvatar}
+                                    fill
+                                    sizes="40px"
+                                    alt={t('appstore.profileAvatarAlt')}
+                                    className="rounded-full object-cover border border-neutral-200/60 dark:border-[#38383A]/80"
+                                />
+                            </button>
+
+                            {profileMenuOpen && (
+                                <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-neutral-200/70 dark:border-[#38383A]/90 bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-md p-2 shadow-xl z-30">
+                                    <button
+                                        type="button"
+                                        onClick={openProfileFromMenu}
+                                        className="w-full text-left px-3 py-2 rounded-xl text-sm hover:bg-neutral-100 dark:hover:bg-[#2C2C2E]"
+                                    >
+                                        {t('appstore.menuProfile')}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setProfileMenuOpen(false);
+                                            router.push('/app/settings');
+                                        }}
+                                        className="w-full text-left px-3 py-2 rounded-xl text-sm hover:bg-neutral-100 dark:hover:bg-[#2C2C2E]"
+                                    >
+                                        {t('appstore.menuSettings')}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (!isAuthenticatedSession) {
+                                                setProfileMenuOpen(false);
+                                                setAuthOpen(true);
+                                                return;
+                                            }
+
+                                            void handleLogoutToGuest();
+                                        }}
+                                        className="w-full text-left px-3 py-2 rounded-xl text-sm text-[#FF3B30] hover:bg-neutral-100 dark:hover:bg-[#2C2C2E]"
+                                    >
+                                        {isAuthenticatedSession ? t('appstore.menuLogout') : t('appstore.menuLogin')}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
-                    {!firebaseUser && (
+                    {isGuestSession && tab !== 'profile' && (
                         <div className={`${cardBase} p-5`}>
                             <p className="text-[15px] text-[#3A3A3C] dark:text-[#D1D1D6] mb-3">
                                 {t('appstore.signInPrompt')}
@@ -1282,11 +1498,11 @@ const AppStore = () => {
                                 onChange={(event) => setSearchQuery(event.target.value)}
                             />
 
-                            {!searchQuery.trim() && (
-                                <div>
-                                    <h3 className="text-lg font-semibold tracking-tight mb-3">{t('appstore.featuredCategories')}</h3>
+                            <div>
+                                <h3 className="text-lg font-semibold tracking-tight mb-3">{t('appstore.searchCategories')}</h3>
+                                {categorySearchResults.length > 0 ? (
                                     <div className="grid grid-cols-2 gap-3">
-                                        {featuredCategories.map((item) => (
+                                        {categorySearchResults.map((item) => (
                                             <button
                                                 key={`search-${item.category}`}
                                                 type="button"
@@ -1298,16 +1514,18 @@ const AppStore = () => {
                                             </button>
                                         ))}
                                     </div>
-                                </div>
-                            )}
+                                ) : (
+                                    <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.noCategoryResults')}</p>
+                                )}
+                            </div>
 
                             <div>
                                 <h3 className="text-lg font-semibold tracking-tight mb-3">
-                                    {searchQuery.trim() ? t('appstore.searchResults') : t('appstore.recommendedApps')}
+                                    {searchQuery.trim() ? t('appstore.searchAppsResults') : t('appstore.recommendedApps')}
                                 </h3>
 
                                 <div className="space-y-2">
-                                    {(searchQuery.trim() ? searchResults : recommendedApps).map((app) => (
+                                    {(searchQuery.trim() ? appSearchResults : recommendedApps).map((app) => (
                                         <button
                                             key={app.id}
                                             type="button"
@@ -1348,11 +1566,15 @@ const AppStore = () => {
                                         </button>
                                     ))}
 
-                                    {searchQuery.trim() && searchResults.length === 0 && (
-                                        <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.noSearchResults')}</p>
+                                    {searchQuery.trim() && appSearchResults.length === 0 && (
+                                        <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.noAppResults')}</p>
                                     )}
                                 </div>
                             </div>
+
+                            {searchQuery.trim() && appSearchResults.length === 0 && categorySearchResults.length === 0 && (
+                                <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.noCategoryOrAppResults')}</p>
+                            )}
                         </div>
                     )}
 
@@ -1360,7 +1582,7 @@ const AppStore = () => {
                         <>
                             {publicProfile ? (
                                 <div className={`${cardBase} p-5`}>
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                                         <div className="relative h-16 w-16">
                                             <Image
                                                 src={publicProfile.avatarUrl || 'https://s6.imgcdn.dev/Yrcy4v.png'}
@@ -1379,7 +1601,7 @@ const AppStore = () => {
                                         </div>
                                     </div>
 
-                                    <div className="mt-4 grid grid-cols-2 gap-3">
+                                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div className="rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 text-center">
                                             <p className="text-2xl font-semibold">{publicProfile.followersCount}</p>
                                             <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93] uppercase">{t('appstore.followers')}</p>
@@ -1404,13 +1626,6 @@ const AppStore = () => {
                                             >
                                                 {t('appstore.publishNewApp')}
                                             </Button>
-                                            <Button
-                                                className="w-full h-11 rounded-full bg-[#5856D6] hover:bg-[#5856D6]/90 text-white font-semibold"
-                                                onClick={handleSeedNativeApps}
-                                                disabled={nativeSeedLoading}
-                                            >
-                                                {nativeSeedLoading ? t('appstore.seedingNativeApps') : t('appstore.seedNativeApps')}
-                                            </Button>
                                         </div>
                                     ) : (
                                         <div className="mt-4 space-y-2">
@@ -1431,6 +1646,15 @@ const AppStore = () => {
                                                     {reverseActionLabel}
                                                 </Button>
                                             )}
+                                            {ownProfile?.nickname && (
+                                                <Button
+                                                    variant="ghost"
+                                                    className="w-full h-10 rounded-full"
+                                                    onClick={() => setSelectedNickname(ownProfile.nickname)}
+                                                >
+                                                    {t('appstore.backToMyProfile')}
+                                                </Button>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -1443,39 +1667,61 @@ const AppStore = () => {
                                         <Button className={`${primaryButton} w-full`} onClick={() => setAuthOpen(true)}>
                                             {t('appstore.signInCta')}
                                         </Button>
+                                    ) : isGuestSession ? (
+                                        <Button className={`${primaryButton} w-full`} onClick={() => setAuthOpen(true)}>
+                                            {t('appstore.signInCta')}
+                                        </Button>
                                     ) : (
-                                        <Button className={`${primaryButton} w-full`} onClick={() => setNeedsProfileCompletion(true)}>
-                                            {t('appstore.completeProfileTitle')}
+                                        <Button className={`${primaryButton} w-full`} onClick={() => setEditProfileOpen(true)}>
+                                            {t('appstore.editProfile')}
                                         </Button>
                                     )}
                                 </div>
                             )}
 
-                            {publicProfile?.isOwner && ownerApps.length > 0 && (
+                            {publicProfile && (
                                 <div className={`${cardBase} p-4`}>
-                                    <h3 className="text-lg font-semibold tracking-tight mb-3">{t('appstore.yourPublishedApps')}</h3>
-                                    <div className="space-y-2">
-                                        {ownerApps.map((app) => (
-                                            <div key={app.id} className="rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 flex items-center gap-3">
-                                                <div className="relative h-12 w-12">
-                                                    <Image src={resolveAppIconUrl(app, 'https://picsum.photos/seed/ownerapp/120/120')} fill sizes="(max-width: 768px) 100vw, 33vw" alt={app.title} className="rounded-xl object-cover" />
+                                    <h3 className="text-lg font-semibold tracking-tight mb-3">
+                                        {publicProfile.isOwner ? t('appstore.yourPublishedApps') : t('appstore.profileApps')}
+                                    </h3>
+                                    {profileAppsLoading ? (
+                                        <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.loadingApps')}</p>
+                                    ) : profileApps.length > 0 ? (
+                                        <div className="space-y-2">
+                                            {profileApps.map((app) => (
+                                                <div key={app.id} className="rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 flex items-center gap-3">
+                                                    <div className="relative h-12 w-12">
+                                                        <Image src={resolveAppIconUrl(app, 'https://picsum.photos/seed/ownerapp/120/120')} fill sizes="(max-width: 768px) 100vw, 33vw" alt={app.title} className="rounded-xl object-cover" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="font-semibold text-sm truncate">{app.title}</p>
+                                                        <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">{app.status}</p>
+                                                    </div>
+                                                    <Button
+                                                        className="h-9 rounded-full px-4"
+                                                        onClick={() => {
+                                                            if (publicProfile.isOwner) {
+                                                                setFormFromApp(app);
+                                                                setPublishOpen(true);
+                                                                return;
+                                                            }
+
+                                                            if (isNativeApp(app.id)) {
+                                                                openNativeApp(app.id);
+                                                                return;
+                                                            }
+
+                                                            setDetailAppId(app.id);
+                                                        }}
+                                                    >
+                                                        {publicProfile.isOwner ? t('appstore.edit') : actionLabelForApp(app)}
+                                                    </Button>
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="font-semibold text-sm truncate">{app.title}</p>
-                                                    <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">{app.status}</p>
-                                                </div>
-                                                <Button
-                                                    className="h-9 rounded-full px-4"
-                                                    onClick={() => {
-                                                        setFormFromApp(app);
-                                                        setPublishOpen(true);
-                                                    }}
-                                                >
-                                                    {t('appstore.edit')}
-                                                </Button>
-                                            </div>
-                                        ))}
-                                    </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.noResults')}</p>
+                                    )}
                                 </div>
                             )}
                         </>
@@ -1484,7 +1730,7 @@ const AppStore = () => {
                 </div>
             </ScrollArea>
 
-            <div className="w-full bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md border-t border-neutral-200/50">
+            <div className="w-full bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md border-t border-neutral-200/50 dark:border-[#38383A]/70">
                 <div className="mx-auto max-w-xl px-4 py-3 flex items-center justify-between">
                     <button
                         type="button"
@@ -1762,6 +2008,107 @@ const AppStore = () => {
                             </Button>
                         </div>
 
+                        <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-3">
+                            <p className="text-sm font-semibold tracking-tight">{t('appstore.advancedPublishing')}</p>
+                            <div className="rounded-xl bg-[#EFEFF4] dark:bg-[#1C1C1E] p-2 grid grid-cols-2 gap-2">
+                                <Button
+                                    type="button"
+                                    variant={form.defaultLanguage === 'es' ? 'default' : 'ghost'}
+                                    className={`rounded-xl h-10 ${form.defaultLanguage === 'es' ? 'bg-[#0A84FF] text-white hover:bg-[#0A84FF]/90' : ''}`}
+                                    onClick={() => setForm((current) => ({ ...current, defaultLanguage: 'es' }))}
+                                >
+                                    {t('appstore.languageSpanish')}
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant={form.defaultLanguage === 'en' ? 'default' : 'ghost'}
+                                    className={`rounded-xl h-10 ${form.defaultLanguage === 'en' ? 'bg-[#0A84FF] text-white hover:bg-[#0A84FF]/90' : ''}`}
+                                    onClick={() => setForm((current) => ({ ...current, defaultLanguage: 'en' }))}
+                                >
+                                    {t('appstore.languageEnglish')}
+                                </Button>
+                            </div>
+
+                            <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">
+                                {t('appstore.translationOptionalHint', {
+                                    language:
+                                        form.defaultLanguage === 'es'
+                                            ? t('appstore.languageEnglish')
+                                            : t('appstore.languageSpanish'),
+                                })}
+                            </p>
+
+                            <Input
+                                className={insetInput}
+                                placeholder={t('appstore.version')}
+                                aria-label={t('appstore.version')}
+                                value={form.version}
+                                onChange={(event) =>
+                                    setForm((current) => ({ ...current, version: event.target.value }))
+                                }
+                            />
+                            <textarea
+                                className="w-full min-h-[90px] rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#1C1C1E] p-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0A84FF]"
+                                placeholder={t('appstore.releaseNotes')}
+                                aria-label={t('appstore.releaseNotes')}
+                                value={form.releaseNotes}
+                                onChange={(event) =>
+                                    setForm((current) => ({ ...current, releaseNotes: event.target.value }))
+                                }
+                            />
+
+                            <Input
+                                className={insetInput}
+                                placeholder={t('appstore.translatedAppName')}
+                                aria-label={t('appstore.translatedAppName')}
+                                value={form.translatedTitle}
+                                onChange={(event) =>
+                                    setForm((current) => ({ ...current, translatedTitle: event.target.value }))
+                                }
+                            />
+                            <textarea
+                                className="w-full min-h-[90px] rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#1C1C1E] p-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0A84FF]"
+                                placeholder={t('appstore.translatedBio')}
+                                aria-label={t('appstore.translatedBio')}
+                                value={form.translatedDescription}
+                                onChange={(event) =>
+                                    setForm((current) => ({ ...current, translatedDescription: event.target.value }))
+                                }
+                            />
+                            <Input
+                                className={insetInput}
+                                placeholder={t('appstore.translatedTags')}
+                                aria-label={t('appstore.translatedTags')}
+                                value={form.translatedTagsText}
+                                onChange={(event) =>
+                                    setForm((current) => ({ ...current, translatedTagsText: event.target.value }))
+                                }
+                            />
+
+                            <div className="grid grid-cols-1 gap-2">
+                                <label className="flex items-center justify-between rounded-xl bg-[#EFEFF4] dark:bg-[#1C1C1E] px-3 py-2">
+                                    <span className="text-sm">{t('appstore.inAppPurchases')}</span>
+                                    <input
+                                        type="checkbox"
+                                        checked={form.inAppPurchases}
+                                        onChange={(event) =>
+                                            setForm((current) => ({ ...current, inAppPurchases: event.target.checked }))
+                                        }
+                                    />
+                                </label>
+                                <label className="flex items-center justify-between rounded-xl bg-[#EFEFF4] dark:bg-[#1C1C1E] px-3 py-2">
+                                    <span className="text-sm">{t('appstore.containsAds')}</span>
+                                    <input
+                                        type="checkbox"
+                                        checked={form.containsAds}
+                                        onChange={(event) =>
+                                            setForm((current) => ({ ...current, containsAds: event.target.checked }))
+                                        }
+                                    />
+                                </label>
+                            </div>
+                        </div>
+
                         <Button className={`${primaryButton} w-full`} onClick={submitAppForm} disabled={publishLoading}>
                             {publishLoading ? t('appstore.saving') : form.id ? t('appstore.saveChanges') : t('appstore.publishApp')}
                         </Button>
@@ -1828,6 +2175,7 @@ const AppStore = () => {
                                             placeholder={t('appstore.nickname')}
                                             aria-label={t('appstore.nickname')}
                                             value={nickname}
+                                            maxLength={MAX_NICKNAME_LENGTH}
                                             onChange={(event) => setNickname(event.target.value)}
                                         />
                                         <Input
@@ -1835,7 +2183,23 @@ const AppStore = () => {
                                             placeholder={t('appstore.displayName')}
                                             aria-label={t('appstore.displayName')}
                                             value={displayName}
+                                            maxLength={MAX_DISPLAY_NAME_LENGTH}
                                             onChange={(event) => setDisplayName(event.target.value)}
+                                        />
+                                        <textarea
+                                            className="w-full min-h-[90px] rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#1C1C1E] p-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0A84FF]"
+                                            placeholder={t('appstore.bioOptional')}
+                                            aria-label={t('appstore.bioOptional')}
+                                            value={bio}
+                                            maxLength={MAX_BIO_LENGTH}
+                                            onChange={(event) => setBio(event.target.value)}
+                                        />
+                                        <Input
+                                            className={insetInput}
+                                            placeholder={t('appstore.avatarUrlOptional')}
+                                            aria-label={t('appstore.avatarUrlOptional')}
+                                            value={avatarUrl}
+                                            onChange={(event) => setAvatarUrl(event.target.value)}
                                         />
                                     </>
                                 )}
@@ -1873,15 +2237,23 @@ const AppStore = () => {
 
                     <div className="px-6 pb-6 space-y-3">
                         <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
-                            <Input className={insetInput} placeholder={t('appstore.nickname')} aria-label={t('appstore.nickname')} value={nickname} onChange={(event) => setNickname(event.target.value)} />
+                            <Input className={insetInput} placeholder={t('appstore.nickname')} aria-label={t('appstore.nickname')} value={nickname} maxLength={MAX_NICKNAME_LENGTH} onChange={(event) => setNickname(event.target.value)} />
                             <Input
                                 className={insetInput}
                                 placeholder={t('appstore.displayName')}
                                 aria-label={t('appstore.displayName')}
                                 value={displayName}
+                                maxLength={MAX_DISPLAY_NAME_LENGTH}
                                 onChange={(event) => setDisplayName(event.target.value)}
                             />
-                            <Input className={insetInput} placeholder={t('appstore.bioOptional')} aria-label={t('appstore.bioOptional')} value={bio} onChange={(event) => setBio(event.target.value)} />
+                            <textarea
+                                className="w-full min-h-[90px] rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#1C1C1E] p-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0A84FF]"
+                                placeholder={t('appstore.bioOptional')}
+                                aria-label={t('appstore.bioOptional')}
+                                value={bio}
+                                maxLength={MAX_BIO_LENGTH}
+                                onChange={(event) => setBio(event.target.value)}
+                            />
                             <Input
                                 className={insetInput}
                                 placeholder={t('appstore.avatarUrlOptional')}
@@ -1909,15 +2281,23 @@ const AppStore = () => {
 
                     <div className="px-6 pb-6 space-y-3">
                         <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
-                            <Input className={insetInput} placeholder={t('appstore.nickname')} aria-label={t('appstore.nickname')} value={nickname} onChange={(event) => setNickname(event.target.value)} />
+                            <Input className={insetInput} placeholder={t('appstore.nickname')} aria-label={t('appstore.nickname')} value={nickname} maxLength={MAX_NICKNAME_LENGTH} onChange={(event) => setNickname(event.target.value)} />
                             <Input
                                 className={insetInput}
                                 placeholder={t('appstore.displayName')}
                                 aria-label={t('appstore.displayName')}
                                 value={displayName}
+                                maxLength={MAX_DISPLAY_NAME_LENGTH}
                                 onChange={(event) => setDisplayName(event.target.value)}
                             />
-                            <Input className={insetInput} placeholder={t('appstore.bio')} aria-label={t('appstore.bio')} value={bio} onChange={(event) => setBio(event.target.value)} />
+                            <textarea
+                                className="w-full min-h-[90px] rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#1C1C1E] p-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0A84FF]"
+                                placeholder={t('appstore.bio')}
+                                aria-label={t('appstore.bio')}
+                                value={bio}
+                                maxLength={MAX_BIO_LENGTH}
+                                onChange={(event) => setBio(event.target.value)}
+                            />
                             <Input
                                 className={insetInput}
                                 placeholder={t('appstore.avatarUrl')}
