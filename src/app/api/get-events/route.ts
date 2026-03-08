@@ -3,7 +3,7 @@ import { getGoogleCalendarClient } from "@/lib/google";
 import { applyRateLimit, enforceSameOrigin } from "@/lib/api/security";
 
 export async function GET(request: NextRequest) {
-  const rateLimitResponse = applyRateLimit(request, {
+  const rateLimitResponse = await applyRateLimit(request, {
     key: "get-events:get",
     windowMs: 60 * 1000,
     maxRequests: 80,

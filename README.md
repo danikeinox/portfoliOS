@@ -85,6 +85,28 @@ Use `.env.example` as source of truth. Main groups:
 	- `GOOGLE_CALENDAR_ID`
 	- `GOOGLE_SERVICE_ACCOUNT_EMAIL`
 	- `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`
+	- `UPSTASH_REDIS_REST_URL` (optional, recommended for production)
+	- `UPSTASH_REDIS_REST_TOKEN` (optional, recommended for production)
+
+### Persistent Rate Limit (Upstash)
+
+APIs under `src/app/api` use a shared security helper (`src/lib/api/security.ts`) with rate limiting.
+
+- If `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are configured, limits are global and persistent across instances/restarts.
+- If these vars are missing, the app falls back to in-memory limits (good for local dev, weaker for distributed production).
+
+Setup steps:
+
+1. Create a Redis database in Upstash.
+2. Open your database dashboard and copy the REST URL and REST token.
+3. Put them in `.env.local` (and your hosting provider env vars):
+
+```bash
+UPSTASH_REDIS_REST_URL=...
+UPSTASH_REDIS_REST_TOKEN=...
+```
+
+4. Redeploy / restart the app.
 
 ## Scripts
 

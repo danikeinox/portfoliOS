@@ -16,7 +16,7 @@ const createEventSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  const rateLimitResponse = applyRateLimit(request, {
+  const rateLimitResponse = await applyRateLimit(request, {
     key: "create-event:post",
     windowMs: 10 * 60 * 1000,
     maxRequests: 20,

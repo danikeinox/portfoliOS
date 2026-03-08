@@ -34,7 +34,7 @@ const weatherQuerySchema = z
   });
 
 export async function GET(request: NextRequest) {
-  const rateLimitResponse = applyRateLimit(request, {
+  const rateLimitResponse = await applyRateLimit(request, {
     key: "weather:get",
     windowMs: 60 * 1000,
     maxRequests: 100,

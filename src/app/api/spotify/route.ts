@@ -107,7 +107,7 @@ const spotifyApiRequest = async (endpoint: string, access_token: string) => {
 };
 
 export async function GET(request: NextRequest) {
-  const rateLimitResponse = applyRateLimit(request, {
+  const rateLimitResponse = await applyRateLimit(request, {
     key: "spotify:get",
     windowMs: 60 * 1000,
     maxRequests: 80,

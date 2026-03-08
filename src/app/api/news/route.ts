@@ -7,7 +7,7 @@ const newsQuerySchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
-  const rateLimitResponse = applyRateLimit(request, {
+  const rateLimitResponse = await applyRateLimit(request, {
     key: "news:get",
     windowMs: 60 * 1000,
     maxRequests: 60,
