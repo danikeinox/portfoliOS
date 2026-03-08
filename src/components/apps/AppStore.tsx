@@ -94,7 +94,7 @@ const primaryButton =
     'h-12 rounded-full bg-[#0A84FF] hover:bg-[#0A84FF]/90 text-white font-semibold text-[15px]';
 
 const cardBase =
-    'rounded-3xl border border-neutral-200/60 dark:border-[#38383A]/80 bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-sm';
+    'rounded-3xl border border-neutral-300/70 dark:border-[#38383A]/80 bg-white dark:bg-[#1C1C1E]/85 backdrop-blur-sm';
 
 const nativeAppIds = new Set([
     'safari',
@@ -111,7 +111,7 @@ const MAX_NICKNAME_LENGTH = 30;
 const MAX_DISPLAY_NAME_LENGTH = 60;
 const MAX_BIO_LENGTH = 240;
 const fallbackAppIconUrl = '/favicon.ico';
-const fallbackScreenshotUrl = '/opengraph-image.png';
+const featuredFallbackScreenshotUrl = 'https://picsum.photos/seed/appstore-featured/1200/750';
 
 function profileStorageKey(uid: string): string {
     return `${profileStoragePrefix}:${uid}`;
@@ -161,6 +161,10 @@ function resolveAppIconUrl(app: Pick<AppStoreApp, 'id' | 'iconUrl'>, fallbackUrl
     }
 
     return fallbackUrl;
+}
+
+function resolveValidScreenshotUrls(app: Pick<AppStoreApp, 'screenshotsUrls'>): string[] {
+    return (app.screenshotsUrls ?? []).filter((url) => isValidImageSrc(url));
 }
 
 const genericProfileAvatar = 'https://picsum.photos/seed/profile-generic/160/160';
@@ -275,6 +279,7 @@ const AppStore = () => {
     const [iconUploadLoading, setIconUploadLoading] = useState(false);
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
     const [form, setForm] = useState<AppFormState>(emptyAppForm());
+    const [featuredImageError, setFeaturedImageError] = useState(false);
 
     const nicknameCheckInFlightRef = useRef(false);
     const lastNicknameCheckAtRef = useRef(0);
@@ -383,6 +388,14 @@ const AppStore = () => {
             )
             .slice(0, 8);
     }, [allPublishedApps, detailApp]);
+
+    const detailScreenshotUrls = useMemo(() => {
+        if (!detailApp) {
+            return [] as string[];
+        }
+
+        return resolveValidScreenshotUrls(detailApp);
+    }, [detailApp]);
 
     async function authHeaders(): Promise<Record<string, string>> {
         if (!firebaseUser) {
@@ -1370,6 +1383,10 @@ const AppStore = () => {
     }, [categoriesSearch]);
 
     useEffect(() => {
+        setFeaturedImageError(false);
+    }, [recentApps, popularApps]);
+
+    useEffect(() => {
         if (!ownProfile) {
             return;
         }
@@ -1392,12 +1409,15 @@ const AppStore = () => {
     const reverseActionLabel =
         relation === 'friends' ? t('appstore.relation.unfriend') : t('appstore.relation.unfollow');
     const featuredApp = recentApps[0] ?? popularApps[0] ?? null;
+    const featuredScreenshotUrl =
+        (featuredApp ? resolveValidScreenshotUrls(featuredApp)[0] : undefined) ??
+        featuredFallbackScreenshotUrl;
 
     function renderCarouselSection(title: string, apps: AppStoreApp[]) {
         return (
             <div>
                 <h3 className="text-2xl font-bold tracking-tight px-1 mb-3">{title}</h3>
-                <div className="bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-sm rounded-3xl overflow-hidden border border-neutral-200/60 dark:border-[#38383A]/80">
+                <div className={`${cardBase} overflow-hidden`}>
                     {apps.map((app, index) => (
                         <div key={app.id} className="ml-4 py-4 pr-4">
                             <div className="flex items-center gap-4">
@@ -1549,14 +1569,15 @@ const AppStore = () => {
                                 <button
                                     type="button"
                                     onClick={() => setDetailAppId(featuredApp.id)}
-                                    className="relative rounded-3xl overflow-hidden mb-8 border border-neutral-200/60 dark:border-[#38383A]/80 bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-sm text-left"
+                                    className="relative rounded-3xl overflow-hidden mb-8 border border-neutral-300/70 dark:border-[#38383A]/80 bg-white dark:bg-[#1C1C1E]/85 backdrop-blur-sm text-left"
                                 >
                                     <Image
-                                        src={featuredApp.screenshotsUrls[0] || fallbackScreenshotUrl}
+                                        src={featuredImageError ? featuredFallbackScreenshotUrl : featuredScreenshotUrl}
                                         alt={t('appstore.featuredImageAlt', { title: featuredApp.title })}
                                         width={800}
                                         height={500}
                                         className="w-full h-full object-cover"
+                                        onError={() => setFeaturedImageError(true)}
                                     />
                                     <div className="absolute bottom-0 left-0 p-4 text-white bg-gradient-to-t from-black/50 to-transparent w-full">
                                         <p className="text-xs font-semibold uppercase tracking-tight">{t('appstore.featuredApp')}</p>
@@ -1843,7 +1864,7 @@ const AppStore = () => {
                 </div>
             </ScrollArea>
 
-            <div className="w-full bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md border-t border-neutral-200/50 dark:border-[#38383A]/70">
+            <div className="w-full bg-white/95 dark:bg-[#1C1C1E]/80 backdrop-blur-md border-t border-neutral-300/60 dark:border-[#38383A]/70">
                 <div className="mx-auto max-w-xl px-4 py-3 flex items-center justify-between">
                     <button
                         type="button"
@@ -1873,7 +1894,7 @@ const AppStore = () => {
             </div>
 
             <Dialog open={detailAppId !== null} onOpenChange={(open) => !open && setDetailAppId(null)}>
-                <DialogContent className="sm:max-w-2xl rounded-3xl border-0 p-0 overflow-hidden bg-[#F2F2F7] dark:bg-[#1C1C1E]">
+                <DialogContent className="sm:max-w-2xl rounded-3xl border border-neutral-300/70 dark:border-[#38383A]/80 p-0 overflow-hidden bg-white dark:bg-[#1C1C1E] text-black dark:text-white">
                     {detailLoading || !detailApp ? (
                         <div className="p-6 text-sm text-[#8A8A8E] dark:text-[#8E8E93]">{t('appstore.loadingAppDetail')}</div>
                     ) : (
@@ -1934,26 +1955,41 @@ const AppStore = () => {
                                     </div>
                                 </div>
 
-                                <div className="mt-6">
-                                    <h4 className="font-semibold tracking-tight mb-2">{t('appstore.screenshots')}</h4>
-                                    <div className="flex gap-3 overflow-x-auto pb-1">
-                                        {(detailApp.screenshotsUrls.length > 0
-                                            ? detailApp.screenshotsUrls
-                                            : [fallbackScreenshotUrl]).map(
-                                                (url, index) => (
-                                                    <div key={`${url}-${index}`} className="relative w-64 aspect-video shrink-0">
-                                                        <Image
-                                                            src={url}
-                                                            fill
-                                                            sizes="(max-width: 768px) 100vw, 33vw"
-                                                            alt={t('appstore.screenshotAlt', { index: index + 1 })}
-                                                            className="rounded-[22px] object-cover"
-                                                        />
-                                                    </div>
-                                                ),
-                                            )}
+                                <div className="mt-6 space-y-2">
+                                    <h4 className="font-semibold tracking-tight">{t('appstore.description')}</h4>
+                                    <p className="text-sm text-[#3A3A3C] dark:text-[#D1D1D6] whitespace-pre-wrap">
+                                        {detailApp.description}
+                                    </p>
+                                    <div className="flex flex-wrap gap-2 pt-2">
+                                        {detailApp.categories.map((category) => (
+                                            <span
+                                                key={category}
+                                                className="inline-flex h-7 items-center rounded-full bg-[#E9E9EE] dark:bg-[#2C2C2E] px-3 text-xs"
+                                            >
+                                                {category}
+                                            </span>
+                                        ))}
                                     </div>
                                 </div>
+
+                                {detailScreenshotUrls.length > 0 && (
+                                    <div className="mt-6">
+                                        <h4 className="font-semibold tracking-tight mb-2">{t('appstore.screenshots')}</h4>
+                                        <div className="flex gap-3 overflow-x-auto pb-1">
+                                            {detailScreenshotUrls.map((url, index) => (
+                                                <div key={`${url}-${index}`} className="relative w-64 aspect-video shrink-0">
+                                                    <Image
+                                                        src={url}
+                                                        fill
+                                                        sizes="(max-width: 768px) 100vw, 33vw"
+                                                        alt={t('appstore.screenshotAlt', { index: index + 1 })}
+                                                        className="rounded-[22px] object-cover"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
 
                                 {relatedApps.length > 0 && (
                                     <div className="mt-6">
@@ -2007,23 +2043,6 @@ const AppStore = () => {
                                         </div>
                                     </div>
                                 )}
-
-                                <div className="mt-6 space-y-2">
-                                    <h4 className="font-semibold tracking-tight">{t('appstore.description')}</h4>
-                                    <p className="text-sm text-[#3A3A3C] dark:text-[#D1D1D6] whitespace-pre-wrap">
-                                        {detailApp.description}
-                                    </p>
-                                    <div className="flex flex-wrap gap-2 pt-2">
-                                        {detailApp.categories.map((category) => (
-                                            <span
-                                                key={category}
-                                                className="inline-flex h-7 items-center rounded-full bg-[#E9E9EE] dark:bg-[#2C2C2E] px-3 text-xs"
-                                            >
-                                                {category}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     )}
@@ -2031,7 +2050,7 @@ const AppStore = () => {
             </Dialog>
 
             <Dialog open={publishOpen} onOpenChange={setPublishOpen}>
-                <DialogContent className="sm:max-w-2xl rounded-3xl border-0 p-0 overflow-hidden bg-[#F2F2F7] dark:bg-[#1C1C1E]">
+                <DialogContent className="sm:max-w-2xl rounded-3xl border border-neutral-300/70 dark:border-[#38383A]/80 p-0 overflow-hidden bg-white dark:bg-[#1C1C1E] text-black dark:text-white">
                     <DialogHeader className="px-6 pt-6 pb-2 text-left">
                         <DialogTitle className="text-2xl font-semibold">
                             {form.id ? t('appstore.editApp') : t('appstore.publishNewApp')}
@@ -2258,7 +2277,7 @@ const AppStore = () => {
             </Dialog>
 
             <Dialog open={authOpen} onOpenChange={setAuthOpen}>
-                <DialogContent className="sm:max-w-md rounded-3xl border-0 p-0 overflow-hidden bg-[#F2F2F7] dark:bg-[#1C1C1E]">
+                <DialogContent className="sm:max-w-md rounded-3xl border border-neutral-300/70 dark:border-[#38383A]/80 p-0 overflow-hidden bg-white dark:bg-[#1C1C1E] text-black dark:text-white">
                     <DialogHeader className="px-6 pt-6 pb-2 text-left">
                         <DialogTitle className="text-2xl font-semibold">
                             {authMode === 'login' ? t('appstore.loginTitle') : t('appstore.registerTitle')}
@@ -2377,7 +2396,7 @@ const AppStore = () => {
             </Dialog>
 
             <Dialog open={needsProfileCompletion} onOpenChange={setNeedsProfileCompletion}>
-                <DialogContent className="sm:max-w-md rounded-3xl border-0 p-0 overflow-hidden bg-[#F2F2F7] dark:bg-[#1C1C1E]">
+                <DialogContent className="sm:max-w-md rounded-3xl border border-neutral-300/70 dark:border-[#38383A]/80 p-0 overflow-hidden bg-white dark:bg-[#1C1C1E] text-black dark:text-white">
                     <DialogHeader className="px-6 pt-6 pb-2 text-left">
                         <DialogTitle className="text-2xl font-semibold">{t('appstore.completeProfileTitle')}</DialogTitle>
                         <DialogDescription className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">
@@ -2430,7 +2449,7 @@ const AppStore = () => {
             </Dialog>
 
             <Dialog open={editProfileOpen} onOpenChange={setEditProfileOpen}>
-                <DialogContent className="sm:max-w-md rounded-3xl border-0 p-0 overflow-hidden bg-[#F2F2F7] dark:bg-[#1C1C1E]">
+                <DialogContent className="sm:max-w-md rounded-3xl border border-neutral-300/70 dark:border-[#38383A]/80 p-0 overflow-hidden bg-white dark:bg-[#1C1C1E] text-black dark:text-white">
                     <DialogHeader className="px-6 pt-6 pb-2 text-left">
                         <DialogTitle className="text-2xl font-semibold">{t('appstore.editProfileTitle')}</DialogTitle>
                         <DialogDescription className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">
