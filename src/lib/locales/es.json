@@ -100,6 +100,11 @@
       "descriptionShort": "Plataforma SaaS para automatizar el registro de empresas en España. Proporciona una forma simple de enviar formularios, subir documentos y verificar la identidad, con un servicio freemium para la gestión posterior.",
       "descriptionLong": "Businfy es una plataforma integral de Software como Servicio (SaaS) diseñada para simplificar drásticamente el proceso burocrático de registrar una nueva empresa en España. La plataforma guía a los usuarios a través de un proceso paso a paso, gestionando la presentación de todos los formularios necesarios, la carga segura de documentos y la verificación de identidad. Se integra con los sistemas gubernamentales para agilizar las operaciones. Tras el registro exitoso, Businfy se transforma en una herramienta de gestión empresarial, ofreciendo un nivel freemium con características como facturación, gestión de clientes y contabilidad básica para ayudar a los nuevos emprendedores a comenzar."
     },
+    "danielcabreraEsV2Portfolio": {
+      "title": "danielcabrera.es V2 Portfolio",
+      "descriptionShort": "Mi sitio web de portafolio personal actualizado, construido con Next.js y React.",
+      "descriptionLong": "Este es mi sitio web de portafolio personal actualizado, que destaca mis habilidades, proyectos y experiencia. Construido con Next.js y React, cuenta con un diseño moderno y una experiencia de usuario fluida."
+    },
     "bookManager": {
       "title": "App de Gestión de Libros",
       "descriptionShort": "Aplicación desarrollada con Python y Tkinter. Permite registrarse, iniciar sesión, ver libros disponibles, alquilar, reservar y administrar libros/usuarios (modo administrador).",

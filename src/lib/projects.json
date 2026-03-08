@@ -27,6 +27,29 @@
       "liveUrl": "#"
     },
     {
+      "id": "danielcabrera.es V2 Portfolio",
+      "titleKey": "projects.danielcabreraEsV2Portfolio.title",
+      "descriptionShortKey": "projects.danielcabreraEsV2Portfolio.descriptionShort",
+      "descriptionLongKey": "projects.danielcabreraEsV2Portfolio.descriptionLong",
+      "filterTags": ["proyecto personal", "sitio web"],
+      "tags": [
+        "Next.js",
+        "React",
+        "JavaScript",
+        "Tailwind CSS",
+        "Python",
+        "MongoDB",
+        "Firebase"
+      ],
+      "mainImage": {
+        "imageUrl": "https://s6.imgcdn.dev/YrSPQH.png",
+        "imageHint": "personal portfolio website homepage"
+      },
+      "gallery": ["https://s6.imgcdn.dev/YrSTSS.png"],
+      "githubUrl": null,
+      "liveUrl": "https://v2.danielcabrera.es/"
+    },
+    {
       "id": "book-manager",
       "titleKey": "projects.bookManager.title",
       "descriptionShortKey": "projects.bookManager.descriptionShort",

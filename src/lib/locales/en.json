@@ -100,6 +100,11 @@
       "descriptionShort": "SaaS platform designed to automate the business registration process in Spain. It provides a simple way to submit forms, upload documents, and verify identity, with a freemium service for business management.",
       "descriptionLong": "Businfy is a comprehensive Software-as-a-Service platform designed to drastically simplify the bureaucratic process of registering a new business in Spain. The platform guides users through a step-by-step process, handling the submission of all necessary forms, secure document uploading, and identity verification. It integrates with government systems to streamline operations. After successful registration, Businfy transitions into a business management tool, offering a freemium tier with features like invoicing, client management, and basic accounting to help new entrepreneurs get started."
     },
+    "danielcabreraEsV2Portfolio": {
+      "title": "danielcabrera.es V2 Portfolio",
+      "descriptionShort": "My updated personal portfolio website built with Next.js and React.",
+      "descriptionLong": "This is my updated personal portfolio website, showcasing my skills, projects, and experience. Built with Next.js and React, it features a modern design and smooth user experience."
+    },
     "bookManager": {
       "title": "Book Management App",
       "descriptionShort": "Application developed with Python and Tkinter. It allows users to register, log in, view available books, rent, reserve, and manage books/users (administrator mode).",
