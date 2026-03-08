@@ -76,6 +76,7 @@ Use `.env.example` as source of truth. Main groups:
 	- `NEXT_PUBLIC_FIREBASE_APP_ID`
 - **Site**
 	- `NEXT_PUBLIC_SITE_URL`
+	- `NEXT_PUBLIC_GA_MEASUREMENT_ID`
 - **External APIs**
 	- `NEWS_API_KEY`
 	- `RESEND_API_KEY`

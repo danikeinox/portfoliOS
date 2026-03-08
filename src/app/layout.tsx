@@ -9,6 +9,7 @@ import { SystemStateProvider } from '@/hooks/use-system-state';
 import { HomeScreenProvider } from '@/hooks/use-home-screen';
 import { ThemeProvider } from '@/hooks/use-theme';
 import { GoogleCalendarProvider } from '@/hooks/use-google-calendar';
+import StartupExperience from '@/components/onboarding/StartupExperience';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'),
@@ -109,7 +110,7 @@ export default function RootLayout({
                   <GoogleCalendarProvider>
                     <HomeScreenProvider>
                       <FirebaseClientProvider>
-                        {children}
+                        <StartupExperience>{children}</StartupExperience>
                       </FirebaseClientProvider>
                     </HomeScreenProvider>
                     <Toaster />
