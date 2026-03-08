@@ -6,6 +6,8 @@ import type { App } from "@/lib/apps";
 export const INSTALLED_APPS_STORAGE_KEY = "installedApps.v1";
 export const INSTALLED_APPS_HISTORY_STORAGE_KEY = "installedApps.history.v1";
 export const INSTALLED_APPS_UPDATED_EVENT = "installed-apps-updated";
+export const PENDING_INSTALLED_APP_UPDATE_STORAGE_KEY =
+  "installedApps.pendingUpdate.v1";
 
 export type InstalledAppRecord = {
   id: string;
@@ -15,6 +17,8 @@ export type InstalledAppRecord = {
   version?: string;
   installedAt: string;
 };
+
+export type PendingInstalledAppUpdate = Omit<InstalledAppRecord, "installedAt">;
 
 export function toInstalledSlug(appId: string): string {
   return `installed-${appId}`;
@@ -160,4 +164,46 @@ export function toInstalledAppEntry(record: InstalledAppRecord): App {
 
 export function getInstalledAppsAsEntries(): App[] {
   return getInstalledAppRecords().map(toInstalledAppEntry);
+}
+
+export function queueInstalledAppUpdate(update: PendingInstalledAppUpdate) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  localStorage.setItem(
+    PENDING_INSTALLED_APP_UPDATE_STORAGE_KEY,
+    JSON.stringify(update),
+  );
+}
+
+export function consumeQueuedInstalledAppUpdate(): PendingInstalledAppUpdate | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const raw = localStorage.getItem(PENDING_INSTALLED_APP_UPDATE_STORAGE_KEY);
+  if (!raw) {
+    return null;
+  }
+
+  localStorage.removeItem(PENDING_INSTALLED_APP_UPDATE_STORAGE_KEY);
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (
+      parsed &&
+      typeof parsed.id === "string" &&
+      typeof parsed.name === "string" &&
+      typeof parsed.iconUrl === "string" &&
+      typeof parsed.externalUrl === "string" &&
+      (parsed.version === undefined || typeof parsed.version === "string")
+    ) {
+      return parsed as PendingInstalledAppUpdate;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
 }

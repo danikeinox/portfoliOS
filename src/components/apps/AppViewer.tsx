@@ -13,7 +13,7 @@ import {
     fromInstalledSlug,
     getInstalledAppBySlug,
     INSTALLED_APPS_UPDATED_EVENT,
-    saveInstalledApp,
+    queueInstalledAppUpdate,
 } from '@/lib/installed-apps';
 import type { AppStoreApiResponse, AppStoreApp } from '@/lib/appstore/contracts';
 import { Button } from '@/components/ui/button';
@@ -232,7 +232,7 @@ const AppViewer = ({ slug }: { slug: string }) => {
         }
 
         setIsApplyingUpdate(true);
-        saveInstalledApp({
+        queueInstalledAppUpdate({
             id: installedAppId,
             name: updateCandidate.title,
             iconUrl: updateCandidate.iconUrl?.trim() || installedApp.iconUrl,
@@ -240,7 +240,7 @@ const AppViewer = ({ slug }: { slug: string }) => {
             version: updateCandidate.version,
         });
 
-        // Force a clean return to home so HomeScreen/AppLibrary reload the updated app state.
+        // Return to home; HomeScreen applies the queued update in a clean state.
         window.location.assign('/');
     };
 

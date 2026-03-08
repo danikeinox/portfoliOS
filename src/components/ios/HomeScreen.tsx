@@ -13,6 +13,7 @@ import { useHomeScreen, type GridItem } from '@/hooks/use-home-screen';
 import WidgetWrapper from './WidgetWrapper';
 import EditWidgetView from './EditWidgetView';
 import { findApp } from '@/lib/apps';
+import { consumeQueuedInstalledAppUpdate, saveInstalledApp } from '@/lib/installed-apps';
 import { useToast } from '@/hooks/use-toast';
 import {
     DndContext,
@@ -278,6 +279,22 @@ const HomeScreen = ({
     useEffect(() => {
         onAppLibraryVisibilityChange(isAppLibraryActive);
     }, [isAppLibraryActive, onAppLibraryVisibilityChange]);
+
+    useEffect(() => {
+        const queuedUpdate = consumeQueuedInstalledAppUpdate();
+        if (!queuedUpdate) {
+            return;
+        }
+
+        saveInstalledApp(queuedUpdate);
+        toast({
+            title: t('appstore.updateAppliedTitle'),
+            description: t('appstore.updateAppliedDescriptionWithVersion', {
+                title: queuedUpdate.name,
+                version: queuedUpdate.version ?? 'latest',
+            }),
+        });
+    }, [toast, t]);
 
     const handlePageVisibilityChange = (index: number, isVisible: boolean) => {
         if (!isVisible && visiblePages.filter(v => v).length === 1) return;
