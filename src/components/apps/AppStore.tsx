@@ -110,16 +110,8 @@ const profileStoragePrefix = 'appstore.profile.v1';
 const MAX_NICKNAME_LENGTH = 30;
 const MAX_DISPLAY_NAME_LENGTH = 60;
 const MAX_BIO_LENGTH = 240;
-const NATIVE_ICONS: Record<string, string> = {
-    safari: 'https://picsum.photos/seed/native-safari/256/256',
-    spotify: 'https://picsum.photos/seed/native-spotify/256/256',
-    notes: 'https://picsum.photos/seed/native-notes/256/256',
-    settings: 'https://picsum.photos/seed/native-settings/256/256',
-    calendar: 'https://picsum.photos/seed/native-calendar/256/256',
-    weather: 'https://picsum.photos/seed/native-weather/256/256',
-    photos: 'https://picsum.photos/seed/native-photos/256/256',
-    camera: 'https://picsum.photos/seed/native-camera/256/256',
-};
+const fallbackAppIconUrl = '/favicon.ico';
+const fallbackScreenshotUrl = '/opengraph-image.png';
 
 function profileStorageKey(uid: string): string {
     return `${profileStoragePrefix}:${uid}`;
@@ -164,10 +156,6 @@ function isValidImageSrc(value: string | undefined): value is string {
 }
 
 function resolveAppIconUrl(app: Pick<AppStoreApp, 'id' | 'iconUrl'>, fallbackUrl: string): string {
-    if (NATIVE_ICONS[app.id]) {
-        return NATIVE_ICONS[app.id];
-    }
-
     if (isValidImageSrc(app.iconUrl)) {
         return app.iconUrl;
     }
@@ -1234,9 +1222,7 @@ const AppStore = () => {
         saveInstalledApp({
             id: detailApp.id,
             name: detailApp.title,
-            iconUrl:
-                detailApp.iconUrl ||
-                'https://picsum.photos/seed/installed-app-fallback/180/180',
+            iconUrl: resolveAppIconUrl(detailApp, fallbackAppIconUrl),
             externalUrl: detailApp.externalUrl,
         });
 
@@ -1422,7 +1408,7 @@ const AppStore = () => {
                                     className="relative w-20 h-20 rounded-2xl overflow-hidden bg-neutral-200 shrink-0"
                                 >
                                     <Image
-                                        src={resolveAppIconUrl(app, 'https://picsum.photos/seed/appicon-fallback/120/120')}
+                                        src={resolveAppIconUrl(app, fallbackAppIconUrl)}
                                         fill
                                         sizes="(max-width: 768px) 100vw, 33vw"
                                         alt={t('appstore.iconAlt', { title: app.title })}
@@ -1566,7 +1552,7 @@ const AppStore = () => {
                                     className="relative rounded-3xl overflow-hidden mb-8 border border-neutral-200/60 dark:border-[#38383A]/80 bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-sm text-left"
                                 >
                                     <Image
-                                        src={featuredApp.screenshotsUrls[0] || 'https://picsum.photos/seed/appstore-main/800/500'}
+                                        src={featuredApp.screenshotsUrls[0] || fallbackScreenshotUrl}
                                         alt={t('appstore.featuredImageAlt', { title: featuredApp.title })}
                                         width={800}
                                         height={500}
@@ -1651,7 +1637,7 @@ const AppStore = () => {
                                         >
                                             <div className="relative h-12 w-12">
                                                 <Image
-                                                    src={resolveAppIconUrl(app, 'https://picsum.photos/seed/appicon-fallback-2/120/120')}
+                                                    src={resolveAppIconUrl(app, fallbackAppIconUrl)}
                                                     fill
                                                     sizes="(max-width: 768px) 100vw, 33vw"
                                                     alt={t('appstore.iconAlt', { title: app.title })}
@@ -1813,7 +1799,7 @@ const AppStore = () => {
                                             {profileApps.map((app) => (
                                                 <div key={app.id} className="rounded-2xl bg-[#EFEFF4] dark:bg-[#2C2C2E] p-3 flex items-center gap-3">
                                                     <div className="relative h-12 w-12">
-                                                        <Image src={resolveAppIconUrl(app, 'https://picsum.photos/seed/ownerapp/120/120')} fill sizes="(max-width: 768px) 100vw, 33vw" alt={app.title} className="rounded-xl object-cover" />
+                                                        <Image src={resolveAppIconUrl(app, fallbackAppIconUrl)} fill sizes="(max-width: 768px) 100vw, 33vw" alt={app.title} className="rounded-xl object-cover" />
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <p className="font-semibold text-sm truncate">{app.title}</p>
@@ -1896,7 +1882,7 @@ const AppStore = () => {
                                 <div className="flex gap-4 items-start">
                                     <div className="relative h-28 w-28">
                                         <Image
-                                            src={resolveAppIconUrl(detailApp, 'https://picsum.photos/seed/detail-icon/220/220')}
+                                            src={resolveAppIconUrl(detailApp, fallbackAppIconUrl)}
                                             fill
                                             sizes="(max-width: 768px) 100vw, 33vw"
                                             alt={detailApp.title}
@@ -1953,7 +1939,7 @@ const AppStore = () => {
                                     <div className="flex gap-3 overflow-x-auto pb-1">
                                         {(detailApp.screenshotsUrls.length > 0
                                             ? detailApp.screenshotsUrls
-                                            : ['https://picsum.photos/seed/screen-fallback-1/520/290']).map(
+                                            : [fallbackScreenshotUrl]).map(
                                                 (url, index) => (
                                                     <div key={`${url}-${index}`} className="relative w-64 aspect-video shrink-0">
                                                         <Image
@@ -1982,7 +1968,7 @@ const AppStore = () => {
                                                 >
                                                     <div className="relative h-11 w-11">
                                                         <Image
-                                                            src={resolveAppIconUrl(app, 'https://picsum.photos/seed/related-app/120/120')}
+                                                            src={resolveAppIconUrl(app, fallbackAppIconUrl)}
                                                             fill
                                                             sizes="(max-width: 768px) 100vw, 33vw"
                                                             alt={t('appstore.iconAlt', { title: app.title })}

@@ -19,58 +19,62 @@ const nativeApps: NativeSeedItem[] = [
     title: "Safari",
     category: "Utilidades",
     description: "Explora la web con velocidad y privacidad.",
-    iconUrl: "https://picsum.photos/seed/native-safari/256/256",
+    iconUrl: "https://s6.imgcdn.dev/YrGrbT.png",
   },
   {
     id: "spotify",
     title: "Spotify",
     category: "Música",
     description: "Toda tu música y podcasts en un solo lugar.",
-    iconUrl: "https://picsum.photos/seed/native-spotify/256/256",
+    iconUrl: "https://s6.imgcdn.dev/YrG9y2.png",
   },
   {
     id: "notes",
     title: "Notas",
     category: "Productividad",
     description: "Escribe, organiza y guarda tus ideas.",
-    iconUrl: "https://picsum.photos/seed/native-notes/256/256",
+    iconUrl: "https://s6.imgcdn.dev/YrGGNw.png",
   },
   {
     id: "settings",
     title: "Ajustes",
     category: "Utilidades",
     description: "Configura tu sistema operativo web.",
-    iconUrl: "https://picsum.photos/seed/native-settings/256/256",
+    iconUrl: "https://s6.imgcdn.dev/YrGAfy.png",
   },
   {
     id: "calendar",
     title: "Calendario",
     category: "Productividad",
     description: "Gestiona tus eventos y organiza tu tiempo.",
-    iconUrl: "https://picsum.photos/seed/native-calendar/256/256",
+    iconUrl: "https://s6.imgcdn.dev/YrGtNS.png",
   },
   {
     id: "weather",
     title: "Tiempo",
     category: "Utilidades",
     description: "Consulta el clima en tiempo real y tu pronóstico diario.",
-    iconUrl: "https://picsum.photos/seed/native-weather/256/256",
+    iconUrl: "https://s6.imgcdn.dev/YrGVXH.png",
   },
   {
     id: "photos",
     title: "Fotos",
     category: "Creatividad",
     description: "Revive y organiza tus recuerdos en alta calidad.",
-    iconUrl: "https://picsum.photos/seed/native-photos/256/256",
+    iconUrl: "https://s6.imgcdn.dev/YrGSBt.png",
   },
   {
     id: "camera",
     title: "Cámara",
     category: "Creatividad",
     description: "Captura momentos al instante con una experiencia fluida.",
-    iconUrl: "https://picsum.photos/seed/native-camera/256/256",
+    iconUrl: "https://s6.imgcdn.dev/YrG7Xa.png",
   },
 ];
+
+function isValidUrl(value: unknown): value is string {
+  return typeof value === "string" && /^https?:\/\//.test(value);
+}
 
 function asCode(error: unknown): string {
   if (error instanceof Error) {
@@ -113,10 +117,29 @@ export async function POST(request: NextRequest) {
     const userData = userDoc.data()!;
     const ownerNickname = userData.nickname as string;
 
+    const appRefs = nativeApps.map((app) =>
+      adminDb.collection(APPSTORE_COLLECTIONS.apps).doc(app.id),
+    );
+    const existingDocs = await Promise.all(appRefs.map((ref) => ref.get()));
+
     const batch = adminDb.batch();
 
-    for (const app of nativeApps) {
-      const appRef = adminDb.collection(APPSTORE_COLLECTIONS.apps).doc(app.id);
+    for (let index = 0; index < nativeApps.length; index += 1) {
+      const app = nativeApps[index];
+      const appRef = appRefs[index];
+      const existingData = existingDocs[index]?.data() as
+        | { iconUrl?: unknown; screenshotsUrls?: unknown }
+        | undefined;
+
+      const iconUrl = isValidUrl(existingData?.iconUrl)
+        ? existingData.iconUrl
+        : app.iconUrl;
+      const screenshotsUrls = Array.isArray(existingData?.screenshotsUrls)
+        ? existingData.screenshotsUrls.filter((item): item is string =>
+            isValidUrl(item),
+          )
+        : [];
+
       batch.set(
         appRef,
         {
@@ -129,8 +152,8 @@ export async function POST(request: NextRequest) {
           categories: [app.category],
           status: "published",
           tags: [app.category, "Nativa"],
-          iconUrl: app.iconUrl,
-          screenshotsUrls: [],
+          iconUrl,
+          screenshotsUrls,
           externalUrl: `https://native.app/${app.id}`,
           downloadCount: 0,
           downloadsCount: 0,
