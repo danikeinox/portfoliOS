@@ -3,9 +3,14 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    min-height: 100%;
+    background-color: #f2f2f7;
+  }
+
   body {
     color: white;
-    background-color: #000; /* Add fallback color to prevent white bar */
+    background-color: #f2f2f7; /* Light fallback for safe-area/background gaps in PWA */
     /* The background property is now managed by use-wallpaper.tsx */
     background-size: cover;
     background-position: center center;
@@ -15,7 +20,15 @@
     overscroll-behavior: none; /* Prevent bounce effect */
     transition: background-image 0.5s ease-in-out; /* Add a smooth transition */
     overflow: hidden; /* Prevent global scrolling */
-    height: 100vh; /* Fill the full screen height to avoid white bars */
+    min-height: 100dvh;
+    height: 100dvh;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html,
+    body {
+      background-color: #000;
+    }
   }
 
   * {
