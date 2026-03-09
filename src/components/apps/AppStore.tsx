@@ -7,7 +7,9 @@ import { AlertCircle } from 'lucide-react';
 import {
     GoogleAuthProvider,
     createUserWithEmailAndPassword,
+    getRedirectResult,
     signInAnonymously,
+    signInWithRedirect,
     signInWithEmailAndPassword,
     signInWithPopup,
     signOut,
@@ -224,6 +226,38 @@ function parseTagsText(value: string): string[] {
         .filter(Boolean);
 
     return [...new Set(tags)].slice(0, 8);
+}
+
+function authErrorMessage(error: unknown): string {
+    const code =
+        typeof error === 'object' && error && 'code' in error
+            ? String((error as { code?: unknown }).code)
+            : '';
+
+    switch (code) {
+        case 'auth/invalid-email':
+            return 'El email no es válido.';
+        case 'auth/user-not-found':
+        case 'auth/invalid-credential':
+        case 'auth/wrong-password':
+            return 'Email o contraseña incorrectos.';
+        case 'auth/email-already-in-use':
+            return 'Ese email ya está en uso.';
+        case 'auth/weak-password':
+            return 'La contraseña es demasiado débil.';
+        case 'auth/too-many-requests':
+            return 'Demasiados intentos. Inténtalo de nuevo más tarde.';
+        case 'auth/network-request-failed':
+            return 'Error de red. Revisa tu conexión.';
+        case 'auth/popup-blocked':
+            return 'El navegador bloqueó la ventana emergente.';
+        case 'auth/popup-closed-by-user':
+            return 'Has cerrado la ventana de inicio de sesión.';
+        case 'auth/unauthorized-domain':
+            return 'Dominio no autorizado en Firebase Auth.';
+        default:
+            return 'No se pudo completar la autenticación.';
+    }
 }
 
 const AppStore = () => {
@@ -823,7 +857,12 @@ const AppStore = () => {
                 }
 
                 setPassword('');
-            } catch {
+            } catch (error) {
+                toast({
+                    title: 'Login fallido',
+                    description: authErrorMessage(error),
+                    variant: 'destructive',
+                });
             } finally {
                 setAuthLoading(false);
             }
@@ -853,8 +892,12 @@ const AppStore = () => {
                 setBio('');
                 setAvatarUrl('');
             }
-        } catch {
-            toast({ title: 'Registro fallido', description: 'No se pudo completar el registro.', variant: 'destructive' });
+        } catch (error) {
+            toast({
+                title: 'Registro fallido',
+                description: authErrorMessage(error),
+                variant: 'destructive',
+            });
         } finally {
             setAuthLoading(false);
         }
@@ -864,6 +907,16 @@ const AppStore = () => {
         setAuthLoading(true);
         try {
             const provider = new GoogleAuthProvider();
+            const isStandalonePwa =
+                typeof window !== 'undefined' &&
+                (window.matchMedia('(display-mode: standalone)').matches ||
+                    (window.navigator as Navigator & { standalone?: boolean }).standalone === true);
+
+            if (isStandalonePwa) {
+                await signInWithRedirect(auth, provider);
+                return;
+            }
+
             const result = await signInWithPopup(auth, provider);
 
             if (result.user) {
@@ -872,8 +925,12 @@ const AppStore = () => {
             }
 
             setAuthOpen(false);
-        } catch {
-            toast({ title: 'Google Login', description: 'No se pudo iniciar con Google.', variant: 'destructive' });
+        } catch (error) {
+            toast({
+                title: 'Google Login',
+                description: authErrorMessage(error),
+                variant: 'destructive',
+            });
         } finally {
             setAuthLoading(false);
         }
@@ -1528,6 +1585,36 @@ const AppStore = () => {
     useEffect(() => {
         fetchOwnProfile();
     }, [firebaseUser]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        const resolveGoogleRedirect = async () => {
+            try {
+                const result = await getRedirectResult(auth);
+                if (cancelled || !result?.user) {
+                    return;
+                }
+
+                setDisplayName(result.user.displayName ?? '');
+                setNickname(extractNickFromEmail(result.user.email));
+                setAuthOpen(false);
+            } catch (error) {
+                if (!cancelled) {
+                    toast({
+                        title: 'Google Login',
+                        description: authErrorMessage(error),
+                        variant: 'destructive',
+                    });
+                }
+            }
+        };
+
+        void resolveGoogleRedirect();
+        return () => {
+            cancelled = true;
+        };
+    }, [auth, toast]);
 
     useEffect(() => {
         if (!selectedNickname) {
