@@ -10,6 +10,7 @@ import { HomeScreenProvider } from '@/hooks/use-home-screen';
 import { ThemeProvider } from '@/hooks/use-theme';
 import { GoogleCalendarProvider } from '@/hooks/use-google-calendar';
 import StartupExperience from '@/components/onboarding/StartupExperience';
+import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'),
@@ -101,6 +102,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body>
+        <GoogleAnalytics />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}

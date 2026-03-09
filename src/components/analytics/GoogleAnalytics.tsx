@@ -1,7 +1,13 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Script from 'next/script';
+
+declare global {
+    interface Window {
+        gtag?: (...args: unknown[]) => void;
+    }
+}
 
 type ConsentState = {
     necessary: true;
@@ -46,15 +52,22 @@ export default function GoogleAnalytics() {
         return () => window.removeEventListener(CONSENT_EVENT, onConsentUpdated);
     }, []);
 
-    const canTrack = useMemo(() => {
-        if (!measurementId || !consent) {
-            return false;
+    const canTrack = Boolean(consent?.analytics && consent?.termsAccepted);
+
+    useEffect(() => {
+        if (!measurementId || typeof window === 'undefined' || typeof window.gtag !== 'function') {
+            return;
         }
 
-        return consent.analytics && consent.termsAccepted;
-    }, [measurementId, consent]);
+        window.gtag('consent', 'update', {
+            analytics_storage: canTrack ? 'granted' : 'denied',
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+        });
+    }, [measurementId, canTrack]);
 
-    if (!canTrack || !measurementId) {
+    if (!measurementId) {
         return null;
     }
 
@@ -62,17 +75,24 @@ export default function GoogleAnalytics() {
         <>
             <Script
                 src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
-                strategy="afterInteractive"
+                strategy="beforeInteractive"
             />
-            <Script id="ga-init" strategy="afterInteractive">
+            <Script id="ga-init" strategy="beforeInteractive">
                 {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           window.gtag = gtag;
           gtag('js', new Date());
+                    gtag('consent', 'default', {
+                        analytics_storage: 'denied',
+                        ad_storage: 'denied',
+                        ad_user_data: 'denied',
+                        ad_personalization: 'denied'
+                    });
           gtag('config', '${measurementId}', {
             anonymize_ip: true,
-            send_page_view: true
+                        send_page_view: true,
+                        allow_google_signals: false
           });
         `}
             </Script>
