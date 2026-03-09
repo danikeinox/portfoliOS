@@ -3,7 +3,7 @@ import AppStore from "@/components/apps/AppStore";
 
 const AppStoreApp = () => {
     return (
-        <div className="bg-transparent h-full w-full text-black dark:text-white flex flex-col py-10">
+        <div className="bg-transparent h-full min-h-0 w-full text-black dark:text-white flex flex-col">
             <AppStore />
         </div>
     );

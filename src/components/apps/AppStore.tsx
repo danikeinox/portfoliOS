@@ -1722,9 +1722,9 @@ const AppStore = () => {
     }
 
     return (
-        <div className="h-full w-full flex flex-col overflow-hidden bg-[#F2F2F7] dark:bg-black text-black dark:text-white">
+        <div className="h-full min-h-0 w-full flex flex-col overflow-hidden bg-[#F2F2F7] dark:bg-black text-black dark:text-white">
             <ScrollArea className="flex-1 min-h-0">
-                <div className="max-w-xl mx-auto p-4 pb-6 space-y-4">
+                <div className="w-full max-w-xl mx-auto px-3 sm:px-4 pt-3 sm:pt-4 pb-[calc(env(safe-area-inset-bottom)+5.5rem)] space-y-4">
                     <div className="flex justify-between items-end mb-4">
                         <div>
                             {tab === 'home' && (
@@ -1732,7 +1732,7 @@ const AppStore = () => {
                                     {dateString}
                                 </p>
                             )}
-                            <h1 className="text-5xl font-bold tracking-tight leading-none">
+                            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-none">
                                 {tab === 'home'
                                     ? t('appstore.today')
                                     : tab === 'search'
@@ -1837,7 +1837,7 @@ const AppStore = () => {
 
                             <div className={`${cardBase} p-4`}>
                                 <h3 className="text-lg font-semibold tracking-tight mb-3">{t('appstore.featuredCategories')}</h3>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     {featuredCategories.map((item) => (
                                         <button
                                             key={item.category}
@@ -1870,7 +1870,7 @@ const AppStore = () => {
                             <div>
                                 <h3 className="text-lg font-semibold tracking-tight mb-3">{t('appstore.searchCategories')}</h3>
                                 {categorySearchResults.length > 0 ? (
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         {categorySearchResults.map((item) => (
                                             <button
                                                 key={`search-${item.category}`}
@@ -2072,9 +2072,9 @@ const AppStore = () => {
                                                         <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">{app.status}</p>
                                                     </div>
                                                     {publicProfile.isOwner ? (
-                                                        <div className="flex items-center gap-2">
+                                                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                                                             <Button
-                                                                className="h-9 rounded-full px-4"
+                                                                className="h-9 rounded-full px-4 w-full sm:w-auto"
                                                                 onClick={() => {
                                                                     setFormFromApp(app);
                                                                     setPublishOpen(true);
@@ -2084,7 +2084,7 @@ const AppStore = () => {
                                                             </Button>
                                                             <Button
                                                                 variant="outline"
-                                                                className="h-9 rounded-full px-4 border-[#FF3B30]/40 text-[#FF3B30] hover:text-[#FF3B30]"
+                                                                className="h-9 rounded-full px-4 border-[#FF3B30]/40 text-[#FF3B30] hover:text-[#FF3B30] w-full sm:w-auto"
                                                                 onClick={() => {
                                                                     setAppPendingDelete(app);
                                                                     setDeleteConfirmInput('');
@@ -2128,8 +2128,8 @@ const AppStore = () => {
                 </div>
             </ScrollArea>
 
-            <div className="w-full bg-white/95 dark:bg-[#1C1C1E]/80 backdrop-blur-md border-t border-neutral-300/60 dark:border-[#38383A]/70">
-                <div className="mx-auto max-w-xl px-4 py-3 flex items-center justify-between">
+            <div className="sticky bottom-0 z-20 w-full bg-white/95 dark:bg-[#1C1C1E]/80 backdrop-blur-md border-t border-neutral-300/60 dark:border-[#38383A]/70 pb-[max(env(safe-area-inset-bottom),0.35rem)]">
+                <div className="mx-auto max-w-xl px-3 sm:px-4 pt-2.5 pb-2.5 flex items-center justify-between gap-2">
                     <button
                         type="button"
                         className={`h-11 flex-1 rounded-2xl text-sm font-semibold transition ${tab === 'home' ? 'bg-[#E5F1FF] dark:bg-[#10233C] text-[#0A84FF]' : 'text-[#8A8A8E] dark:text-[#8E8E93]'}`}
