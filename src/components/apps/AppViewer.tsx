@@ -335,7 +335,7 @@ const AppViewer = ({ slug }: { slug: string }) => {
                 </DialogContent>
             </Dialog>
 
-            <AppFrame appName={appTitle} forceTheme={forceTheme} homeBarBackgroundClass={homeBarBackgroundClass} frameBgClass={frameBgClass}>
+            <AppFrame appName={appTitle} forceTheme={forceTheme} homeBarBackgroundClass={homeBarBackgroundClass} frameBgClass={frameBgClass} isInstalledApp={!!installedApp}>
                 <AppCrashBoundary appName={appTitle}>{renderApp()}</AppCrashBoundary>
             </AppFrame>
         </>
