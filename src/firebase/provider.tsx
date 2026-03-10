@@ -11,6 +11,8 @@ interface FirebaseContextType {
   firestore: Firestore
 }
 
+// Nullable context: undefined when Firebase hasn't initialized yet.
+// Hooks return null instead of throwing so components can guard gracefully.
 const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined)
 
 export const FirebaseProvider = ({
@@ -28,24 +30,15 @@ export const FirebaseProvider = ({
 
 export const useFirebaseApp = () => {
   const context = useContext(FirebaseContext)
-  if (context === undefined) {
-    throw new Error("useFirebaseApp must be used within a FirebaseProvider")
-  }
-  return context.app
+  return context?.app ?? null
 }
 
 export const useAuth = () => {
   const context = useContext(FirebaseContext)
-  if (context === undefined) {
-    throw new Error("useAuth must be used within a FirebaseProvider")
-  }
-  return context.auth
+  return context?.auth ?? null
 }
 
 export const useFirestore = () => {
   const context = useContext(FirebaseContext)
-  if (context === undefined) {
-    throw new Error("useFirestore must be used within a FirebaseProvider")
-  }
-  return context.firestore
+  return context?.firestore ?? null
 }

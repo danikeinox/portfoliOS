@@ -23,25 +23,34 @@ export const FirebaseClientProvider = ({
   } | null>(null)
 
   useEffect(() => {
-    const firebaseInstances = initializeFirebase()
-    setFirebase(firebaseInstances)
+    // Defer Firebase init to after first paint so LCP element renders immediately.
+    // Firebase auth & Firestore are only needed on user interaction (apps, login).
+    const id = requestIdleCallback(
+      () => {
+        const firebaseInstances = initializeFirebase()
+        setFirebase(firebaseInstances)
+      },
+      { timeout: 3000 }
+    )
+    return () => cancelIdleCallback(id)
   }, [])
 
-  if (!firebase) {
-    // You can show a loading spinner here
-    return null
-  }
-
+  // Render children immediately — Firebase context is injected once ready.
+  // Components that depend on auth/firestore already guard against null context.
   return (
     <QueryClientProvider client={queryClient}>
-      <FirebaseProvider
-        app={firebase.app}
-        auth={firebase.auth}
-        firestore={firebase.firestore}
-      >
-        <FirebaseErrorListener />
-        {children}
-      </FirebaseProvider>
+      {firebase ? (
+        <FirebaseProvider
+          app={firebase.app}
+          auth={firebase.auth}
+          firestore={firebase.firestore}
+        >
+          <FirebaseErrorListener />
+          {children}
+        </FirebaseProvider>
+      ) : (
+        children
+      )}
     </QueryClientProvider>
   )
 }
