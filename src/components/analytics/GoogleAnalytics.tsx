@@ -73,26 +73,32 @@ export default function GoogleAnalytics() {
 
     return (
         <>
+            {/*
+             * strategy="afterInteractive" loads GTM after Next.js hydrates the page.
+             * Previously "beforeInteractive" was blocking the main thread before hydration,
+             * delaying FCP and LCP. Consent defaults to denied so no data is collected
+             * before the user explicitly accepts — safe to defer.
+             */}
             <Script
                 src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
-                strategy="beforeInteractive"
+                strategy="afterInteractive"
             />
-            <Script id="ga-init" strategy="beforeInteractive">
+            <Script id="ga-init" strategy="afterInteractive">
                 {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           window.gtag = gtag;
           gtag('js', new Date());
-                    gtag('consent', 'default', {
-                        analytics_storage: 'denied',
-                        ad_storage: 'denied',
-                        ad_user_data: 'denied',
-                        ad_personalization: 'denied'
-                    });
+          gtag('consent', 'default', {
+            analytics_storage: 'denied',
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied'
+          });
           gtag('config', '${measurementId}', {
             anonymize_ip: true,
-                        send_page_view: true,
-                        allow_google_signals: false
+            send_page_view: true,
+            allow_google_signals: false
           });
         `}
             </Script>

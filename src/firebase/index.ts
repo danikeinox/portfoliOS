@@ -2,7 +2,7 @@
 
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import {
-  browserLocalPersistence,
+  indexedDBLocalPersistence, // avoids the cross-domain auth/iframe.js (saves ~90 KiB on mobile)
   getAuth,
   onAuthStateChanged,
   setPersistence,
@@ -30,7 +30,9 @@ function initializeFirebase() {
     auth = getAuth(app);
     firestore = getFirestore(app);
 
-    setPersistence(auth, browserLocalPersistence).catch((error) => {
+    // indexedDBLocalPersistence uses the browser's IndexedDB directly,
+    // avoiding the cross-domain iframe that browserLocalPersistence requires.
+    setPersistence(auth, indexedDBLocalPersistence).catch((error) => {
       console.error("Auth persistence setup failed:", error);
     });
 
