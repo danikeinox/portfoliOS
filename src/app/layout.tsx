@@ -101,6 +101,13 @@ export default function RootLayout({
 
   return (
     <html lang="es" suppressHydrationWarning>
+      <head>
+        {/* Preconnect to Firebase/Google APIs used at runtime */}
+        <link rel="preconnect" href="https://firestore.googleapis.com" />
+        <link rel="preconnect" href="https://identitytoolkit.googleapis.com" />
+        <link rel="preconnect" href="https://securetoken.googleapis.com" />
+        <link rel="dns-prefetch" href="https://www.googleapis.com" />
+      </head>
       <body>
         <GoogleAnalytics />
         <script
