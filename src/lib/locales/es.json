@@ -293,7 +293,7 @@
       "cookiesTitle": "Politica de Cookies",
       "cookiesLine1": "Usamos cookies necesarias para mantener funcionamiento basico, idioma, tema y estado de sesion tecnica.",
       "cookiesLine2": "Las cookies funcionales mejoran experiencia y preferencias visuales, pero no son imprescindibles.",
-      "cookiesLine3": "Las cookies analiticas (Google Analytics) solo se activan si das consentimiento explicito.",
+      "cookiesLine3": "Las cookies analiticas (Google Analytics + Vercel Analytics) solo se activan si das consentimiento explicito.",
       "cookiesLine4": "Puedes cambiar tu consentimiento borrando datos locales del navegador y reiniciando la web.",
       "cookiesLine5": "Nunca activamos cookies no necesarias sin una accion previa de aceptacion o personalizacion."
     }

@@ -293,7 +293,7 @@
       "cookiesTitle": "Cookie Policy",
       "cookiesLine1": "We use necessary cookies for core behavior, language, theme, and technical session state.",
       "cookiesLine2": "Functional cookies improve experience and visual preferences but are not strictly required.",
-      "cookiesLine3": "Analytics cookies (Google Analytics) are enabled only with explicit consent.",
+      "cookiesLine3": "Analytics cookies (Google Analytics + Vercel Analytics) are enabled only with explicit consent.",
       "cookiesLine4": "You can change consent by clearing local browser data and restarting the website.",
       "cookiesLine5": "Non-essential cookies are never enabled without explicit accept/customize action."
     }
