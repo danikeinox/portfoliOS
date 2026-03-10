@@ -8,7 +8,7 @@ import { useI18n } from '@/hooks/use-i18n';
 import { useSystemState } from '@/hooks/use-system-state';
 
 // 1. Añadimos forceTheme a las props
-const AppFrame = ({ children, appName, forceTheme, homeBarBackgroundClass, frameBgClass }: { children: React.ReactNode, appName?: string, forceTheme?: 'light' | 'dark', homeBarBackgroundClass?: string, frameBgClass?: string }) => {
+const AppFrame = ({ children, appName, forceTheme, homeBarBackgroundClass, frameBgClass, isInstalledApp }: { children: React.ReactNode, appName?: string, forceTheme?: 'light' | 'dark', homeBarBackgroundClass?: string, frameBgClass?: string, isInstalledApp?: boolean }) => {
     const router = useRouter();
     const [time, setTime] = useState('');
     const [isGesturing, setIsGesturing] = useState(false);
@@ -96,7 +96,10 @@ const AppFrame = ({ children, appName, forceTheme, homeBarBackgroundClass, frame
                 </div>
 
                 {/* App Content */}
-                <main className="flex-1 w-full min-h-0 relative overflow-hidden flex flex-col pt-[env(safe-area-inset-top,0px)]">
+                <main className={cn(
+                    "flex-1 w-full min-h-0 relative overflow-hidden flex flex-col pt-[env(safe-area-inset-top,0px)]",
+                    !isInstalledApp && "pb-[calc(2.5rem+env(safe-area-inset-bottom,0px))]"
+                )}>
                     {children}
                 </main>
 
