@@ -1,14 +1,17 @@
 'use client';
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import HomeScreen from "@/components/ios/HomeScreen";
 import StatusBar from "@/components/ios/StatusBar";
-import ControlCenter from '@/components/ios/ControlCenter';
-import NotificationCenter from '@/components/ios/NotificationCenter';
-import EditMenu from '@/components/ios/EditMenu';
 import { useI18n } from '@/hooks/use-i18n';
 import { cn } from '@/lib/utils';
-import AddWidgetView from '@/components/ios/AddWidgetView';
-import CustomizeView from '@/components/ios/CustomizeView';
+
+// Lazy-load components only needed on user interaction
+const ControlCenter = dynamic(() => import('@/components/ios/ControlCenter'), { ssr: false });
+const NotificationCenter = dynamic(() => import('@/components/ios/NotificationCenter'), { ssr: false });
+const EditMenu = dynamic(() => import('@/components/ios/EditMenu'), { ssr: false });
+const AddWidgetView = dynamic(() => import('@/components/ios/AddWidgetView'), { ssr: false });
+const CustomizeView = dynamic(() => import('@/components/ios/CustomizeView'), { ssr: false });
 
 export default function Home() {
     const [isControlCenterVisible, setControlCenterVisible] = useState(false);
