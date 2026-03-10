@@ -101,6 +101,11 @@ export default function RootLayout({
 
   return (
     <html lang="es" suppressHydrationWarning>
+      <head>
+        {/* Preconnect to GTM/GA — loaded afterInteractive but benefits from early connection */}
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.google-analytics.com" />
+      </head>
       <body>
         <GoogleAnalytics />
         <script
