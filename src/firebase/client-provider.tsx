@@ -25,14 +25,29 @@ export const FirebaseClientProvider = ({
   useEffect(() => {
     // Defer Firebase init to after first paint so LCP element renders immediately.
     // Firebase auth & Firestore are only needed on user interaction (apps, login).
-    const id = requestIdleCallback(
-      () => {
-        const firebaseInstances = initializeFirebase()
-        setFirebase(firebaseInstances)
-      },
-      { timeout: 3000 }
-    )
-    return () => cancelIdleCallback(id)
+    // requestIdleCallback is used when available (Chrome/Edge); Safari falls back to setTimeout.
+    let cancelled = false
+
+    const init = () => {
+      if (cancelled) return
+      const firebaseInstances = initializeFirebase()
+      setFirebase(firebaseInstances)
+    }
+
+    if (typeof requestIdleCallback !== "undefined") {
+      const id = requestIdleCallback(init, { timeout: 3000 })
+      return () => {
+        cancelled = true
+        cancelIdleCallback(id)
+      }
+    } else {
+      // Safari < 16.4 fallback
+      const id = setTimeout(init, 0)
+      return () => {
+        cancelled = true
+        clearTimeout(id)
+      }
+    }
   }, [])
 
   // Render children immediately — Firebase context is injected once ready.
