@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/hooks/use-i18n';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
+import VercelAnalytics from '@/components/analytics/VercelAnalytics';
 
 type StartupStep = 'welcome' | 'consent' | 'legal';
 type LegalDoc = 'terms' | 'cookies';
@@ -98,6 +99,7 @@ export default function StartupExperience({ children }: { children: React.ReactN
         return (
             <>
                 <GoogleAnalytics />
+                <VercelAnalytics />
                 {children}
             </>
         );
@@ -106,6 +108,7 @@ export default function StartupExperience({ children }: { children: React.ReactN
     return (
         <div className="relative h-[100dvh] w-full overflow-hidden bg-[#F5F7FB] dark:bg-black text-black dark:text-white">
             <GoogleAnalytics />
+            <VercelAnalytics />
 
             <div className="absolute inset-0">
                 <div className="absolute -top-32 -left-20 h-[420px] w-[420px] rounded-full bg-[#C6F5E8] blur-2xl opacity-80" />
