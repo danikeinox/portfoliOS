@@ -21,7 +21,10 @@
     transition: background-image 0.5s ease-in-out; /* Add a smooth transition */
     overflow: hidden; /* Prevent global scrolling */
     min-height: 100dvh;
-    height: 100dvh;
+    /* Extend body to cover safe-area-inset-bottom (home indicator zone in PWA).
+       Without this, the html background (#000 in dark mode) bleeds through below
+       the viewport on iOS standalone/PWA mode. */
+    height: calc(100dvh + env(safe-area-inset-bottom, 0px));
   }
 
   @media (prefers-color-scheme: dark) {
