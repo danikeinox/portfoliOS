@@ -44,7 +44,7 @@ export async function sendEmail(formData: FormData) {
 
     try {
         const data = await resend.emails.send({
-            from: 'Portfolio Contact <onboarding@resend.dev>', // IMPORTANT: This must be a configured domain in Resend
+            from: 'Portfolio Contact <contact@danielcabrera.es>', // IMPORTANT: This must be a configured domain in Resend
             to: 'daniel@danielcabrera.es',
             subject: `New message from ${safeName} via portfolio`,
             reply_to: email,

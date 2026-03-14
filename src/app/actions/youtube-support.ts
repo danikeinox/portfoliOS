@@ -30,7 +30,7 @@ export async function sendYoutubeSupport(formData: FormData) {
 
     try {
         const data = await resend.emails.send({
-            from: 'YouTube Support <onboarding@resend.dev>', // Depending on Resend configuration, maybe keep this
+            from: 'YouTube Support <youtube@danielcabrera.es>', // Depending on Resend configuration, maybe keep this
             to: 'daniel@danielcabrera.es',
             cc: email,
             subject: `Soporte Técnico YouTube (Portfolio) - ${name}`,

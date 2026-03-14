@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const email = await resend.emails.send({
-      from: "Portfolio Crash Reporter <onboarding@resend.dev>",
+      from: "Portfolio Crash Reporter <crash-reporter@danielcabrera.es>",
       to: destination,
       subject: `[portfoliOS] App crash report #${reportId} - ${safeAppName}`,
       html: `
