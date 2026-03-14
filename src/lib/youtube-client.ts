@@ -155,21 +155,41 @@ function formatPublishedTime(publishedAt: string): string {
 /**
  * Searches videos by title or channel (client-side filtering)
  */
-export async function searchYouTubeVideos(searchQuery: string, region: string = 'US'): Promise<YouTubeVideoClient[]> {
+export async function searchYouTubeVideos(searchQuery: string, pageToken?: string): Promise<{ videos: YouTubeVideoClient[], nextPageToken: string }> {
   try {
-    const allVideos = await fetchYouTubeVideos(region, undefined, 50);
-    
     if (!searchQuery.trim()) {
-      return allVideos;
+      return { videos: [], nextPageToken: '' };
     }
     
-    const queryLower = searchQuery.toLowerCase();
-    return allVideos.filter(video =>
-      video.title.toLowerCase().includes(queryLower) ||
-      video.channelTitle.toLowerCase().includes(queryLower)
-    );
+    console.log(`[YouTube Search] Fetching search for query: ${searchQuery}`, pageToken ? `(Page ${pageToken})` : '');
+    
+    // API Call
+    const res = await fetch(`/api/youtube/search?q=${encodeURIComponent(searchQuery)}` + (pageToken ? `&pageToken=${pageToken}` : ''));
+    
+    if (!res.ok) {
+        throw new Error('Failed to search videos');
+    }
+    
+    const data = await res.json();
+    
+    const formattedVideos = (data.videos || []).map((doc: any) => {
+        return {
+            videoId: doc.videoId,
+            title: doc.title,
+            channelTitle: doc.channelTitle,
+            channelAvatar: doc.channelAvatar,
+            thumbnail: doc.thumbnail,
+            viewCount: formatViewCount(doc.viewCount),
+            publishedAt: formatPublishedTime(doc.publishedAt)
+        };
+    });
+
+    return {
+        videos: formattedVideos,
+        nextPageToken: data.nextPageToken || ''
+    };
   } catch (error) {
     console.error('Error searching YouTube videos:', error);
-    return [];
+    return { videos: [], nextPageToken: '' };
   }
 }
