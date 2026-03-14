@@ -41,7 +41,7 @@ const YoutubeReal = () => {
     const handleSearch = async (query: string) => {
         setSearchQuery(query);
         setSearchLoading(true);
-        
+
         try {
             const searchResults = await searchYouTubeVideos(query, region);
             setVideos(searchResults);
@@ -88,14 +88,14 @@ const YoutubeReal = () => {
                             className="w-full h-full"
                         ></iframe>
                     </div>
-                     <Button onClick={() => setSelectedVideo(null)} variant="ghost" className="absolute top-2 left-2 text-black dark:text-white bg-white/40 dark:bg-black/40 backdrop-blur-sm hover:bg-white/60 dark:hover:bg-black/60 rounded-full h-8 w-8 p-0">
+                    <Button onClick={() => setSelectedVideo(null)} variant="ghost" className="absolute top-2 left-2 text-black dark:text-white bg-white/40 dark:bg-black/40 backdrop-blur-sm hover:bg-white/60 dark:hover:bg-black/60 rounded-full h-8 w-8 p-0">
                         <ArrowLeft size={20} />
                     </Button>
                 </div>
                 <div className="p-3 overflow-y-auto">
                     <h1 className="text-lg font-bold text-black dark:text-white">{selectedVideo.title}</h1>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">{selectedVideo.channelTitle}</p>
-                     <p className="text-xs text-neutral-500 mt-1">{selectedVideo.viewCount} &bull; {selectedVideo.publishedAt}</p>
+                    <p className="text-xs text-neutral-500 mt-1">{selectedVideo.viewCount} &bull; {selectedVideo.publishedAt}</p>
                 </div>
             </div>
         );
@@ -109,13 +109,13 @@ const YoutubeReal = () => {
                     <span className="font-semibold text-lg tracking-tight hidden sm:block text-black dark:text-white">YouTube</span>
                 </div>
                 <div className="flex-1 flex justify-center items-center max-w-lg">
-                     <div className="relative w-full">
+                    <div className="relative w-full">
                         <Input
                             type="text"
                             placeholder={t('youtube.search')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={(e) => { 
+                            onKeyDown={(e) => {
                                 if (e.key === 'Enter') handleSearch(e.currentTarget.value);
                             }}
                             className="bg-neutral-200 dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 rounded-full pl-4 pr-16 h-10"
@@ -145,7 +145,7 @@ const YoutubeReal = () => {
                         <option value="US">🌎 US</option>
                         <option value="ES">🇪🇸 ES</option>
                     </select>
-                    
+
                     <Button variant="ghost" size="icon" className="hidden sm:inline-flex"><Mic size={20} /></Button>
                     <Button variant="ghost" size="icon"><MoreVertical size={20} /></Button>
                 </div>
@@ -187,16 +187,29 @@ const YoutubeReal = () => {
                             <Card key={video.videoId} onClick={() => setSelectedVideo(video)} className="bg-transparent border-none rounded-none text-black dark:text-white cursor-pointer group">
                                 <CardContent className="p-0">
                                     <div className="aspect-video w-full bg-neutral-200 dark:bg-neutral-800 rounded-xl overflow-hidden relative">
-                                        <Image 
-                                            src={video.thumbnail} 
-                                            alt={video.title} 
-                                            fill 
-                                            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" 
-                                            className="object-cover transition-transform duration-300 group-hover:scale-105" 
+                                        <Image
+                                            src={video.thumbnail}
+                                            alt={video.title}
+                                            fill
+                                            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                            unoptimized
                                         />
                                     </div>
                                     <div className="py-3 flex gap-3 items-start">
-                                        <div className="w-9 h-9 rounded-full bg-neutral-200 dark:bg-neutral-700 flex-shrink-0"></div>
+                                        {video.channelAvatar ? (
+                                            <div className="w-9 h-9 rounded-full flex-shrink-0 relative overflow-hidden bg-neutral-200 dark:bg-neutral-700">
+                                                <Image
+                                                    src={video.channelAvatar}
+                                                    alt={video.channelTitle}
+                                                    fill
+                                                    className="object-cover"
+                                                    unoptimized
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="w-9 h-9 rounded-full bg-neutral-200 dark:bg-neutral-700 flex-shrink-0"></div>
+                                        )}
                                         <div>
                                             <h3 className="font-semibold leading-snug line-clamp-2">{video.title}</h3>
                                             <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">{video.channelTitle}</p>

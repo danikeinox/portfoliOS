@@ -6,10 +6,14 @@ export interface YouTubeVideoClient {
   videoId: string;
   title: string;
   channelTitle: string;
+  channelAvatar?: string;
   thumbnail: string;
   viewCount: string;
   publishedAt: string;
 }
+
+// In-memory lock to prevent multiple concurrent API refresh requests
+let refreshPromise: Promise<void> | null = null;
 
 /**
  * Fetches videos from Firestore for client-side rendering
@@ -28,14 +32,68 @@ export async function fetchYouTubeVideos(region: string = 'US', categoryId?: str
       q = query(q, where('categoryId', '==', categoryId));
     }
 
-    const snapshot = await getDocs(q);
+    let snapshot = await getDocs(q);
     
+    let needsRefresh = false;
+
+    if (snapshot.empty) {
+      console.log(`[YouTube Cache] MISS - No videos found for region ${region}. Fetching new data...`);
+      needsRefresh = true;
+    } else {
+      // Check if the data is older than 24 hours
+      const firstDoc = snapshot.docs[0].data();
+      const lastUpdatedStr = firstDoc.lastUpdated;
+      
+      if (lastUpdatedStr) {
+        const lastUpdatedDate = new Date(lastUpdatedStr);
+        const now = new Date();
+        const diffMs = now.getTime() - lastUpdatedDate.getTime();
+        const diffHours = diffMs / (1000 * 60 * 60);
+
+        if (diffHours >= 24) {
+           console.log(`[YouTube Cache] MISS - Data is older than 24h (${diffHours.toFixed(1)}h). Fetching new data...`);
+           needsRefresh = true;
+        } else {
+           console.log(`[YouTube Cache] HIT - Data is fresh (${diffHours.toFixed(1)}h old).`);
+        }
+      } else {
+         console.log(`[YouTube Cache] MISS - No lastUpdated field found. Fetching new data...`);
+         needsRefresh = true;
+      }
+    }
+
+    if (needsRefresh) {
+        if (!refreshPromise) {
+            console.log(`[YouTube Cache] Initiating API Refresh Request...`);
+            refreshPromise = fetch(`/api/youtube/refresh?region=${region}`).then(async (refreshRes) => {
+                if (!refreshRes.ok) {
+                    console.error('[YouTube Cache] Failed to refresh videos via API:', await refreshRes.text());
+                } else {
+                    console.log(`[YouTube Cache] Cache refreshed successfully.`);
+                }
+            }).catch((apiError) => {
+                console.error('[YouTube Cache] Failed to call refresh API:', apiError);
+            }).finally(() => {
+                refreshPromise = null;
+            });
+        } else {
+            console.log(`[YouTube Cache] API Refresh already in progress, waiting...`);
+        }
+
+        // Wait for the refresh to finish (whether we initiated it or matched an ongoing one)
+        await refreshPromise;
+        
+        // Re-fetch from Firestore to get the newly updated data (or original data if failed)
+        snapshot = await getDocs(q);
+    }
+
     return snapshot.docs.map(doc => {
       const data = doc.data();
       return {
         videoId: data.videoId,
         title: data.title,
         channelTitle: data.channelTitle,
+        channelAvatar: data.channelAvatar,
         thumbnail: data.thumbnail,
         viewCount: formatViewCount(data.viewCount),
         publishedAt: formatPublishedTime(data.publishedAt)
