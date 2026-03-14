@@ -6,10 +6,14 @@ export interface YouTubeVideoClient {
   videoId: string;
   title: string;
   channelTitle: string;
+  channelAvatar?: string;
   thumbnail: string;
   viewCount: string;
   publishedAt: string;
 }
+
+// In-memory lock to prevent multiple concurrent API refresh requests
+let refreshPromise: Promise<void> | null = null;
 
 /**
  * Fetches videos from Firestore for client-side rendering
@@ -28,14 +32,68 @@ export async function fetchYouTubeVideos(region: string = 'US', categoryId?: str
       q = query(q, where('categoryId', '==', categoryId));
     }
 
-    const snapshot = await getDocs(q);
+    let snapshot = await getDocs(q);
     
+    let needsRefresh = false;
+
+    if (snapshot.empty) {
+      console.log(`[YouTube Cache] MISS - No videos found for region ${region}. Fetching new data...`);
+      needsRefresh = true;
+    } else {
+      // Check if the data is older than 24 hours
+      const firstDoc = snapshot.docs[0].data();
+      const lastUpdatedStr = firstDoc.lastUpdated;
+      
+      if (lastUpdatedStr) {
+        const lastUpdatedDate = new Date(lastUpdatedStr);
+        const now = new Date();
+        const diffMs = now.getTime() - lastUpdatedDate.getTime();
+        const diffHours = diffMs / (1000 * 60 * 60);
+
+        if (diffHours >= 24) {
+           console.log(`[YouTube Cache] MISS - Data is older than 24h (${diffHours.toFixed(1)}h). Fetching new data...`);
+           needsRefresh = true;
+        } else {
+           console.log(`[YouTube Cache] HIT - Data is fresh (${diffHours.toFixed(1)}h old).`);
+        }
+      } else {
+         console.log(`[YouTube Cache] MISS - No lastUpdated field found. Fetching new data...`);
+         needsRefresh = true;
+      }
+    }
+
+    if (needsRefresh) {
+        if (!refreshPromise) {
+            console.log(`[YouTube Cache] Initiating API Refresh Request...`);
+            refreshPromise = fetch(`/api/youtube/refresh?region=${region}`).then(async (refreshRes) => {
+                if (!refreshRes.ok) {
+                    console.error('[YouTube Cache] Failed to refresh videos via API:', await refreshRes.text());
+                } else {
+                    console.log(`[YouTube Cache] Cache refreshed successfully.`);
+                }
+            }).catch((apiError) => {
+                console.error('[YouTube Cache] Failed to call refresh API:', apiError);
+            }).finally(() => {
+                refreshPromise = null;
+            });
+        } else {
+            console.log(`[YouTube Cache] API Refresh already in progress, waiting...`);
+        }
+
+        // Wait for the refresh to finish (whether we initiated it or matched an ongoing one)
+        await refreshPromise;
+        
+        // Re-fetch from Firestore to get the newly updated data (or original data if failed)
+        snapshot = await getDocs(q);
+    }
+
     return snapshot.docs.map(doc => {
       const data = doc.data();
       return {
         videoId: data.videoId,
         title: data.title,
         channelTitle: data.channelTitle,
+        channelAvatar: data.channelAvatar,
         thumbnail: data.thumbnail,
         viewCount: formatViewCount(data.viewCount),
         publishedAt: formatPublishedTime(data.publishedAt)
@@ -52,16 +110,16 @@ export async function fetchYouTubeVideos(region: string = 'US', categoryId?: str
  */
 function formatViewCount(count: string): string {
   const num = parseInt(count, 10);
-  if (isNaN(num)) return '0 views';
+  if (isNaN(num)) return '0';
   
   if (num >= 1000000000) {
-    return `${(num / 1000000000).toFixed(1)}B views`;
+    return `${(num / 1000000000).toFixed(1)}B`;
   } else if (num >= 1000000) {
-    return `${(num / 1000000).toFixed(1)}M views`;
+    return `${(num / 1000000).toFixed(1)}M`;
   } else if (num >= 1000) {
-    return `${(num / 1000).toFixed(1)}K views`;
+    return `${(num / 1000).toFixed(1)}K`;
   }
-  return `${num} views`;
+  return `${num}`;
 }
 
 /**
@@ -97,21 +155,41 @@ function formatPublishedTime(publishedAt: string): string {
 /**
  * Searches videos by title or channel (client-side filtering)
  */
-export async function searchYouTubeVideos(searchQuery: string, region: string = 'US'): Promise<YouTubeVideoClient[]> {
+export async function searchYouTubeVideos(searchQuery: string, pageToken?: string): Promise<{ videos: YouTubeVideoClient[], nextPageToken: string }> {
   try {
-    const allVideos = await fetchYouTubeVideos(region, undefined, 50);
-    
     if (!searchQuery.trim()) {
-      return allVideos;
+      return { videos: [], nextPageToken: '' };
     }
     
-    const queryLower = searchQuery.toLowerCase();
-    return allVideos.filter(video =>
-      video.title.toLowerCase().includes(queryLower) ||
-      video.channelTitle.toLowerCase().includes(queryLower)
-    );
+    console.log(`[YouTube Search] Fetching search for query: ${searchQuery}`, pageToken ? `(Page ${pageToken})` : '');
+    
+    // API Call
+    const res = await fetch(`/api/youtube/search?q=${encodeURIComponent(searchQuery)}` + (pageToken ? `&pageToken=${pageToken}` : ''));
+    
+    if (!res.ok) {
+        throw new Error('Failed to search videos');
+    }
+    
+    const data = await res.json();
+    
+    const formattedVideos = (data.videos || []).map((doc: any) => {
+        return {
+            videoId: doc.videoId,
+            title: doc.title,
+            channelTitle: doc.channelTitle,
+            channelAvatar: doc.channelAvatar,
+            thumbnail: doc.thumbnail,
+            viewCount: formatViewCount(doc.viewCount),
+            publishedAt: formatPublishedTime(doc.publishedAt)
+        };
+    });
+
+    return {
+        videos: formattedVideos,
+        nextPageToken: data.nextPageToken || ''
+    };
   } catch (error) {
     console.error('Error searching YouTube videos:', error);
-    return [];
+    return { videos: [], nextPageToken: '' };
   }
 }
