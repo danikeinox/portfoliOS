@@ -113,7 +113,7 @@ const YoutubeReal = () => {
         // @ts-ignore
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-            alert("Tu navegador no soporta búsqueda por voz.");
+            alert(t('youtube.voiceNotSupported'));
             return;
         }
 
@@ -184,33 +184,33 @@ const YoutubeReal = () => {
                                     )}
                                     <div>
                                         <h3 className="font-semibold text-sm md:text-base">{selectedVideo.channelTitle}</h3>
-                                        <p className="text-xs text-neutral-600 dark:text-neutral-400">Suscriptores ocultos</p>
+                                        <p className="text-xs text-neutral-600 dark:text-neutral-400">{t('youtube.hiddenSubscribers')}</p>
                                     </div>
                                     <Button className="ml-4 rounded-full bg-black text-white dark:bg-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 hidden sm:block">
-                                        Suscribirse
+                                        {t('youtube.subscribe')}
                                     </Button>
                                     <Button size="sm" className="ml-4 rounded-full bg-black text-white dark:bg-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 sm:hidden">
-                                        Sub
+                                        {t('youtube.sub')}
                                     </Button>
                                 </div>
 
                                 <div className="flex items-center gap-2 bg-neutral-100 dark:bg-neutral-800 rounded-full px-4 py-2">
-                                    <span className="text-sm font-medium">{selectedVideo.viewCount} views</span>
+                                    <span className="text-sm font-medium">{selectedVideo.viewCount} {t('youtube.viewsCount')}</span>
                                     <div className="w-1 h-1 rounded-full bg-neutral-400"></div>
                                     <span className="text-sm font-medium">{selectedVideo.publishedAt}</span>
                                 </div>
                             </div>
 
                             <div className="bg-neutral-100 dark:bg-neutral-800/60 rounded-xl p-3 md:p-4 mt-2 text-sm">
-                                <p className="font-medium mb-1">Descripción</p>
-                                <p className="text-neutral-700 dark:text-neutral-300">Este video se reproduce usando el reproductor oficial de YouTube en un entorno enjaulado.</p>
+                                <p className="font-medium mb-1">{t('youtube.descriptionTitle')}</p>
+                                <p className="text-neutral-700 dark:text-neutral-300">{t('youtube.descriptionText')}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Right Column (Suggested next videos ) */}
                     <div className="w-full md:w-[400px] p-4 flex flex-col gap-4 border-t md:border-t-0 md:border-l border-neutral-200 dark:border-neutral-800">
-                        <h3 className="font-semibold text-lg hidden md:block">Siguientes recomendados</h3>
+                        <h3 className="font-semibold text-lg hidden md:block">{t('youtube.suggestedNext')}</h3>
                         <div className="flex flex-col gap-3">
                             {videos.slice(0, 8).filter(v => v.videoId !== selectedVideo.videoId).map(video => (
                                 <div key={video.videoId} onClick={() => setSelectedVideo(video)} className="flex gap-2 cursor-pointer group">
@@ -220,7 +220,7 @@ const YoutubeReal = () => {
                                     <div className="flex flex-col flex-1">
                                         <p className="text-sm font-semibold line-clamp-2 md:group-hover:text-blue-500">{video.title}</p>
                                         <p className="text-xs text-neutral-500 mt-1">{video.channelTitle}</p>
-                                        <p className="text-xs text-neutral-500">{video.viewCount} • {video.publishedAt}</p>
+                                        <p className="text-xs text-neutral-500">{video.viewCount} {t('youtube.viewsCount')} • {video.publishedAt}</p>
                                     </div>
                                 </div>
                             ))}
@@ -296,7 +296,7 @@ const YoutubeReal = () => {
                                     setSupportOpen(true);
                                 }}
                             >
-                                Ayuda/Soporte
+                                {t('youtube.supportMenu')}
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -310,7 +310,7 @@ const YoutubeReal = () => {
                             {t('youtube.searchResults', { query: searchQuery, count: videos.length })}
                         </p>
                         <Button variant="ghost" size="sm" onClick={handleClearSearch}>
-                            Clear search
+                            {t('youtube.clearSearch')}
                         </Button>
                     </div>
                 )}
@@ -366,7 +366,7 @@ const YoutubeReal = () => {
                                             <div>
                                                 <h3 className="font-semibold leading-snug line-clamp-2">{video.title}</h3>
                                                 <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">{video.channelTitle}</p>
-                                                <p className="text-xs text-neutral-600 dark:text-neutral-400">{video.viewCount} &bull; {video.publishedAt}</p>
+                                                <p className="text-xs text-neutral-600 dark:text-neutral-400">{video.viewCount} {t('youtube.viewsCount')} &bull; {video.publishedAt}</p>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -376,7 +376,7 @@ const YoutubeReal = () => {
                         {searchQuery && nextPageToken && (
                             <div className="flex justify-center mt-8 pb-8">
                                 <Button variant="outline" onClick={() => handleSearch(searchQuery, nextPageToken)} disabled={searchingMore}>
-                                    {searchingMore ? "Recuperando..." : "Buscar más"}
+                                    {searchingMore ? t('youtube.recovering') : t('youtube.showMoreSearch')}
                                 </Button>
                             </div>
                         )}
@@ -385,7 +385,7 @@ const YoutubeReal = () => {
                     <div className="text-center text-neutral-500 mt-16">
                         <p>{t('youtube.noVideosFound', { query: searchQuery })}</p>
                         <Button variant="outline" onClick={handleClearSearch} className="mt-4">
-                            Show trending videos
+                            {t('youtube.showTrending')}
                         </Button>
                     </div>
                 )}
@@ -395,19 +395,19 @@ const YoutubeReal = () => {
             <Dialog open={supportOpen} onOpenChange={setSupportOpen}>
                 <DialogContent className="sm:max-w-md bg-white dark:bg-neutral-900 text-black dark:text-white border-neutral-200 dark:border-neutral-800" aria-describedby="support-dialog-desc">
                     <DialogHeader>
-                        <DialogTitle>Soporte Técnico de YouTube</DialogTitle>
+                        <DialogTitle>{t('youtube.supportTitle')}</DialogTitle>
                         <DialogDescription id="support-dialog-desc" className="text-neutral-500 text-sm">
-                            ¿Tienes algún problema? Completa este formulario.
+                            {t('youtube.supportDesc')}
                         </DialogDescription>
                     </DialogHeader>
 
                     {supportSuccess ? (
                         <div className="flex flex-col items-center justify-center py-6 gap-4">
                             <CheckCircle2 className="w-16 h-16 text-green-500" />
-                            <p className="text-center font-medium">Ticket enviado correctamente.</p>
-                            <p className="text-center text-sm text-neutral-500">En 24/48 horas se responderá y proporcionará soporte a tu problema. Has recibido una copia en tu correo.</p>
+                            <p className="text-center font-medium">{t('youtube.supportSuccess')}</p>
+                            <p className="text-center text-sm text-neutral-500">{t('youtube.supportSuccessDesc')}</p>
                             <Button className="mt-4 bg-black text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200" onClick={() => setSupportOpen(false)}>
-                                Cerrar
+                                {t('youtube.close')}
                             </Button>
                         </div>
                     ) : (
@@ -418,24 +418,24 @@ const YoutubeReal = () => {
                             if (res.success) {
                                 setSupportSuccess(true);
                             } else {
-                                alert("Error al enviar el formulario: " + res.error);
+                                alert(t('youtube.formError') + res.error);
                             }
                         }} className="space-y-4">
                             <div>
-                                <label className="text-sm font-medium">Nombre y apellidos</label>
-                                <Input name="name" required placeholder="Ej: Juan Pérez" className="mt-1 bg-neutral-100 dark:bg-neutral-800 border-none" />
+                                <label className="text-sm font-medium">{t('youtube.nameLabel')}</label>
+                                <Input name="name" required placeholder={t('youtube.namePlaceholder')} className="mt-1 bg-neutral-100 dark:bg-neutral-800 border-none" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium">Correo electrónico</label>
+                                <label className="text-sm font-medium">{t('youtube.emailLabel')}</label>
                                 <Input name="email" type="email" required placeholder="tu@correo.com" className="mt-1 bg-neutral-100 dark:bg-neutral-800 border-none" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium">Problema</label>
-                                <textarea name="problem" required placeholder="Describe tu problema con detalle..." rows={4} className="w-full rounded-md p-3 mt-1 bg-neutral-100 dark:bg-neutral-800 border-none resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                                <label className="text-sm font-medium">{t('youtube.problemLabel')}</label>
+                                <textarea name="problem" required placeholder={t('youtube.problemPlaceholder')} rows={4} className="w-full rounded-md p-3 mt-1 bg-neutral-100 dark:bg-neutral-800 border-none resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                             </div>
                             <Button type="submit" disabled={supportLoading} className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2">
                                 {supportLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                                {supportLoading ? 'Enviando...' : 'Enviar ticket'}
+                                {supportLoading ? t('youtube.sending') : t('youtube.sendTicket')}
                             </Button>
                         </form>
                     )}

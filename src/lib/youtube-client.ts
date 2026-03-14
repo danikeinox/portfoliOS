@@ -110,16 +110,16 @@ export async function fetchYouTubeVideos(region: string = 'US', categoryId?: str
  */
 function formatViewCount(count: string): string {
   const num = parseInt(count, 10);
-  if (isNaN(num)) return '0 views';
+  if (isNaN(num)) return '0';
   
   if (num >= 1000000000) {
-    return `${(num / 1000000000).toFixed(1)}B views`;
+    return `${(num / 1000000000).toFixed(1)}B`;
   } else if (num >= 1000000) {
-    return `${(num / 1000000).toFixed(1)}M views`;
+    return `${(num / 1000000).toFixed(1)}M`;
   } else if (num >= 1000) {
-    return `${(num / 1000).toFixed(1)}K views`;
+    return `${(num / 1000).toFixed(1)}K`;
   }
-  return `${num} views`;
+  return `${num}`;
 }
 
 /**
