@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/hooks/use-i18n';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
@@ -47,12 +47,18 @@ function persistConsent(state: ConsentState) {
 
 export default function StartupExperience({ children }: { children: React.ReactNode }) {
     const { t } = useI18n();
-    const [savedConsent, setSavedConsent] = useState<ConsentState | null>(() => readConsent());
+    const [savedConsent, setSavedConsent] = useState<ConsentState | null>(null);
+    const [isMounted, setIsMounted] = useState(false);
     const [step, setStep] = useState<StartupStep>('welcome');
     const [legalDoc, setLegalDoc] = useState<LegalDoc>('terms');
     const [functional, setFunctional] = useState(true);
     const [analytics, setAnalytics] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
+
+    useEffect(() => {
+        setSavedConsent(readConsent());
+        setIsMounted(true);
+    }, []);
 
     const legal = useMemo(
         () => ({
