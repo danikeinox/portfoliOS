@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useI18n } from '@/hooks/use-i18n';
 import { fetchYouTubeVideos, searchYouTubeVideos, type YouTubeVideoClient } from '@/lib/youtube-client';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from "@/hooks/use-toast";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -26,6 +27,7 @@ import { sendYoutubeSupport } from '@/app/actions/youtube-support';
 
 const YoutubeReal = () => {
     const { t } = useI18n();
+    const { toast } = useToast();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedVideo, setSelectedVideo] = useState<YouTubeVideoClient | null>(null);
     const [videos, setVideos] = useState<YouTubeVideoClient[]>([]);
@@ -113,7 +115,10 @@ const YoutubeReal = () => {
         // @ts-ignore
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-            alert(t('youtube.voiceNotSupported'));
+            toast({
+                title: t('youtube.voiceNotSupported'),
+                variant: "destructive",
+            });
             return;
         }
 
@@ -126,6 +131,12 @@ const YoutubeReal = () => {
         recognition.onend = () => setIsListening(false);
         recognition.onerror = (e: any) => {
             console.error("Voice recognition error", e.error);
+            if (e.error === 'network') {
+                toast({
+                    title: t('youtube.voiceNetworkError'),
+                    variant: "destructive",
+                });
+            }
             setIsListening(false);
         };
         recognition.onresult = (event: any) => {
@@ -288,9 +299,9 @@ const YoutubeReal = () => {
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon"><MoreVertical size={20} /></Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800">
+                        <DropdownMenuContent align="end" className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-black dark:text-white">
                             <DropdownMenuItem
-                                className="cursor-pointer dark:hover:bg-neutral-800"
+                                className="cursor-pointer hover:bg-neutral-100 focus:bg-neutral-100 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
                                 onClick={() => {
                                     setSupportSuccess(false);
                                     setSupportOpen(true);
@@ -418,7 +429,11 @@ const YoutubeReal = () => {
                             if (res.success) {
                                 setSupportSuccess(true);
                             } else {
-                                alert(t('youtube.formError') + res.error);
+                                toast({
+                                    title: "Error",
+                                    description: t('youtube.formError') + res.error,
+                                    variant: "destructive",
+                                });
                             }
                         }} className="space-y-4">
                             <div>

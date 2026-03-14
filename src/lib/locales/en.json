@@ -544,6 +544,8 @@
     "showTrending": "Show trending videos",
     "clearSearch": "Clear search",
     "voiceNotSupported": "Your browser does not support voice search.",
+    "voiceNetworkError": "Voice recognition requires a network connection on this browser.",
+    "searchResults": "\"{query}\" ({count} results)",
     "supportMenu": "Help/Support",
     "supportTitle": "YouTube Technical Support",
     "supportDesc": "Having an issue? Fill out this form.",

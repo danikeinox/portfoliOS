@@ -544,6 +544,8 @@
     "showTrending": "Mostrar tendencias",
     "clearSearch": "Borrar búsqueda",
     "voiceNotSupported": "Tu navegador no soporta búsqueda por voz.",
+    "voiceNetworkError": "El reconocimiento de voz requiere conexión por red en este navegador.",
+    "searchResults": "\"{query}\" ({count} resultados)",
     "supportMenu": "Ayuda/Soporte",
     "supportTitle": "Soporte Técnico de YouTube",
     "supportDesc": "¿Tienes algún problema? Completa este formulario.",
