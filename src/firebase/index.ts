@@ -9,6 +9,10 @@ import {
   signInAnonymously,
   type Auth,
 } from "firebase/auth";
+import { 
+  initializeAppCheck, 
+  ReCaptchaV3Provider 
+} from "firebase/app-check";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { getFirebaseConfig } from "./config";
 
@@ -29,6 +33,17 @@ function initializeFirebase() {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     firestore = getFirestore(app);
+
+    // Initialize App Check
+    if (typeof window !== 'undefined') {
+        const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+        if (siteKey) {
+            initializeAppCheck(app, {
+                provider: new ReCaptchaV3Provider(siteKey),
+                isTokenAutoRefreshEnabled: true
+            });
+        }
+    }
 
     // indexedDBLocalPersistence uses the browser's IndexedDB directly,
     // avoiding the cross-domain iframe that browserLocalPersistence requires.

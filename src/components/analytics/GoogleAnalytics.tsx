@@ -37,7 +37,7 @@ function readConsent(): ConsentState | null {
     }
 }
 
-export default function GoogleAnalytics() {
+export default function GoogleAnalytics({ nonce }: { nonce?: string }) {
     const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
     const [consent, setConsent] = useState<ConsentState | null>(null);
 
@@ -80,10 +80,11 @@ export default function GoogleAnalytics() {
              * before the user explicitly accepts — safe to defer.
              */}
             <Script
+                nonce={nonce}
                 src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
                 strategy="afterInteractive"
             />
-            <Script id="ga-init" strategy="afterInteractive">
+            <Script id="ga-init" strategy="afterInteractive" nonce={nonce}>
                 {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}

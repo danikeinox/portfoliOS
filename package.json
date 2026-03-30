@@ -10,7 +10,8 @@
     "security:secrets": "node scripts/security/check-secrets.mjs",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "security:audit": "npm audit && npm run security:secrets"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",

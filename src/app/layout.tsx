@@ -10,6 +10,7 @@ import { HomeScreenProvider } from '@/hooks/use-home-screen';
 import { ThemeProvider } from '@/hooks/use-theme';
 import { GoogleCalendarProvider } from '@/hooks/use-google-calendar';
 import StartupExperience from '@/components/onboarding/StartupExperience';
+import { headers } from 'next/headers';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 
 export const metadata: Metadata = {
@@ -87,6 +88,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = headers().get('x-nonce') || '';
+
   const personJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Person',
@@ -107,8 +110,9 @@ export default function RootLayout({
         <link rel="preconnect" href="https://www.google-analytics.com" />
       </head>
       <body>
-        <GoogleAnalytics />
+        <GoogleAnalytics nonce={nonce} />
         <script
+          nonce={nonce}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
         />

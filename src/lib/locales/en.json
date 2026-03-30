@@ -246,6 +246,7 @@
     "wallpaperDeleted": "Wallpaper deleted.",
     "general": {
       "title": "General",
+      "or": "OR",
       "appearance": "Appearance",
       "light": "Light",
       "dark": "Dark",
