@@ -1,0 +1,10 @@
+
+> ios-portfolio@0.1.0 security:secrets
+> node scripts/security/check-secrets.mjs
+
+Potential secrets detected:
+
+- YOUTUBE_INTEGRATION.md:42 [Private Key Block]
+  FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+
+Failing scan. Remove/rotate secrets or move them to ignored env files.

@@ -29,6 +29,8 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth, useUser } from '@/firebase';
+import StartupExperience from '@/components/onboarding/StartupExperience';
+import AuthScreen from '@/components/auth/AuthScreen';
 import { useHomeScreen } from '@/hooks/use-home-screen';
 import {
     getInstalledAppById,
@@ -271,7 +273,6 @@ const AppStore = () => {
     const [tab, setTab] = useState<AppStoreTab>('home');
     const [searchQuery, setSearchQuery] = useState('');
     const [authOpen, setAuthOpen] = useState(false);
-    const [authMode, setAuthMode] = useState<AuthMode>('login');
     const [authLoading, setAuthLoading] = useState(false);
     const [profileLoading, setProfileLoading] = useState(false);
     const [ownProfileLoading, setOwnProfileLoading] = useState(false);
@@ -841,100 +842,7 @@ const AppStore = () => {
         return true;
     }
 
-    async function handleLogin() {
-        if (!email || !password) {
-            toast({ title: 'Faltan datos', description: 'Introduce email y contraseña.', variant: 'destructive' });
-            return;
-        }
-        if (!isAuthenticatedSession) {
-            setAuthLoading(true);
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                setAuthOpen(false);
-                setEmail('');
-                if (ownProfileLoading) {
-                    return;
-                }
-
-                setPassword('');
-            } catch (error) {
-                toast({
-                    title: 'Login fallido',
-                    description: authErrorMessage(error),
-                    variant: 'destructive',
-                });
-            } finally {
-                setAuthLoading(false);
-            }
-        }
-    }
-
-    async function handleRegister() {
-        if (!email || !password || !nickname || !displayName) {
-            toast({ title: 'Faltan datos', description: 'Completa todos los campos requeridos.', variant: 'destructive' });
-            return;
-        }
-
-        setAuthLoading(true);
-        try {
-            const available = await checkNicknameAvailability(nickname);
-            if (!available) {
-                return;
-            }
-
-            await createUserWithEmailAndPassword(auth, email, password);
-            const profileOk = await upsertProfile();
-
-            if (profileOk) {
-                setAuthOpen(false);
-                setEmail('');
-                setPassword('');
-                setBio('');
-                setAvatarUrl('');
-            }
-        } catch (error) {
-            toast({
-                title: 'Registro fallido',
-                description: authErrorMessage(error),
-                variant: 'destructive',
-            });
-        } finally {
-            setAuthLoading(false);
-        }
-    }
-
-    async function handleGoogleLogin() {
-        setAuthLoading(true);
-        try {
-            const provider = new GoogleAuthProvider();
-            const isStandalonePwa =
-                typeof window !== 'undefined' &&
-                (window.matchMedia('(display-mode: standalone)').matches ||
-                    (window.navigator as Navigator & { standalone?: boolean }).standalone === true);
-
-            if (isStandalonePwa) {
-                await signInWithRedirect(auth, provider);
-                return;
-            }
-
-            const result = await signInWithPopup(auth, provider);
-
-            if (result.user) {
-                setDisplayName(result.user.displayName ?? '');
-                setNickname(extractNickFromEmail(result.user.email));
-            }
-
-            setAuthOpen(false);
-        } catch (error) {
-            toast({
-                title: 'Google Login',
-                description: authErrorMessage(error),
-                variant: 'destructive',
-            });
-        } finally {
-            setAuthLoading(false);
-        }
-    }
+    // Handlers handleLogin, handleRegister, handleGoogleLogin removed in favor of AuthScreen
 
     async function handleFollow() {
         if (!selectedNickname) {
@@ -1428,8 +1336,8 @@ const AppStore = () => {
 
     async function handleLogoutToGuest() {
         try {
-            await signOut(auth);
-            await signInAnonymously(auth);
+            await signOut(auth!);
+            await signInAnonymously(auth!);
         } catch {
             toast({ title: t('appstore.logoutErrorTitle'), description: t('appstore.logoutErrorDescription'), variant: 'destructive' });
         } finally {
@@ -2721,121 +2629,11 @@ const AppStore = () => {
             </Dialog>
 
             <Dialog open={authOpen} onOpenChange={setAuthOpen}>
-                <DialogContent className="sm:max-w-md rounded-3xl border border-neutral-300/70 dark:border-[#38383A]/80 p-0 overflow-hidden bg-white dark:bg-[#1C1C1E] text-black dark:text-white">
-                    <DialogHeader className="px-6 pt-6 pb-2 text-left">
-                        <DialogTitle className="text-2xl font-semibold">
-                            {authMode === 'login' ? t('appstore.loginTitle') : t('appstore.registerTitle')}
-                        </DialogTitle>
-                        <DialogDescription className="text-sm text-[#8A8A8E] dark:text-[#8E8E93]">
-                            {authMode === 'login'
-                                ? t('appstore.loginDescription')
-                                : t('appstore.registerDescription')}
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <div className="px-6 pb-6 space-y-3">
-                        <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-2 grid grid-cols-2 gap-2">
-                            <Button
-                                variant={authMode === 'login' ? 'default' : 'ghost'}
-                                className={`rounded-xl h-10 ${authMode === 'login' ? 'bg-[#0A84FF] text-white hover:bg-[#0A84FF]/90' : ''}`}
-                                onClick={() => setAuthMode('login')}
-                            >
-                                {t('appstore.login')}
-                            </Button>
-                            <Button
-                                variant={authMode === 'register' ? 'default' : 'ghost'}
-                                className={`rounded-xl h-10 ${authMode === 'register' ? 'bg-[#0A84FF] text-white hover:bg-[#0A84FF]/90' : ''}`}
-                                onClick={() => setAuthMode('register')}
-                            >
-                                {t('appstore.register')}
-                            </Button>
-                        </div>
-
-                        <form
-                            className="space-y-3"
-                            onSubmit={(event) => {
-                                event.preventDefault();
-                                if (authMode === 'login') {
-                                    void handleLogin();
-                                    return;
-                                }
-                                void handleRegister();
-                            }}
-                        >
-                            <div className="rounded-2xl bg-white dark:bg-[#2C2C2E] p-3 space-y-2">
-                                <Input className={insetInput} placeholder={t('appstore.email')} aria-label={t('appstore.email')} value={email} onChange={(event) => setEmail(event.target.value)} />
-                                <Input
-                                    type="password"
-                                    className={insetInput}
-                                    placeholder={t('appstore.password')}
-                                    aria-label={t('appstore.password')}
-                                    value={password}
-                                    onChange={(event) => setPassword(event.target.value)}
-                                />
-                                {authMode === 'register' && (
-                                    <>
-                                        <Input
-                                            className={insetInput}
-                                            placeholder={t('appstore.nickname')}
-                                            aria-label={t('appstore.nickname')}
-                                            value={nickname}
-                                            maxLength={MAX_NICKNAME_LENGTH}
-                                            onChange={(event) => setNickname(event.target.value)}
-                                        />
-                                        <Input
-                                            className={insetInput}
-                                            placeholder={t('appstore.displayName')}
-                                            aria-label={t('appstore.displayName')}
-                                            value={displayName}
-                                            maxLength={MAX_DISPLAY_NAME_LENGTH}
-                                            onChange={(event) => setDisplayName(event.target.value)}
-                                        />
-                                        <textarea
-                                            className="w-full min-h-[90px] rounded-xl border-0 bg-[#EFEFF4] dark:bg-[#1C1C1E] p-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0A84FF]"
-                                            placeholder={t('appstore.bioOptional')}
-                                            aria-label={t('appstore.bioOptional')}
-                                            value={bio}
-                                            maxLength={MAX_BIO_LENGTH}
-                                            onChange={(event) => setBio(event.target.value)}
-                                        />
-                                        <Input
-                                            className={insetInput}
-                                            placeholder={t('appstore.avatarUrlOptional')}
-                                            aria-label={t('appstore.avatarUrlOptional')}
-                                            value={avatarUrl}
-                                            onChange={(event) => setAvatarUrl(event.target.value)}
-                                        />
-                                        <Button
-                                            type="button"
-                                            variant="secondary"
-                                            className="h-11 rounded-xl"
-                                            onClick={() => avatarFileInputRef.current?.click()}
-                                            disabled={avatarUploadLoading}
-                                        >
-                                            {avatarUploadLoading ? t('appstore.imageUploading') : t('appstore.uploadImage')}
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
-
-                            <Button
-                                type="submit"
-                                className={`${primaryButton} w-full`}
-                                disabled={authLoading}
-                            >
-                                {authLoading ? t('appstore.processing') : authMode === 'login' ? t('appstore.enter') : t('appstore.createAccount')}
-                            </Button>
-                        </form>
-
-                        <Button
-                            variant="secondary"
-                            className="w-full h-12 rounded-full text-[15px] font-semibold"
-                            onClick={handleGoogleLogin}
-                            disabled={authLoading}
-                        >
-                            {t('appstore.continueGoogle')}
-                        </Button>
-                    </div>
+                <DialogContent className="sm:max-w-md rounded-3xl border border-neutral-300/70 dark:border-[#38383A]/80 p-0 overflow-hidden bg-white dark:bg-[#1C1C1E] text-black dark:text-white min-h-[400px]">
+                    <AuthScreen 
+                        auth={auth!} 
+                        onSuccess={() => setAuthOpen(false)}
+                    />
                 </DialogContent>
             </Dialog>
 

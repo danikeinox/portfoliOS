@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { adminDb } from '@/lib/firebase-admin';
+import { applyRateLimit, enforceSameOrigin } from '@/lib/api/security';
 
 // Google APIs
 import { google } from 'googleapis';
@@ -15,7 +16,17 @@ const youtube = google.youtube({
     auth: YOUTUBE_API_KEY,
 });
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+    const rateLimitResponse = await applyRateLimit(request, {
+        key: 'api:youtube:refresh',
+        windowMs: 300_000, // 5 minutes
+        maxRequests: 3,    // Very restrictive as it's an expensive operation
+    });
+    if (rateLimitResponse) return rateLimitResponse;
+
+    const originResponse = enforceSameOrigin(request);
+    if (originResponse) return originResponse;
+
     try {
         const { searchParams } = new URL(request.url);
         const region = searchParams.get('region') || 'US';
