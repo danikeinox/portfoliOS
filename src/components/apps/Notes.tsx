@@ -1,7 +1,9 @@
 'use client';
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { useFirestore, useCollection } from '@/firebase';
-import { collection, query, orderBy, addDoc, serverTimestamp, deleteDoc, doc, updateDoc, type DocumentData } from 'firebase/firestore';
+import { useFirestore, useCollection, useAuth } from '@/firebase';
+import { useUser } from '@/firebase/auth/use-user';
+import AuthScreen from '@/components/auth/AuthScreen';
+import { collection, query, orderBy, addDoc, serverTimestamp, deleteDoc, doc, updateDoc, where, type DocumentData } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -42,6 +44,8 @@ const useDebounce = (value: any, delay: number) => {
 
 const Notes = () => {
     const firestore = useFirestore();
+    const auth = useAuth();
+    const { data: user } = useUser();
     const { toast } = useToast();
     const { t } = useI18n();
     const { theme } = useTheme();
@@ -68,9 +72,13 @@ const Notes = () => {
     const isSaving = useRef(false);
 
     const notesQuery = useMemo(() => {
-        if (!firestore) return null;
-        return query(collection(firestore, 'notes'), orderBy('updatedAt', 'desc'));
-    }, [firestore]);
+        if (!firestore || !user?.uid) return null;
+        return query(
+            collection(firestore, 'notes'),
+            where('ownerId', '==', user.uid),
+            orderBy('updatedAt', 'desc')
+        );
+    }, [firestore, user?.uid]);
 
     const { data: notes, loading } = useCollection(notesQuery);
 
@@ -112,10 +120,11 @@ const Notes = () => {
     }, [debouncedTitle, debouncedContent, debouncedDrawing, selectedNote, firestore, notes, isDrawingMode]);
 
     const handleCreateNote = async () => {
-        if (!firestore) return;
+        if (!firestore || !user?.uid) return;
         if (!noteTitle.trim() && !noteContent.trim() && !drawingData) return;
 
         await addDoc(collection(firestore, 'notes'), {
+            ownerId: user.uid,
             title: noteTitle,
             content: noteContent,
             drawing: drawingData || null,
@@ -272,6 +281,16 @@ const Notes = () => {
             </div>
             </div>
         )
+    }
+
+    if (!user || user.isAnonymous) {
+        return (
+            <AuthScreen 
+                auth={auth!} 
+                title={t('app.notes') || 'Notas'}
+                description={t('appstore.signInPrompt') || 'Inicia sesión para ver y crear tus notas.'}
+            />
+        );
     }
 
     return (

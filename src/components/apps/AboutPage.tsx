@@ -48,6 +48,7 @@ const AboutPage = () => {
                             fill
                             className="rounded-full border-4 border-neutral-200 dark:border-neutral-700 shadow-md"
                             data-ai-hint={aboutData.profileImage.aiHint}
+                            unoptimized={true}
                         />
                     </div>
                     <h1 className="text-4xl font-bold mt-4 tracking-tight text-neutral-900 dark:text-neutral-50">{aboutData.name}</h1>

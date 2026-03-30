@@ -13,8 +13,10 @@ const ProfileWidget = ({ size = '2x2' }: { size?: WidgetSize }) => {
                         src="https://s6.imgcdn.dev/Yrcy4v.png"
                         alt={t('widget.profile.alt')}
                         fill
+                        sizes="3rem"
                         className="rounded-full border-2 border-white/50 object-cover"
                         data-ai-hint="male portrait"
+                        unoptimized={true}
                     />
                 </div>
                 <div className="text-black">
