@@ -388,6 +388,19 @@ export async function POST(
     return fail("INVALID_APP_ID", "App id is required", 400);
   }
 
+  // Rate limit install/download actions
+  const { applyRateLimit, enforceSameOrigin } = await import("@/lib/api/security");
+
+  const rateLimitResponse = await applyRateLimit(_request, {
+    key: "appstore:install",
+    windowMs: 60_000,
+    maxRequests: 15,
+  });
+  if (rateLimitResponse) return rateLimitResponse;
+
+  const originResponse = enforceSameOrigin(_request);
+  if (originResponse) return originResponse;
+
   try {
     const appRef = adminDb.collection(APPSTORE_COLLECTIONS.apps).doc(appId);
     const appDoc = await appRef.get();

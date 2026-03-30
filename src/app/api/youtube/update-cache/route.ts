@@ -8,11 +8,11 @@ export const runtime = 'nodejs';
  * Protected with basic auth secret
  */
 export async function GET(req: NextRequest) {
-  // Check for authorization secret
+  // Check for authorization secret — DENY if not configured
   const authHeader = req.headers.get('authorization');
   const expectedSecret = process.env.YOUTUBE_UPDATE_SECRET;
   
-  if (expectedSecret && authHeader !== `Bearer ${expectedSecret}`) {
+  if (!expectedSecret || authHeader !== `Bearer ${expectedSecret}`) {
     return NextResponse.json(
       { error: 'Unauthorized' },
       { status: 401 }
@@ -44,11 +44,11 @@ export async function GET(req: NextRequest) {
  * POST endpoint for scheduled updates (cloud scheduler, cron jobs)
  */
 export async function POST(req: NextRequest) {
-  // Check for authorization secret
+  // Check for authorization secret — DENY if not configured
   const authHeader = req.headers.get('authorization');
   const expectedSecret = process.env.YOUTUBE_UPDATE_SECRET;
   
-  if (expectedSecret && authHeader !== `Bearer ${expectedSecret}`) {
+  if (!expectedSecret || authHeader !== `Bearer ${expectedSecret}`) {
     return NextResponse.json(
       { error: 'Unauthorized' },
       { status: 401 }
