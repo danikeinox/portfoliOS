@@ -55,9 +55,19 @@ service cloud.firestore {
     }
 
     // --- Notes ---
-    // For this public app, anyone can read, create, update, and delete any note.
-    match /notes/{document=**} {
-      allow read, write: if true;
+    // Only note owners can read, update, or delete their own notes.
+    // Any authenticated user can create a note (ownerId is set on creation).
+    match /notes/{noteId} {
+      allow read: if isOwner(resource.data.ownerId);
+      allow create: if request.auth != null;
+      allow update, delete: if isOwner(resource.data.ownerId);
+    }
+
+    // --- YouTube Search Cache ---
+    // Public read for cached search results. Writes are server-side only (Admin SDK).
+    match /youtube_searches/{queryId} {
+      allow read: if true;
+      allow write: if false;
     }
 
     match /users/{userId} {
