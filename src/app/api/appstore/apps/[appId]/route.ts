@@ -92,9 +92,9 @@ function asCode(error: unknown): string {
 
 export async function GET(
   request: NextRequest,
-  context: { params: { appId: string } },
+  { params }: { params: { appId: string } },
 ) {
-  const { appId } = context.params;
+  const { appId } = params;
   if (!appId) {
     return fail("INVALID_APP_ID", "App id is required", 400);
   }
@@ -123,7 +123,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  context: { params: { appId: string } },
+  { params }: { params: { appId: string } },
 ) {
   let uid: string;
 
@@ -140,7 +140,7 @@ export async function PATCH(
     );
   }
 
-  const { appId } = context.params;
+  const { appId } = params;
   if (!appId) {
     return fail("INVALID_APP_ID", "App id is required", 400);
   }
@@ -380,9 +380,9 @@ export async function PATCH(
 
 export async function POST(
   _request: NextRequest,
-  context: { params: { appId: string } },
+  { params }: { params: { appId: string } },
 ) {
-  const { appId } = context.params;
+  const { appId } = params;
 
   if (!appId) {
     return fail("INVALID_APP_ID", "App id is required", 400);
@@ -429,7 +429,7 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: { appId: string } },
+  { params }: { params: { appId: string } },
 ) {
   let uid: string;
 
@@ -446,7 +446,7 @@ export async function DELETE(
     );
   }
 
-  const { appId } = context.params;
+  const { appId } = params;
   if (!appId) {
     return fail("INVALID_APP_ID", "App id is required", 400);
   }
