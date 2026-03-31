@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       orderBy: "startTime",
     });
 
-    const events = response.data.items?.map((event) => ({
+    const events = response.data.items?.map((event: any) => ({
       id: event.id,
       summary: event.summary,
       description: event.description,
