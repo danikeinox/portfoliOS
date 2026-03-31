@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 // Note: The 'slug' parameter can now be typed as string
 // because dynamic segment params are guaranteed to be strings.
-export default function Page({ params }: { params: { slug: string } }) {
-  return <AppViewer slug={params.slug} />;
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  return <AppViewer slug={slug} />;
 }
