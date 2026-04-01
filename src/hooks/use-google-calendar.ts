@@ -47,7 +47,7 @@ export const GoogleCalendarProvider = ({ children }: { children: ReactNode }) =>
             
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.details || errorData.error || t('calendar.error.description'));
+                throw new Error(errorData.details || errorData.error || 'Failed to fetch calendar events');
             }
             
             const data = await response.json();
