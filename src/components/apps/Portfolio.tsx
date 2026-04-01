@@ -57,7 +57,7 @@ const Portfolio = () => {
         );
     };
 
-    const allImages = selectedProject ? [selectedProject.mainImage, ...selectedProject.gallery].filter(img => img && img.imageUrl) : [];
+    const allImages = selectedProject ? [selectedProject.mainImage, ...selectedProject.gallery].filter((img): img is { imageUrl: string; imageHint: string } => img && typeof img === 'object' && 'imageUrl' in img && img.imageUrl) : [];
 
     return (
         <div className="w-full min-h-full bg-[#F2F2F7] dark:bg-black text-black dark:text-white pb-12">
