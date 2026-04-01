@@ -1499,7 +1499,7 @@ const AppStore = () => {
 
         const resolveGoogleRedirect = async () => {
             try {
-                const result = await getRedirectResult(auth);
+                const result = await getRedirectResult(auth!);
                 if (cancelled || !result?.user) {
                     return;
                 }
