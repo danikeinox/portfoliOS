@@ -23,12 +23,12 @@ const EditWidgetView = ({ widgetId, onClose }: EditWidgetViewProps) => {
     const { toast } = useToast();
     const currentItem = findItem(widgetId);
 
-    const [selectedType, setSelectedType] = useState(currentItem?.type || '');
+    const [selectedType, setSelectedType] = useState(currentItem?.item.type || '');
     
     const widgetInfo = WIDGETS[selectedType as keyof typeof WIDGETS];
     const SIZES: WidgetSize[] = widgetInfo ? widgetInfo.supportedSizes : [];
     
-    const [selectedSize, setSelectedSize] = useState(currentItem && SIZES.includes(currentItem.size!) ? currentItem.size! : SIZES[0]);
+    const [selectedSize, setSelectedSize] = useState(currentItem && SIZES.includes(currentItem.item.size!) ? currentItem.item.size! : SIZES[0]);
     
     const [sizeCarouselApi, setSizeCarouselApi] = useState<CarouselApi>();
     const [currentSizeIndex, setCurrentSizeIndex] = useState(0);
@@ -110,7 +110,7 @@ const EditWidgetView = ({ widgetId, onClose }: EditWidgetViewProps) => {
         }
     }, [sizeCarouselApi, handleSizeChange, SIZES, selectedSize]);
 
-    if (!currentItem || currentItem.type !== 'widget' || !widgetInfo) {
+    if (!currentItem || currentItem.item.type !== 'widget' || !widgetInfo) {
         return null;
     }
 
