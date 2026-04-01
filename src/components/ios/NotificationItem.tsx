@@ -70,8 +70,7 @@ const NotificationItem = ({ item, onRemove }: NotificationItemProps) => {
         if (mx < -window.innerWidth / 2) {
             cancel();
             api.start({
-                x: -window.innerWidth,
-                opacity: 0,
+                to: { x: -window.innerWidth, opacity: 0 },
                 onRest: () => onRemove(item.id),
             });
         } else {
