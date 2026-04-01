@@ -23,7 +23,7 @@ const EditWidgetView = ({ widgetId, onClose }: EditWidgetViewProps) => {
     const { toast } = useToast();
     const currentItem = findItem(widgetId);
 
-    const [selectedType, setSelectedType] = useState(currentItem?.widgetType || '');
+    const [selectedType, setSelectedType] = useState(currentItem?.type || '');
     
     const widgetInfo = WIDGETS[selectedType as keyof typeof WIDGETS];
     const SIZES: WidgetSize[] = widgetInfo ? widgetInfo.supportedSizes : [];
