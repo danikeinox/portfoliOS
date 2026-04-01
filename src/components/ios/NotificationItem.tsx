@@ -65,7 +65,7 @@ const NotificationItem = ({ item, onRemove }: NotificationItemProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
     
     // Swipe-to-dismiss gesture
-    const [{ x }, api] = useSpring(() => ({ x: 0 }));
+    const [{ x, opacity }, api] = useSpring(() => ({ x: 0, opacity: 1 }));
     const bind = useDrag(({ down, movement: [mx], cancel }) => {
         if (mx < -window.innerWidth / 2) {
             cancel();

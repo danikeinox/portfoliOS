@@ -9,7 +9,7 @@ import { useLongPress } from 'react-use';
 import AppLibrary from './AppLibrary';
 import EditPagesView from './EditPagesView';
 import { useI18n } from '@/hooks/use-i18n';
-import { useHomeScreen, type GridItem } from '@/hooks/use-home-screen';
+import { useHomeScreen, type GridItem, type Page } from '@/hooks/use-home-screen';
 import WidgetWrapper from './WidgetWrapper';
 import EditWidgetView from './EditWidgetView';
 import { findApp } from '@/lib/apps';
@@ -124,6 +124,14 @@ export const DraggableOverlayItem = ({ item }: { item: GridItem | null }) => {
         return <AppIcon app={app} isJiggleMode={true} isDragging={true} isDock={isDockItem} />
     }
     return null;
+}
+
+interface GridPageProps {
+    page: Page;
+    isJiggleMode: boolean;
+    removeItem: (id: string) => void;
+    onEditWidget: (id: string) => void;
+    activeId: string | null;
 }
 
 const GridPage = ({ page, isJiggleMode, removeItem, onEditWidget, activeId }: GridPageProps) => {
@@ -371,7 +379,6 @@ const HomeScreen = ({
                 <Carousel
                     setApi={setApi}
                     className="w-full h-full home-carousel"
-                    opts={{ draggable: !activeId && !isPotentialDrag }}
                 >
                     <CarouselContent>
                         {pagesToRender.map((page) => (
@@ -401,9 +408,7 @@ const HomeScreen = ({
 
                 <div className="absolute bottom-0 left-0 right-0">
                     <Dock
-                        items={dockItems}
                         isJiggleMode={isJiggleMode}
-                        onRemoveItem={removeItem}
                     />
                 </div>
 
@@ -445,7 +450,17 @@ const HomeScreen = ({
                 </div>
                 {isEditingPages && (
                     <EditPagesView
-                        pages={pages.map(p => p.items)}
+                        pages={pages.map(p => p.items.map(item => {
+                            if (item.type === 'app' && item.appId) {
+                                const app = findApp(item.appId);
+                                if (!app) return null;
+                                return <div key={item.id} className="w-4 h-4 bg-blue-500 rounded-sm" />;
+                            }
+                            if (item.type === 'widget' && item.widgetType) {
+                                return <div key={item.id} className="w-4 h-4 bg-green-500 rounded-sm" />;
+                            }
+                            return null;
+                        }).filter(Boolean))}
                         visiblePages={visiblePages}
                         onVisibilityChange={handlePageVisibilityChange}
                         onDone={() => setEditingPages(false)}

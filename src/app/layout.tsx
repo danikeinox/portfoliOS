@@ -83,12 +83,13 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const nonce = headers().get('x-nonce') || '';
+  const headersList = await headers();
+  const nonce = headersList.get('x-nonce') || '';
 
   const personJsonLd = {
     '@context': 'https://schema.org',
