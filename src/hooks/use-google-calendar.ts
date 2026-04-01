@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, createContext, useContext, ReactNode, useCallback, useRef } from 'react';
+import { useI18n } from '@/hooks/use-i18n';
 
 // Define the shape of a calendar event
 export interface CalendarEvent {
@@ -28,6 +29,7 @@ interface GoogleCalendarContextType {
 const GoogleCalendarContext = createContext<GoogleCalendarContextType | undefined>(undefined);
 
 export const GoogleCalendarProvider = ({ children }: { children: ReactNode }) => {
+    const { t } = useI18n();
     const [isLoading, setIsLoading] = useState(false);
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [error, setError] = useState<Error | null>(null);
