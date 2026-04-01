@@ -450,7 +450,17 @@ const HomeScreen = ({
                 </div>
                 {isEditingPages && (
                     <EditPagesView
-                        pages={pages.map(p => p.items)}
+                        pages={pages.map(p => p.items.map(item => {
+                            if (item.type === 'app' && item.appId) {
+                                const app = findApp(item.appId);
+                                if (!app) return null;
+                                return <div key={item.id} className="w-4 h-4 bg-blue-500 rounded-sm" />;
+                            }
+                            if (item.type === 'widget' && item.widgetType) {
+                                return <div key={item.id} className="w-4 h-4 bg-green-500 rounded-sm" />;
+                            }
+                            return null;
+                        }).filter(Boolean))}
                         visiblePages={visiblePages}
                         onVisibilityChange={handlePageVisibilityChange}
                         onDone={() => setEditingPages(false)}
