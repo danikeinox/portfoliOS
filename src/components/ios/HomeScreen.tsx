@@ -408,9 +408,7 @@ const HomeScreen = ({
 
                 <div className="absolute bottom-0 left-0 right-0">
                     <Dock
-                        items={dockItems}
                         isJiggleMode={isJiggleMode}
-                        onRemoveItem={removeItem}
                     />
                 </div>
 
