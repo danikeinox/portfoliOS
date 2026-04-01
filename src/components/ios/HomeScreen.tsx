@@ -379,7 +379,6 @@ const HomeScreen = ({
                 <Carousel
                     setApi={setApi}
                     className="w-full h-full home-carousel"
-                    opts={{ draggable: !activeId && !isPotentialDrag }}
                 >
                     <CarouselContent>
                         {pagesToRender.map((page) => (
