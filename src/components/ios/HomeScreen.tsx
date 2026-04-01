@@ -9,7 +9,7 @@ import { useLongPress } from 'react-use';
 import AppLibrary from './AppLibrary';
 import EditPagesView from './EditPagesView';
 import { useI18n } from '@/hooks/use-i18n';
-import { useHomeScreen, type GridItem } from '@/hooks/use-home-screen';
+import { useHomeScreen, type GridItem, type Page } from '@/hooks/use-home-screen';
 import WidgetWrapper from './WidgetWrapper';
 import EditWidgetView from './EditWidgetView';
 import { findApp } from '@/lib/apps';
@@ -124,6 +124,14 @@ export const DraggableOverlayItem = ({ item }: { item: GridItem | null }) => {
         return <AppIcon app={app} isJiggleMode={true} isDragging={true} isDock={isDockItem} />
     }
     return null;
+}
+
+interface GridPageProps {
+    page: Page;
+    isJiggleMode: boolean;
+    removeItem: (id: string) => void;
+    onEditWidget: (id: string) => void;
+    activeId: string | null;
 }
 
 const GridPage = ({ page, isJiggleMode, removeItem, onEditWidget, activeId }: GridPageProps) => {
