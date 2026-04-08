@@ -103,7 +103,7 @@ const AddWidgetView = ({ onClose, pageIndex }: AddWidgetViewProps) => {
             style={{ y, top: 'calc(env(safe-area-inset-top) + 10px)' }}
             className="absolute inset-x-0 bottom-0 bg-neutral-900/80 backdrop-blur-2xl z-50 flex flex-col text-white rounded-t-3xl"
         >
-            <div className="w-full flex-shrink-0 flex justify-center py-3 cursor-grab" {...useDrag(() => {}).bind()}>
+            <div className="w-full flex-shrink-0 flex justify-center py-3 cursor-grab">
                 <div className="w-10 h-1.5 bg-neutral-600 rounded-full" />
             </div>
 

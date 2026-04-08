@@ -20,8 +20,11 @@ const CalendarWidget = ({ size = '2x2' }: { size?: WidgetSize }) => {
   }, [fetchEvents]);
 
   const todayEvents = events.filter(event => {
-      const eventStart = new Date(event.start.dateTime || event.start.date);
-      const eventEnd = new Date(event.end.dateTime || event.end.date);
+      if (!event.start.dateTime && !event.start.date) return false;
+      if (!event.end.dateTime && !event.end.date) return false;
+      
+      const eventStart = new Date(event.start.dateTime || event.start.date!);
+      const eventEnd = new Date(event.end.dateTime || event.end.date!);
       
       if (event.start.date) {
           const [s_year, s_month, s_day] = event.start.date.split('-').map(Number);
