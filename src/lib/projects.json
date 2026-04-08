@@ -179,6 +179,28 @@
       "gallery": [],
       "githubUrl": null,
       "liveUrl": "https://shop.phanteum.net"
+    },
+    {
+      "id": "carliyoelbot",
+      "titleKey": "projects.carliyoelbot.title",
+      "descriptionShortKey": "projects.carliyoelbot.descriptionShort",
+      "descriptionLongKey": "projects.carliyoelbot.descriptionLong",
+      "filterTags": ["proyecto personal", "herramienta web"],
+      "tags": [
+        "Next.js",
+        "React",
+        "TypeScript",
+        "Tailwind CSS",
+        "Firebase",
+        "Node.js"
+      ],
+      "mainImage": {
+        "imageUrl": "https://s6.imgcdn.dev/YrcS09.webp",
+        "imageHint": "herramienta para subir vídeos a TikTok"
+      },
+      "gallery": [],
+      "githubUrl": null,
+      "liveUrl": "https://carliyoelbot.com"
     }
   ]
 }

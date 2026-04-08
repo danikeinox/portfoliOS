@@ -134,6 +134,11 @@
       "title": "Tienda Phanteum Network (Web)",
       "descriptionShort": "Tienda de Phanteum Network con inicio de sesión sin contraseña usando el usuario 'In-Game' de Hytale, con la seguridad de compra de Tebex.io. Permite vinculación automática con el Discord de la comunidad.",
       "descriptionLong": "Esta tienda web fue desarrollada para el servidor de Hytale Phanteum Network, con un novedoso sistema de inicio de sesión sin contraseña que autenticaba a los usuarios según su nombre de usuario en el juego. Para garantizar transacciones seguras y fiables, la tienda se integró con la pasarela de pago Tebex.io, una plataforma líder para la monetización de servidores de juegos. Además, incluía una función para vincular la cuenta de la tienda de un jugador con su cuenta de Discord, fomentando la integración de la comunidad."
+    },
+    "carliyoelbot": {
+      "title": "Carliyoelbot",
+      "descriptionShort": "Herramienta web para subir vídeos automáticamente a la cola del TikTok de Carliyo (@carliyoelnervio / cuenta de todos).",
+      "descriptionLong": "Carliyoelbot es una plataforma que permite a cualquier usuario subir sus vídeos (y otros contenidos) para que se publiquen en la cuenta colectiva de TikTok \"SOMOS LOS DER TISTOH\". Incluye sistema de cola en tiempo real, login, dashboard y procesamiento automático. Desarrollada principalmente con Next.js, React y Firebase."
     }
   },
   "blog": {
