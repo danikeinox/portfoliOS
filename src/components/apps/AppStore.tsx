@@ -919,7 +919,7 @@ const AppStore = () => {
         }
     }
 
-    async function uploadImageToImgBB(file: File): Promise<string | null> {
+    async function uploadImageToCDN(file: File): Promise<string | null> {
         if (!file.type.startsWith('image/')) {
             toast({
                 title: t('appstore.imageUploadErrorTitle'),
@@ -969,7 +969,7 @@ const AppStore = () => {
         }
 
         setAvatarUploadLoading(true);
-        const uploadedUrl = await uploadImageToImgBB(file);
+        const uploadedUrl = await uploadImageToCDN(file);
         if (uploadedUrl) {
             setAvatarUrl(uploadedUrl);
             toast({
@@ -987,7 +987,7 @@ const AppStore = () => {
         }
 
         setIconUploadLoading(true);
-        const uploadedUrl = await uploadImageToImgBB(file);
+        const uploadedUrl = await uploadImageToCDN(file);
         if (uploadedUrl) {
             setForm((current) => ({ ...current, iconUrl: uploadedUrl }));
             toast({
@@ -1024,7 +1024,7 @@ const AppStore = () => {
 
         const uploaded: string[] = [];
         for (const file of queue) {
-            const url = await uploadImageToImgBB(file);
+            const url = await uploadImageToCDN(file);
             if (url) {
                 uploaded.push(url);
             }

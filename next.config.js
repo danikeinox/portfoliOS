@@ -26,6 +26,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'cdn.osxdaily.com' },
       { protocol: 'https', hostname: '*.imgcdn.dev' },
       { protocol: 'https', hostname: 's6.imgcdn.dev' },
+      { protocol: 'https', hostname: 'cdn.danielcabrera.es' },
       { protocol: 'https', hostname: '*.tile.openstreetmap.org' },
       { protocol: 'https', hostname: '*.basemaps.cartocdn.com' },
     ],

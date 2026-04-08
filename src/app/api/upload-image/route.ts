@@ -1,6 +1,7 @@
 import { Buffer } from "node:buffer";
 import { NextResponse, type NextRequest } from "next/server";
 import { applyRateLimit, enforceSameOrigin } from "@/lib/api/security";
+import { uploadToR2 } from "@/lib/r2";
 
 const MAX_IMAGE_SIZE_BYTES = 8 * 1024 * 1024;
 
@@ -9,11 +10,13 @@ function sanitizeFileName(value: string): string {
 }
 
 export async function POST(request: NextRequest) {
+  // Apply rate limiting: 5 uploads per hour per IP for R2 to be safe
   const rateLimitResponse = await applyRateLimit(request, {
-    key: "api:upload-image",
-    windowMs: 60_000,
-    maxRequests: 8,
+    key: "api:upload-image-r2",
+    windowMs: 3600_000, 
+    maxRequests: 10,
   });
+  
   if (rateLimitResponse) {
     return rateLimitResponse;
   }
@@ -21,20 +24,6 @@ export async function POST(request: NextRequest) {
   const originResponse = enforceSameOrigin(request);
   if (originResponse) {
     return originResponse;
-  }
-
-  const apiKey = process.env.IMGBB_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "IMGBB_NOT_CONFIGURED",
-          message: "Image upload service is not configured.",
-        },
-      },
-      { status: 503 },
-    );
   }
 
   let formData: FormData;
@@ -95,64 +84,35 @@ export async function POST(request: NextRequest) {
 
   try {
     const bytes = await filePart.arrayBuffer();
-    const base64 = Buffer.from(bytes).toString("base64");
+    const buffer = Buffer.from(bytes);
+    const fileName = sanitizeFileName(filePart.name);
 
-    const payload = new URLSearchParams();
-    payload.set("image", base64);
-    payload.set("name", sanitizeFileName(filePart.name));
-
-    const uploadResponse = await fetch(
-      `https://api.imgbb.com/1/upload?key=${encodeURIComponent(apiKey)}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: payload,
-      },
-    );
-
-    const uploadJson = (await uploadResponse.json()) as {
-      success?: boolean;
-      data?: { url?: string; display_url?: string; delete_url?: string };
-      error?: { message?: string };
-    };
-
-    if (!uploadResponse.ok || !uploadJson.success || !uploadJson.data) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "IMGBB_UPLOAD_FAILED",
-            message:
-              uploadJson.error?.message ?? "Failed to upload image to ImgBB.",
-          },
-        },
-        { status: 502 },
-      );
-    }
+    const publicUrl = await uploadToR2(buffer, fileName, filePart.type);
 
     return NextResponse.json(
       {
         success: true,
         data: {
-          url: uploadJson.data.url ?? uploadJson.data.display_url,
-          deleteUrl: uploadJson.data.delete_url,
+          url: publicUrl,
         },
       },
       { status: 200 },
     );
   } catch (error) {
     console.error("upload-image route failed:", error);
+    
+    const errorMessage = error instanceof Error ? error.message : "Failed to process image upload.";
+    
     return NextResponse.json(
       {
         success: false,
         error: {
-          code: "UPLOAD_INTERNAL_ERROR",
-          message: "Failed to process image upload.",
+          code: "R2_UPLOAD_ERROR",
+          message: errorMessage,
         },
       },
       { status: 500 },
     );
   }
 }
+

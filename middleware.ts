@@ -12,7 +12,7 @@ export function middleware(request: NextRequest) {
     "base-uri 'self'",
     "object-src 'none'",
     "frame-ancestors 'self'",
-    "img-src 'self' data: blob: https://i.scdn.co https://mosaic.scdn.co https://firebasestorage.googleapis.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://*.googleusercontent.com https://picsum.photos https://i.ytimg.com https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://cdn.osxdaily.com https://*.imgcdn.dev https://s6.imgcdn.dev https://yt3.ggpht.com https://www.googletagmanager.com",
+    "img-src 'self' data: blob: https://i.scdn.co https://mosaic.scdn.co https://firebasestorage.googleapis.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://*.googleusercontent.com https://picsum.photos https://i.ytimg.com https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://cdn.osxdaily.com https://*.imgcdn.dev https://s6.imgcdn.dev https://cdn.danielcabrera.es https://yt3.ggpht.com https://www.googletagmanager.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", 
     `script-src 'self' 'strict-dynamic' 'nonce-${nonce}'${!isProd ? " 'unsafe-eval'" : ""} https://www.googletagmanager.com https://www.google-analytics.com`,
