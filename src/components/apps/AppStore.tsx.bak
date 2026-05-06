@@ -174,7 +174,7 @@ function resolveValidScreenshotUrls(app: Pick<AppStoreApp, 'screenshotsUrls'>): 
     return (app.screenshotsUrls ?? []).filter((url) => isValidImageSrc(url));
 }
 
-const genericProfileAvatar = 'https://cdn.danielcabrera.es/img/Default_Profile_Avatar.png';
+const genericProfileAvatar = 'https://s6.imgcdn.dev/YrS4Sw.png';
 
 function extractNickFromEmail(email: string | null | undefined): string {
     const candidate = (email ?? 'usuario').split('@')[0] ?? 'usuario';
