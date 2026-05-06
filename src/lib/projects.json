@@ -19,7 +19,7 @@
         "Firebase"
       ],
       "mainImage": {
-        "imageUrl": "https://s6.imgcdn.dev/YrcS09.webp",
+        "imageUrl": "https://cdn.danielcabrera.es/img/Businfy_Project_Image.webp",
         "imageHint": "business platform dashboard"
       },
       "gallery": [],
@@ -42,10 +42,10 @@
         "Firebase"
       ],
       "mainImage": {
-        "imageUrl": "https://s6.imgcdn.dev/YrSPQH.png",
+        "imageUrl": "https://cdn.danielcabrera.es/img/Portfolio_V2_Project_Image.png",
         "imageHint": "personal portfolio website homepage"
       },
-      "gallery": ["https://s6.imgcdn.dev/YrSTSS.png"],
+      "gallery": ["https://cdn.danielcabrera.es/img/Portfolio_V2_Gallery.png"],
       "githubUrl": null,
       "liveUrl": "https://v2.danielcabrera.es/"
     },
@@ -57,7 +57,7 @@
       "filterTags": ["trabajos"],
       "tags": ["Python", "Tkinter", "MySQL"],
       "mainImage": {
-        "imageUrl": "https://s6.imgcdn.dev/YrcOJH.webp",
+        "imageUrl": "https://cdn.danielcabrera.es/img/Book_Manager_Project_Image.webp",
         "imageHint": "desktop application interface"
       },
       "gallery": [],
@@ -80,7 +80,7 @@
         "Google Gemini API"
       ],
       "mainImage": {
-        "imageUrl": "https://s6.imgcdn.dev/YrcGCD.webp",
+        "imageUrl": "https://cdn.danielcabrera.es/img/Podgenius_Project_Image.webp",
         "imageHint": "ai audio waveform"
       },
       "gallery": [],
@@ -103,7 +103,7 @@
         "Google Gemini API"
       ],
       "mainImage": {
-        "imageUrl": "https://s6.imgcdn.dev/Yrc7FT.webp",
+        "imageUrl": "https://cdn.danielcabrera.es/img/Resuma_Project_Image.webp",
         "imageHint": "ai resume analysis"
       },
       "gallery": [],
@@ -118,12 +118,12 @@
       "filterTags": ["juegos"],
       "tags": ["TypeScript", "Luau", "Roblox DataStore"],
       "mainImage": {
-        "imageUrl": "https://s6.imgcdn.dev/Yrc2T2.png",
+        "imageUrl": "https://cdn.danielcabrera.es/img/Roblox_Project_Image.png",
         "imageHint": "roblox pixel painting multiplayer game world"
       },
       "gallery": [
         {
-          "imageUrl": "https://s6.imgcdn.dev/YrcARi.png",
+          "imageUrl": "https://cdn.danielcabrera.es/img/Roblox_Gallery_Image.png",
           "imageHint": "roblox pixel painting multiplayer game world"
         }
       ],
@@ -148,7 +148,7 @@
         "i18n"
       ],
       "mainImage": {
-        "imageUrl": "https://s6.imgcdn.dev/Yrcr3y.png",
+        "imageUrl": "https://cdn.danielcabrera.es/img/Phanteum_Project_Image.png",
         "imageHint": "fantasy game server"
       },
       "gallery": [],
@@ -173,7 +173,7 @@
         "i18n"
       ],
       "mainImage": {
-        "imageUrl": "https://s6.imgcdn.dev/Yrcxj8.png",
+        "imageUrl": "https://cdn.danielcabrera.es/img/Phanteum_Shop_Project_Image.png",
         "imageHint": "game web store"
       },
       "gallery": [],
@@ -195,7 +195,7 @@
         "Node.js"
       ],
       "mainImage": {
-        "imageUrl": "https://s6.imgcdn.dev/YrcS09.webp",
+        "imageUrl": "https://cdn.danielcabrera.es/img/Businfy_Project_Image.webp",
         "imageHint": "herramienta para subir vídeos a TikTok"
       },
       "gallery": [],

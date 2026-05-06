@@ -10,7 +10,7 @@ const ProfileWidget = ({ size = '2x2' }: { size?: WidgetSize }) => {
             <div className="flex items-center gap-2">
                 <div className="h-12 w-12 relative">
                     <Image
-                        src="https://cdn.danielcabrera.es/img/Profile_Portrait.png"
+                        src="https://s6.imgcdn.dev/Yrcy4v.png"
                         alt={t('widget.profile.alt')}
                         fill
                         sizes="3rem"
