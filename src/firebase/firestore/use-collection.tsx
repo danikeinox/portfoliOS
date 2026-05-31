@@ -18,12 +18,8 @@ import { FirestorePermissionError } from "../errors"
 function useStableQuery(q: Query | null) {
   const queryRef = useRef<Query | null>(q)
 
-  if (q) {
-    const qString = (q as any)._query?.path?.segments.join('/');
-    const qRefString = queryRef.current ? (queryRef.current as any)._query?.path?.segments.join('/') : "";
-    if (qString !== qRefString) {
-      queryRef.current = q
-    }
+  if (q !== queryRef.current) {
+    queryRef.current = q
   }
   return queryRef.current
 }
@@ -55,13 +51,15 @@ export function useCollection(query: Query | null, deps: any[] = []) {
         setError(null)
       },
       (err) => {
-        const permissionError = new FirestorePermissionError({
-          path: (stableQuery as any)._query.path.segments.join("/"),
-          operation: "list",
-        })
-        errorEmitter.emit("permission-error", permissionError)
         setError(err)
         console.error("Firestore Error in useCollection:", err)
+        if (err.code === "permission-denied") {
+          const permissionError = new FirestorePermissionError({
+            path: (stableQuery as any)._query.path.segments.join("/"),
+            operation: "list",
+          })
+          errorEmitter.emit("permission-error", permissionError)
+        }
       }
     )
 

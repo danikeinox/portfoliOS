@@ -221,7 +221,18 @@
   "portfolio": {
     "title": "My Projects",
     "github": "GitHub",
-    "liveDemo": "Live Demo"
+    "liveDemo": "Live Demo",
+    "all": "All",
+    "showingCount": "Showing {count} project(s) for: {tags}",
+    "noResults": "No projects match these filters.",
+    "filterTags": {
+      "personalProject": "Personal project",
+      "startupAttempt": "Startup attempt",
+      "website": "Website",
+      "work": "Work",
+      "games": "Games",
+      "webTool": "Web tool"
+    }
   },
   "settings": {
     "title": "Settings",

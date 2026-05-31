@@ -72,13 +72,13 @@ const Notes = () => {
     const isSaving = useRef(false);
 
     const notesQuery = useMemo(() => {
-        if (!firestore || !user?.uid) return null;
+        if (!firestore || !user?.uid || user.isAnonymous) return null;
         return query(
             collection(firestore, 'notes'),
             where('ownerId', '==', user.uid),
             orderBy('updatedAt', 'desc')
         );
-    }, [firestore, user?.uid]);
+    }, [firestore, user?.uid, user?.isAnonymous]);
 
     const { data: notes, loading } = useCollection(notesQuery);
 

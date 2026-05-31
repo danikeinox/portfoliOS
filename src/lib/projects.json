@@ -5,7 +5,7 @@
       "titleKey": "projects.businfy.title",
       "descriptionShortKey": "projects.businfy.descriptionShort",
       "descriptionLongKey": "projects.businfy.descriptionLong",
-      "filterTags": ["proyecto personal", "intento de startup"],
+      "filterTags": ["personalProject", "startupAttempt"],
       "tags": [
         "Next.js",
         "React",
@@ -31,7 +31,7 @@
       "titleKey": "projects.danielcabreraEsV2Portfolio.title",
       "descriptionShortKey": "projects.danielcabreraEsV2Portfolio.descriptionShort",
       "descriptionLongKey": "projects.danielcabreraEsV2Portfolio.descriptionLong",
-      "filterTags": ["proyecto personal", "sitio web"],
+      "filterTags": ["personalProject", "website"],
       "tags": [
         "Next.js",
         "React",
@@ -54,7 +54,7 @@
       "titleKey": "projects.bookManager.title",
       "descriptionShortKey": "projects.bookManager.descriptionShort",
       "descriptionLongKey": "projects.bookManager.descriptionLong",
-      "filterTags": ["trabajos"],
+      "filterTags": ["work"],
       "tags": ["Python", "Tkinter", "MySQL"],
       "mainImage": {
         "imageUrl": "https://cdn.danielcabrera.es/img/Book_Manager_Project_Image.webp",
@@ -69,7 +69,7 @@
       "titleKey": "projects.aiPodcast.title",
       "descriptionShortKey": "projects.aiPodcast.descriptionShort",
       "descriptionLongKey": "projects.aiPodcast.descriptionLong",
-      "filterTags": ["proyecto personal", "intento de startup"],
+      "filterTags": ["personalProject", "startupAttempt"],
       "tags": [
         "TypeScript",
         "Next.js",
@@ -92,7 +92,7 @@
       "titleKey": "projects.resuma.title",
       "descriptionShortKey": "projects.resuma.descriptionShort",
       "descriptionLongKey": "projects.resuma.descriptionLong",
-      "filterTags": ["proyecto personal", "intento de startup"],
+      "filterTags": ["personalProject", "startupAttempt"],
       "tags": [
         "TypeScript",
         "Next.js",
@@ -115,7 +115,7 @@
       "titleKey": "projects.roblox.title",
       "descriptionShortKey": "projects.roblox.descriptionShort",
       "descriptionLongKey": "projects.roblox.descriptionLong",
-      "filterTags": ["juegos"],
+      "filterTags": ["games"],
       "tags": ["TypeScript", "Luau", "Roblox DataStore"],
       "mainImage": {
         "imageUrl": "https://cdn.danielcabrera.es/img/Roblox_Project_Image.png",
@@ -135,7 +135,7 @@
       "titleKey": "projects.phanteum.title",
       "descriptionShortKey": "projects.phanteum.descriptionShort",
       "descriptionLongKey": "projects.phanteum.descriptionLong",
-      "filterTags": ["proyecto personal", "juegos"],
+      "filterTags": ["personalProject", "games"],
       "tags": [
         "TypeScript",
         "Next.js",
@@ -160,7 +160,7 @@
       "titleKey": "projects.phanteumShop.title",
       "descriptionShortKey": "projects.phanteumShop.descriptionShort",
       "descriptionLongKey": "projects.phanteumShop.descriptionLong",
-      "filterTags": ["proyecto personal", "juegos"],
+      "filterTags": ["personalProject", "games"],
       "tags": [
         "TypeScript",
         "Next.js",
@@ -185,7 +185,7 @@
       "titleKey": "projects.carliyoelbot.title",
       "descriptionShortKey": "projects.carliyoelbot.descriptionShort",
       "descriptionLongKey": "projects.carliyoelbot.descriptionLong",
-      "filterTags": ["proyecto personal", "herramienta web"],
+      "filterTags": ["personalProject", "webTool"],
       "tags": [
         "Next.js",
         "React",

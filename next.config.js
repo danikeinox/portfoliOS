@@ -41,7 +41,7 @@ const nextConfig = {
           // Permissions Policy (Feature Policy)
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=(), payment=()',
+            value: 'camera=(self), microphone=(self), geolocation=(self), interest-cohort=(), payment=()',
           },
 
           // Cabeceras clásicas de seguridad

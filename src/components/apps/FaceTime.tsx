@@ -21,6 +21,11 @@ const FaceTime = () => {
     
     useEffect(() => {
         const getCameraPermission = async () => {
+            if (!navigator.mediaDevices?.getUserMedia) {
+                setHasCameraPermission(false);
+                return;
+            }
+
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 streamRef.current = stream;
@@ -28,6 +33,7 @@ const FaceTime = () => {
 
                 if (videoRef.current) {
                     videoRef.current.srcObject = stream;
+                    await videoRef.current.play().catch(() => {});
                 }
             } catch (error) {
                 console.error('Error accessing camera:', error);

@@ -9,36 +9,56 @@ import { cn } from '@/lib/utils';
 const Camera = () => {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [mode, setMode] = useState('photo');
-  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
   const { t } = useI18n();
   const { addNotification } = useNotifications();
 
+  const attachStream = useCallback(async (stream: MediaStream) => {
+    streamRef.current = stream;
+    setHasCameraPermission(true);
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = stream;
+      await videoRef.current.play().catch(() => {});
+    }
+  }, []);
+
   const getCameraPermission = useCallback(async () => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
     }
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
-      streamRef.current = stream;
-      setHasCameraPermission(true);
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-    } catch (error) {
-      console.error('Error accessing camera:', error);
+    if (!navigator.mediaDevices?.getUserMedia) {
       setHasCameraPermission(false);
-      toast({
-        variant: 'destructive',
-        title: t('camera.permissionDenied'),
-        description: t('camera.permissionDeniedDesc'),
-      });
+      return;
     }
-  }, [facingMode, toast, t]);
+
+    const constraints: MediaStreamConstraints[] = [
+      { video: { facingMode: { ideal: facingMode } } },
+      { video: true },
+    ];
+
+    for (const constraint of constraints) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraint);
+        await attachStream(stream);
+        return;
+      } catch (error) {
+        if (constraint === constraints[constraints.length - 1]) {
+          console.error('Error accessing camera:', error);
+          setHasCameraPermission(false);
+          toast({
+            variant: 'destructive',
+            title: t('camera.permissionDenied'),
+            description: t('camera.permissionDeniedDesc'),
+          });
+        }
+      }
+    }
+  }, [facingMode, toast, t, attachStream]);
 
 
   useEffect(() => {

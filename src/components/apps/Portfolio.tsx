@@ -15,10 +15,12 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 const projects = projectsData.projects;
 
 const FILTER_COLOR_MAP: Record<string, string> = {
-    'proyecto personal': 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30',
-    'intento de startup': 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30',
-    'juegos': 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30',
-    'trabajos': 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30',
+    personalProject: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30',
+    startupAttempt: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30',
+    games: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30',
+    work: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30',
+    website: 'bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/30',
+    webTool: 'bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30',
 };
 
 const FALLBACK_FILTER_COLORS = [
@@ -38,6 +40,8 @@ const Portfolio = () => {
     const { t } = useI18n();
     const [selectedProject, setSelectedProject] = useState<(typeof projects[0]) | null>(null);
     const [activeFilterTags, setActiveFilterTags] = useState<string[]>([]);
+
+    const getFilterTagLabel = (tagKey: string) => t(`portfolio.filterTags.${tagKey}`);
 
     const availableFilterTags = useMemo(
         () => Array.from(new Set(projects.flatMap((project) => project.filterTags || []))),
@@ -71,7 +75,7 @@ const Portfolio = () => {
                             className={activeFilterTags.length === 0 ? "bg-system-blue hover:bg-system-blue/90" : "border-neutral-300 dark:border-[#38383A]"}
                             onClick={() => setActiveFilterTags([])}
                         >
-                            Todos
+                            {t('portfolio.all')}
                         </Button>
                         {availableFilterTags.map((filterTag) => {
                             const isActive = activeFilterTags.includes(filterTag);
@@ -86,14 +90,17 @@ const Portfolio = () => {
                                         isActive ? 'ring-2 ring-offset-2 ring-system-blue dark:ring-offset-black' : 'opacity-85 hover:opacity-100'
                                     )}
                                 >
-                                    {filterTag}
+                                    {getFilterTagLabel(filterTag)}
                                 </button>
                             );
                         })}
                     </div>
                     {activeFilterTags.length > 0 && (
                         <p className="text-xs text-[#8A8A8E] dark:text-[#8E8E93]">
-                            Mostrando {filteredProjects.length} proyecto(s) para: {activeFilterTags.join(', ')}
+                            {t('portfolio.showingCount', {
+                                count: filteredProjects.length,
+                                tags: activeFilterTags.map(getFilterTagLabel).join(', '),
+                            })}
                         </p>
                     )}
                 </div>
@@ -126,7 +133,7 @@ const Portfolio = () => {
                                                 variant="outline"
                                                 className={cn('border capitalize', getFilterTagColorClass(filterTag))}
                                             >
-                                                {filterTag}
+                                                {getFilterTagLabel(filterTag)}
                                             </Badge>
                                         ))}
                                     </div>
@@ -159,7 +166,7 @@ const Portfolio = () => {
                 </div>
                 {filteredProjects.length === 0 && (
                     <div className="mt-6 rounded-xl border border-neutral-200 dark:border-[#38383A] bg-white dark:bg-[#1C1C1E] p-6 text-center text-[#8A8A8E] dark:text-[#8E8E93]">
-                        No hay proyectos con esos filtros.
+                        {t('portfolio.noResults')}
                     </div>
                 )}
             </div>
@@ -212,7 +219,7 @@ const Portfolio = () => {
                                 <div className="flex flex-wrap gap-2 my-4">
                                     {(selectedProject.filterTags || []).map((filterTag) => (
                                         <Badge key={`${selectedProject.id}-filter-${filterTag}`} variant="outline" className={cn('border capitalize', getFilterTagColorClass(filterTag))}>
-                                            {filterTag}
+                                            {getFilterTagLabel(filterTag)}
                                         </Badge>
                                     ))}
                                     {selectedProject.tags.map(tag => <Badge key={tag} variant="secondary" className="bg-white dark:bg-[#2C2C2E] text-black dark:text-white">{tag}</Badge>)}

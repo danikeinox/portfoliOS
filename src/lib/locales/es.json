@@ -221,7 +221,18 @@
   "portfolio": {
     "title": "Mis Proyectos",
     "github": "GitHub",
-    "liveDemo": "Ver Demo"
+    "liveDemo": "Ver Demo",
+    "all": "Todos",
+    "showingCount": "Mostrando {count} proyecto(s) para: {tags}",
+    "noResults": "No hay proyectos con esos filtros.",
+    "filterTags": {
+      "personalProject": "Proyecto personal",
+      "startupAttempt": "Intento de startup",
+      "website": "Sitio web",
+      "work": "Trabajos",
+      "games": "Juegos",
+      "webTool": "Herramienta web"
+    }
   },
   "settings": {
     "title": "Ajustes",
@@ -677,7 +688,7 @@
   "widget": {
     "profile": {
       "alt": "Foto de perfil",
-      "greeting": "¡Hola, soy",
+      "greeting": "Hola, soy",
       "bio": "Desarrollador Full-Stack y Entusiasta de la Ciberseguridad",
       "location": "📍 Barcelona, España",
       "about": "Sobre mí",
