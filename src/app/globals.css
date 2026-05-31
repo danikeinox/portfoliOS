@@ -61,3 +61,8 @@
 .home-carousel > .overflow-hidden {
     touch-action: pan-x;
 }
+
+/* Disable carousel panning while rearranging apps in edit mode */
+.home-carousel.home-carousel--editing > .overflow-hidden {
+    touch-action: none;
+}

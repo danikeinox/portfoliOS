@@ -64,7 +64,8 @@ export const SortableItem = ({
         transform: transform ? CSS.Transform.toString(transform) : undefined,
         transition,
         zIndex: isDragging ? 10 : 'auto',
-    };
+        touchAction: isJiggleMode ? 'none' : undefined,
+    } as React.CSSProperties;
 
     const handleInteractionStart = (e: React.SyntheticEvent) => {
         // This stops the event from bubbling to the long-press detector on the homescreen.
@@ -141,7 +142,10 @@ const GridPage = ({ page, isJiggleMode, removeItem, onEditWidget, activeId }: Gr
         <SortableContext items={page.items.map(i => i.id)} strategy={rectSortingStrategy}>
             <div
                 ref={setNodeRef}
-                className="h-[70dvh] md:h-[65dvh] grid grid-cols-4 grid-rows-6 gap-y-4 gap-x-2 md:gap-4 max-w-xs md:max-w-xl lg:max-w-3xl w-full mx-auto"
+                className={cn(
+                    "h-[70dvh] md:h-[65dvh] grid grid-cols-4 grid-rows-6 gap-y-4 gap-x-2 md:gap-4 max-w-xs md:max-w-xl lg:max-w-3xl w-full mx-auto",
+                    isJiggleMode && "touch-none"
+                )}
             >
                 {page.items.map(item => (
                     <SortableItem
@@ -254,6 +258,22 @@ const HomeScreen = ({
             coordinateGetter: sortableKeyboardCoordinates,
         })
     );
+
+    useEffect(() => {
+        if (!api) return;
+        api.reInit({ watchDrag: !(isJiggleMode || activeId) });
+    }, [api, isJiggleMode, activeId]);
+
+    useEffect(() => {
+        if (!activeId) return;
+
+        const preventScroll = (e: TouchEvent) => {
+            e.preventDefault();
+        };
+
+        document.addEventListener('touchmove', preventScroll, { passive: false });
+        return () => document.removeEventListener('touchmove', preventScroll);
+    }, [activeId]);
 
     useEffect(() => {
         if (lastAddedPageIndex !== null && api) {
@@ -375,10 +395,11 @@ const HomeScreen = ({
             onDragEnd={handleDragEnd}
             onDragOver={handleDragOver}
         >
-            <div className="h-full w-full relative" {...longPressProps}>
+            <div className="h-full w-full relative" {...(!isJiggleMode ? longPressProps : {})}>
                 <Carousel
                     setApi={setApi}
-                    className="w-full h-full home-carousel"
+                    className={cn("w-full h-full home-carousel", (isJiggleMode || activeId) && "home-carousel--editing")}
+                    opts={{ watchDrag: !(isJiggleMode || activeId) }}
                 >
                     <CarouselContent>
                         {pagesToRender.map((page) => (

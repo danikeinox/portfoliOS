@@ -23,7 +23,7 @@ const Dock = ({ isJiggleMode }: DockProps) => {
             ref={setNodeRef}
             className={cn(
                 "flex justify-center items-center space-x-2 md:space-x-4 p-2.5 bg-white/20 backdrop-blur-xl rounded-2xl md:rounded-3xl shadow-lg w-full max-w-xs md:max-w-md h-24",
-                 isJiggleMode && 'z-50' // Ensure dock is above other elements in jiggle mode
+                isJiggleMode && 'z-50 touch-none',
             )}
         >
             <SortableContext items={dockItems.map(i => i.id)} strategy={horizontalListSortingStrategy}>
