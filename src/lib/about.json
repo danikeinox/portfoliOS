@@ -14,15 +14,16 @@
   "bioKey": "about.page.bio",
   "skillsTitleKey": "about.page.skillsTitle",
   "skills": [
-    { "name": "React", "icon": "Code" },
-    { "name": "Next.js", "icon": "AppWindow" },
-    { "name": "TypeScript", "icon": "FileCode" },
-    { "name": "Node.js", "icon": "Server" },
-    { "name": "Firebase", "icon": "Database" },
-    { "name": "Tailwind CSS", "icon": "Wind" },
-    { "name": "Cybersecurity", "icon": "ShieldCheck" },
-    { "name": "Python", "icon": "Code" },
-    { "name": "MySQL", "icon": "Database" },
-    { "name": "Luau", "icon": "Code" }
+    { "name": "React", "icon": "react" },
+    { "name": "Next.js", "icon": "nextjs" },
+    { "name": "TypeScript", "icon": "typescript" },
+    { "name": "Node.js", "icon": "nodejs" },
+    { "name": "Firebase", "icon": "firebase" },
+    { "name": "Tailwind CSS", "icon": "tailwindcss" },
+    { "name": "Cybersecurity", "icon": "cybersecurity" },
+    { "name": "Python", "icon": "python" },
+    { "name": "Rust", "icon": "rust" },
+    { "name": "MySQL", "icon": "mysql" },
+    { "name": "Luau", "icon": "luau" }
   ]
 }

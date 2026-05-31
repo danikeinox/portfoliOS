@@ -77,7 +77,7 @@
     "paragraph": "Soy un apasionado programador Full-Stack con una sólida formación tanto en <strong>ciberseguridad como en desarrollo de software</strong>. Mi trayectoria profesional está impulsada por un compromiso con el aprendizaje continuo y la capacidad de adaptarme a nuevos desafíos y tecnologías. Me encanta construir experiencias web elegantes, eficientes y seguras.",
     "skills": "Mis Habilidades",
     "page": {
-      "title": "Desarrollador Full-Stack y Entusiasta de la Ciberseguridad",
+      "title": "Desarrollador Full-Stack y Entusiasta de la Ciberseguridad (a veces)",
       "location": "Barcelona, España",
       "experienceValue": "+5 Años",
       "experienceTitle": "Experiencia",
@@ -102,8 +102,8 @@
     },
     "danielcabreraEsV2Portfolio": {
       "title": "danielcabrera.es V2 Portfolio",
-      "descriptionShort": "Mi sitio web de portafolio personal actualizado, construido con Next.js y React.",
-      "descriptionLong": "Este es mi sitio web de portafolio personal actualizado, que destaca mis habilidades, proyectos y experiencia. Construido con Next.js y React, cuenta con un diseño moderno y una experiencia de usuario fluida."
+      "descriptionShort": "Portafolio personal desplegado en producción en el subdominio v2.danielcabrera.es. Versión deprecada, sustituida por este portfoliOS.",
+      "descriptionLong": "Segunda versión de mi sitio web de portafolio personal, desplegada en producción en el subdominio v2.danielcabrera.es. Construido con Next.js y React, presentaba mis habilidades, proyectos y experiencia con un diseño moderno. Esta versión está deprecada: el portafolio actual (portfoliOS) es la evolución activa del proyecto."
     },
     "bookManager": {
       "title": "App de Gestión de Libros",
@@ -127,18 +127,28 @@
     },
     "phanteum": {
       "title": "Phanteum Network (Web)",
-      "descriptionShort": "Servidor multijugador de Hytale ambientado en la antigua Grecia, con modalidades como KitPVP, SkyWars, HungerGames y Survival PVP.",
-      "descriptionLong": "Phanteum Network fue el portal web para un servidor multijugador de Hytale a gran escala que se planeó. La temática estaba ambientada en la antigua Grecia, y el sitio web fue diseñado para ser el centro neurálgico de la comunidad. Mostraba los modos de juego planeados como KitPVP, SkyWars, HungerGames y Survival PVP. El sitio incluía foros, tablas de clasificación y actualizaciones de noticias, construido con una pila web moderna para ser rápido y responsivo."
+      "descriptionShort": "Portal web en producción para un servidor multijugador de Hytale (Grecia antigua). Proyecto deprecado tras el retraso del lanzamiento de Hytale.",
+      "descriptionLong": "Phanteum Network fue el portal web desplegado en producción para un servidor multijugador de Hytale a gran escala. La temática estaba ambientada en la antigua Grecia e incluía modos planeados como KitPVP, SkyWars, HungerGames y Survival PVP, además de foros, clasificaciones y noticias. El proyecto está deprecado: el retraso continuado del lanzamiento de Hytale hizo inviable mantener el ecosistema activo."
     },
     "phanteumShop": {
       "title": "Tienda Phanteum Network (Web)",
-      "descriptionShort": "Tienda de Phanteum Network con inicio de sesión sin contraseña usando el usuario 'In-Game' de Hytale, con la seguridad de compra de Tebex.io. Permite vinculación automática con el Discord de la comunidad.",
-      "descriptionLong": "Esta tienda web fue desarrollada para el servidor de Hytale Phanteum Network, con un novedoso sistema de inicio de sesión sin contraseña que autenticaba a los usuarios según su nombre de usuario en el juego. Para garantizar transacciones seguras y fiables, la tienda se integró con la pasarela de pago Tebex.io, una plataforma líder para la monetización de servidores de juegos. Además, incluía una función para vincular la cuenta de la tienda de un jugador con su cuenta de Discord, fomentando la integración de la comunidad."
+      "descriptionShort": "Tienda web en producción para Phanteum Network, con login in-game y Tebex.io. Proyecto deprecado junto con la red.",
+      "descriptionLong": "Tienda web desplegada en producción para el servidor Phanteum Network, con inicio de sesión sin contraseña basado en el usuario in-game de Hytale e integración con Tebex.io para pagos seguros, más vinculación automática con Discord. Deprecada al quedar sin uso tras el abandono del proyecto Phanteum Network."
     },
     "carliyoelbot": {
       "title": "Carliyoelbot",
-      "descriptionShort": "Herramienta web para subir vídeos automáticamente a la cola del TikTok de Carliyo (@carliyoelnervio / cuenta de todos).",
-      "descriptionLong": "Carliyoelbot es una plataforma que permite a cualquier usuario subir sus vídeos (y otros contenidos) para que se publiquen en la cuenta colectiva de TikTok \"SOMOS LOS DER TISTOH\". Incluye sistema de cola en tiempo real, login, dashboard y procesamiento automático. Desarrollada principalmente con Next.js, React y Firebase."
+      "descriptionShort": "Página web con bot de TikTok activo 24/7 que filtra y sube vídeos de forma automática y aleatoria, desarrollado para Carlos García (@carliyoelnervio).",
+      "descriptionLong": "Proyecto a medida para el cliente Carlos García \"carliyoelnervio\": diseño e implementación completa de la web, bot de TikTok siempre activo, servicios backend y capa de seguridad exclusiva para todo el alcance del proyecto. El bot filtra contenido y publica vídeos de manera automática y en intervalos aleatorios, sin intervención manual."
+    },
+    "perfectosDesconocidos2": {
+      "title": "Perfectos Desconocidos 2",
+      "descriptionShort": "Plataforma web para el reality de parejas desconocidas de la influencer Natalia Palacios, con votación en vivo y premio de viaje a Nueva York.",
+      "descriptionLong": "Proyecto encargado por la cliente Natalia Palacios (influencer) para su programa/reality de parejas desconocidas, con un premio de viaje con todo pagado a Nueva York para la pareja ganadora. Supuso un gran reto técnico gestionar una gran cantidad de usuarios accediendo y votando simultáneamente en la web, con alta concurrencia y fiabilidad en tiempo real."
+    },
+    "tonetBrowser": {
+      "title": "Tonet Browser",
+      "descriptionShort": "Navegador de escritorio construido desde cero en Rust: pequeño, rápido y orientado a la privacidad. MVP en desarrollo activo.",
+      "descriptionLong": "Tonet es un navegador de escritorio independiente con su propia pila de red, parsing y renderizado — no usa Chromium, Firefox, WebKit ni CEF. El MVP actual ofrece fetch HTTP(S) con límites estrictos, extracción mínima de HTML, barra de herramientas, historial y ajustes. La app de escritorio está escrita en Rust con eframe/egui; el sitio de marketing usa Astro y Vite. Objetivo a largo plazo: una superficie ligera y privacy-minded para lectura y navegación esencial, con releases para Windows y Linux."
     }
   },
   "blog": {
@@ -222,6 +232,7 @@
     "title": "Mis Proyectos",
     "github": "GitHub",
     "liveDemo": "Ver Demo",
+    "liveProduction": "Visitar web",
     "all": "Todos",
     "showingCount": "Mostrando {count} proyecto(s) para: {tags}",
     "noResults": "No hay proyectos con esos filtros.",
@@ -231,7 +242,10 @@
       "website": "Sitio web",
       "work": "Trabajos",
       "games": "Juegos",
-      "webTool": "Herramienta web"
+      "webTool": "Herramienta web",
+      "studies": "Estudios",
+      "inDevelopment": "En desarrollo",
+      "deprecated": "Deprecada"
     }
   },
   "settings": {
@@ -689,7 +703,7 @@
     "profile": {
       "alt": "Foto de perfil",
       "greeting": "Hola, soy",
-      "bio": "Desarrollador Full-Stack y Entusiasta de la Ciberseguridad",
+      "bio": "Desarrollador Full-Stack y Entusiasta de la Ciberseguridad (a veces)",
       "location": "📍 Barcelona, España",
       "about": "Sobre mí",
       "portfolio": "Portfolio",

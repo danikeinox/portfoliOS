@@ -5,7 +5,7 @@
       "titleKey": "projects.businfy.title",
       "descriptionShortKey": "projects.businfy.descriptionShort",
       "descriptionLongKey": "projects.businfy.descriptionLong",
-      "filterTags": ["personalProject", "startupAttempt"],
+      "filterTags": ["personalProject", "startupAttempt", "inDevelopment"],
       "tags": [
         "Next.js",
         "React",
@@ -31,7 +31,7 @@
       "titleKey": "projects.danielcabreraEsV2Portfolio.title",
       "descriptionShortKey": "projects.danielcabreraEsV2Portfolio.descriptionShort",
       "descriptionLongKey": "projects.danielcabreraEsV2Portfolio.descriptionLong",
-      "filterTags": ["personalProject", "website"],
+      "filterTags": ["personalProject", "website", "deprecated"],
       "tags": [
         "Next.js",
         "React",
@@ -54,7 +54,7 @@
       "titleKey": "projects.bookManager.title",
       "descriptionShortKey": "projects.bookManager.descriptionShort",
       "descriptionLongKey": "projects.bookManager.descriptionLong",
-      "filterTags": ["work"],
+      "filterTags": ["studies"],
       "tags": ["Python", "Tkinter", "MySQL"],
       "mainImage": {
         "imageUrl": "https://cdn.danielcabrera.es/img/Book_Manager_Project_Image.webp",
@@ -65,11 +65,38 @@
       "liveUrl": null
     },
     {
+      "id": "perfectos-desconocidos-2",
+      "titleKey": "projects.perfectosDesconocidos2.title",
+      "descriptionShortKey": "projects.perfectosDesconocidos2.descriptionShort",
+      "descriptionLongKey": "projects.perfectosDesconocidos2.descriptionLong",
+      "filterTags": ["work"],
+      "tags": [
+        "Next.js",
+        "TypeScript",
+        "Tailwind CSS",
+        "Supabase",
+        "Google APIs",
+        "Resend",
+        "Cloudflare R2",
+        "Cloudflare Turnstile",
+        "Upstash",
+        "Vercel",
+        "GitHub Actions"
+      ],
+      "mainImage": {
+        "imageUrl": "https://cdn.danielcabrera.es/img/PD2_Project_Image.png",
+        "imageHint": "reality show couples voting platform"
+      },
+      "gallery": [],
+      "githubUrl": null,
+      "liveUrl": "https://www.perfectosdesconoci2.com"
+    },
+    {
       "id": "podgenius",
       "titleKey": "projects.aiPodcast.title",
       "descriptionShortKey": "projects.aiPodcast.descriptionShort",
       "descriptionLongKey": "projects.aiPodcast.descriptionLong",
-      "filterTags": ["personalProject", "startupAttempt"],
+      "filterTags": ["personalProject", "startupAttempt", "inDevelopment"],
       "tags": [
         "TypeScript",
         "Next.js",
@@ -92,7 +119,7 @@
       "titleKey": "projects.resuma.title",
       "descriptionShortKey": "projects.resuma.descriptionShort",
       "descriptionLongKey": "projects.resuma.descriptionLong",
-      "filterTags": ["personalProject", "startupAttempt"],
+      "filterTags": ["personalProject", "startupAttempt", "inDevelopment"],
       "tags": [
         "TypeScript",
         "Next.js",
@@ -135,7 +162,7 @@
       "titleKey": "projects.phanteum.title",
       "descriptionShortKey": "projects.phanteum.descriptionShort",
       "descriptionLongKey": "projects.phanteum.descriptionLong",
-      "filterTags": ["personalProject", "games"],
+      "filterTags": ["personalProject", "games", "deprecated"],
       "tags": [
         "TypeScript",
         "Next.js",
@@ -160,7 +187,7 @@
       "titleKey": "projects.phanteumShop.title",
       "descriptionShortKey": "projects.phanteumShop.descriptionShort",
       "descriptionLongKey": "projects.phanteumShop.descriptionLong",
-      "filterTags": ["personalProject", "games"],
+      "filterTags": ["personalProject", "games", "deprecated"],
       "tags": [
         "TypeScript",
         "Next.js",
@@ -185,22 +212,49 @@
       "titleKey": "projects.carliyoelbot.title",
       "descriptionShortKey": "projects.carliyoelbot.descriptionShort",
       "descriptionLongKey": "projects.carliyoelbot.descriptionLong",
-      "filterTags": ["personalProject", "webTool"],
+      "filterTags": ["work"],
       "tags": [
         "Next.js",
-        "React",
         "TypeScript",
         "Tailwind CSS",
         "Firebase",
-        "Node.js"
+        "Google APIs",
+        "Resend",
+        "Cloudflare R2",
+        "Upstash",
+        "Vercel",
+        "GitHub Actions",
+        "Google reCAPTCHA"
       ],
       "mainImage": {
-        "imageUrl": "https://cdn.danielcabrera.es/img/Businfy_Project_Image.webp",
-        "imageHint": "herramienta para subir vídeos a TikTok"
+        "imageUrl": "https://cdn.danielcabrera.es/img/Carliyoelbot_Project_Image.png",
+        "imageHint": "TikTok automation bot dashboard"
       },
       "gallery": [],
       "githubUrl": null,
-      "liveUrl": "https://carliyoelbot.com"
+      "liveUrl": "https://www.carliyoelbot.com"
+    },
+    {
+      "id": "tonet-browser",
+      "titleKey": "projects.tonetBrowser.title",
+      "descriptionShortKey": "projects.tonetBrowser.descriptionShort",
+      "descriptionLongKey": "projects.tonetBrowser.descriptionLong",
+      "filterTags": ["personalProject", "inDevelopment"],
+      "tags": [
+        "Rust",
+        "TypeScript",
+        "Astro",
+        "Tailwind CSS",
+        "JavaScript",
+        "PowerShell"
+      ],
+      "mainImage": {
+        "imageUrl": "https://cdn.danielcabrera.es/img/Tonet_Project_Image.png",
+        "imageHint": "Tonet desktop browser built from scratch"
+      },
+      "gallery": [],
+      "githubUrl": "https://github.com/usetonet/tonet-browser",
+      "liveUrl": "https://www.usetonet.com"
     }
   ]
 }

@@ -21,6 +21,9 @@ const FILTER_COLOR_MAP: Record<string, string> = {
     work: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30',
     website: 'bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/30',
     webTool: 'bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30',
+    studies: 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-500/20 dark:text-orange-300 dark:border-orange-500/30',
+    inDevelopment: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-500/20 dark:text-slate-300 dark:border-slate-500/30',
+    deprecated: 'bg-neutral-100 text-neutral-600 border-neutral-300 dark:bg-neutral-500/20 dark:text-neutral-400 dark:border-neutral-500/30',
 };
 
 const FALLBACK_FILTER_COLORS = [
@@ -42,6 +45,11 @@ const Portfolio = () => {
     const [activeFilterTags, setActiveFilterTags] = useState<string[]>([]);
 
     const getFilterTagLabel = (tagKey: string) => t(`portfolio.filterTags.${tagKey}`);
+
+    const getLiveUrlLabel = (project: (typeof projects)[0]) =>
+        (project.filterTags || []).some((tag) => tag === 'work' || tag === 'deprecated')
+            ? t('portfolio.liveProduction')
+            : t('portfolio.liveDemo');
 
     const availableFilterTags = useMemo(
         () => Array.from(new Set(projects.flatMap((project) => project.filterTags || []))),
@@ -156,7 +164,7 @@ const Portfolio = () => {
                                 {project.liveUrl && project.liveUrl !== "#" && (
                                     <Button asChild className="bg-system-blue hover:bg-system-blue/90">
                                         <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                                            <ExternalLink className="mr-2 h-4 w-4" /> {t('portfolio.liveDemo')}
+                                            <ExternalLink className="mr-2 h-4 w-4" /> {getLiveUrlLabel(project)}
                                         </a>
                                     </Button>
                                 )}
@@ -242,7 +250,7 @@ const Portfolio = () => {
                                     {selectedProject.liveUrl && selectedProject.liveUrl !== "#" && (
                                         <Button asChild className="bg-system-blue hover:bg-system-blue/90">
                                             <a href={selectedProject.liveUrl} target="_blank" rel="noopener noreferrer">
-                                                <ExternalLink className="mr-2 h-4 w-4" /> {t('portfolio.liveDemo')}
+                                                <ExternalLink className="mr-2 h-4 w-4" /> {getLiveUrlLabel(selectedProject)}
                                             </a>
                                         </Button>
                                     )}

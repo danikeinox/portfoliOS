@@ -77,7 +77,7 @@
     "paragraph": "I am a passionate <strong>Full-Stack programmer</strong> with a solid background in both <strong>cybersecurity and software development</strong>. My professional journey is driven by a commitment to continuous learning and the ability to adapt to new challenges and technologies. I thrive on building elegant, efficient, and secure web experiences.",
     "skills": "My Skills",
     "page": {
-      "title": "Full-Stack Developer & Cybersecurity Enthusiast",
+      "title": "Full-Stack Developer & Cybersecurity Enthusiast (sometimes)",
       "location": "Barcelona, Spain",
       "experienceValue": "5+ Years",
       "experienceTitle": "Experience",
@@ -102,8 +102,8 @@
     },
     "danielcabreraEsV2Portfolio": {
       "title": "danielcabrera.es V2 Portfolio",
-      "descriptionShort": "My updated personal portfolio website built with Next.js and React.",
-      "descriptionLong": "This is my updated personal portfolio website, showcasing my skills, projects, and experience. Built with Next.js and React, it features a modern design and smooth user experience."
+      "descriptionShort": "Personal portfolio deployed in production at v2.danielcabrera.es. Deprecated version, replaced by this portfoliOS.",
+      "descriptionLong": "Second version of my personal portfolio website, deployed in production at the v2.danielcabrera.es subdomain. Built with Next.js and React, it showcased my skills, projects, and experience with a modern design. This version is deprecated—the current portfolio (portfoliOS) is the active evolution of the project."
     },
     "bookManager": {
       "title": "Book Management App",
@@ -127,18 +127,28 @@
     },
     "phanteum": {
       "title": "Phanteum Network (Web)",
-      "descriptionShort": "Hytale multiplayer server set in ancient Greece, with modes like KitPVP, SkyWars, HungerGames, and Survival PVP.",
-      "descriptionLong": "Phanteum Network was the web portal for a planned large-scale Hytale multiplayer server. The theme was set in ancient Greece, and the website was designed to be the central hub for the community. It showcased planned game modes like KitPVP, SkyWars, HungerGames, and Survival PVP. The site included forums, leaderboards, and news updates, built with a modern web stack to be fast and responsive."
+      "descriptionShort": "Production web portal for a Hytale multiplayer server (ancient Greece). Deprecated after Hytale's delayed launch.",
+      "descriptionLong": "Phanteum Network was the production web portal for a large-scale Hytale multiplayer server. Set in ancient Greece, it featured planned modes like KitPVP, SkyWars, HungerGames, and Survival PVP, plus forums, leaderboards, and news. The project is deprecated: Hytale's continued launch delays made the ecosystem unsustainable."
     },
     "phanteumShop": {
       "title": "Shop Phanteum Network (Web)",
-      "descriptionShort": "Store for Phanteum Network with passwordless login using the 'In-Game' Hytale user, with the purchasing security of Tebex.io. Allows automatic linking with the community's Discord.",
-      "descriptionLong": "This web store was developed for a Phanteum Network Hytale server, featuring a novel passwordless login system that authenticated users based on their in-game username. To ensure secure and reliable transactions, the store integrated with the Tebex.io payment gateway, a leading platform for game server monetization. Additionally, it included a feature for automatically linking a player's store account with their Discord account, fostering community integration."
+      "descriptionShort": "Production web store for Phanteum Network with in-game login and Tebex.io. Deprecated along with the network.",
+      "descriptionLong": "Production web store for the Phanteum Network server, with passwordless in-game Hytale login, Tebex.io payment integration, and automatic Discord linking. Deprecated after the Phanteum Network project was discontinued."
     },
     "carliyoelbot": {
       "title": "Carliyoelbot",
-      "descriptionShort": "A web tool for automatically uploading videos to Carliyo's TikTok queue (@carliyoelnervio / community account).",
-      "descriptionLong": "Carliyoelbot is a platform that allows any user to upload their videos (and other content) to be published on the collective TikTok account \"SOMOS LOS DER TISTOH\". It includes a real-time queue system, login, dashboard, and automatic processing. Developed mainly with Next.js, React, and Firebase."
+      "descriptionShort": "Website with a 24/7 TikTok bot that filters and uploads videos automatically and at random, built for Carlos García (@carliyoelnervio).",
+      "descriptionLong": "End-to-end delivery for client Carlos García \"carliyoelnervio\": custom website, always-on TikTok automation bot, backend services, and project-wide security. The bot filters content and publishes videos automatically and at random intervals without manual intervention."
+    },
+    "perfectosDesconocidos2": {
+      "title": "Perfectos Desconocidos 2",
+      "descriptionShort": "Web platform for influencer Natalia Palacios' couples reality show, with live voting and an all-expenses-paid New York trip prize.",
+      "descriptionLong": "Commissioned by client Natalia Palacios (influencer) for her couples reality format, with an all-expenses-paid trip to New York for the winning pair. A major technical challenge was handling large volumes of users accessing and voting on the site simultaneously, requiring high concurrency and real-time reliability."
+    },
+    "tonetBrowser": {
+      "title": "Tonet Browser",
+      "descriptionShort": "Desktop browser built from scratch in Rust—small, fast, and privacy-minded. Early MVP in active development.",
+      "descriptionLong": "Tonet is an independent desktop browser with its own networking, parsing, and rendering stack—not Chromium, Firefox, WebKit, or CEF. The current MVP offers HTTP(S) fetching with strict limits, minimal HTML extraction, a toolbar, history, and settings. The desktop app is written in Rust with eframe/egui; the marketing site uses Astro and Vite. Long-term goal: a lightweight, privacy-focused surface for essential reading and navigation, with Windows and Linux releases."
     }
   },
   "blog": {
@@ -222,6 +232,7 @@
     "title": "My Projects",
     "github": "GitHub",
     "liveDemo": "Live Demo",
+    "liveProduction": "Visit site",
     "all": "All",
     "showingCount": "Showing {count} project(s) for: {tags}",
     "noResults": "No projects match these filters.",
@@ -231,7 +242,10 @@
       "website": "Website",
       "work": "Work",
       "games": "Games",
-      "webTool": "Web tool"
+      "webTool": "Web tool",
+      "studies": "Studies",
+      "inDevelopment": "In development",
+      "deprecated": "Deprecated"
     }
   },
   "settings": {
@@ -689,7 +703,7 @@
     "profile": {
       "alt": "Profile Picture",
       "greeting": "Hi, I'm",
-      "bio": "Full-Stack Developer & Cybersecurity Enthusiast",
+      "bio": "Full-Stack Developer & Cybersecurity Enthusiast (sometimes)",
       "location": "📍 Barcelona, Spain",
       "about": "About Me",
       "portfolio": "Portfolio",

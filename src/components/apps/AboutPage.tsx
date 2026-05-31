@@ -3,37 +3,59 @@ import Image from 'next/image';
 import { useI18n } from '@/hooks/use-i18n';
 import aboutData from '@/lib/about.json';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Code, AppWindow, FileCode, Server, Database, Wind, ShieldCheck, User, Briefcase, MapPin, ArrowRight, Rss, MessagesSquare } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { AppWindow, MapPin, ArrowRight, Rss, MessagesSquare } from 'lucide-react';
+import type { IconType } from 'react-icons';
+import {
+    SiReact,
+    SiNextdotjs,
+    SiTypescript,
+    SiNodedotjs,
+    SiFirebase,
+    SiTailwindcss,
+    SiPython,
+    SiRust,
+    SiMysql,
+    SiRoblox,
+    SiOwasp,
+} from 'react-icons/si';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 
-const iconMap: { [key: string]: LucideIcon } = {
-    Code,
-    AppWindow,
-    FileCode,
-    Server,
-    Database,
-    Wind,
-    ShieldCheck,
-    User,
-    Briefcase,
-    MapPin
+type SkillIconConfig = {
+    Icon: IconType;
+    className: string;
+};
+
+const skillIconMap: Record<string, SkillIconConfig> = {
+    react: { Icon: SiReact, className: 'text-[#61DAFB]' },
+    nextjs: { Icon: SiNextdotjs, className: 'text-black dark:text-white' },
+    typescript: { Icon: SiTypescript, className: 'text-[#3178C6]' },
+    nodejs: { Icon: SiNodedotjs, className: 'text-[#339933]' },
+    firebase: { Icon: SiFirebase, className: 'text-[#FFCA28]' },
+    tailwindcss: { Icon: SiTailwindcss, className: 'text-[#06B6D4]' },
+    cybersecurity: { Icon: SiOwasp, className: 'text-[#003594] dark:text-[#4A90D9]' },
+    python: { Icon: SiPython, className: 'text-[#3776AB] dark:text-[#FFD43B]' },
+    rust: { Icon: SiRust, className: 'text-[#000000] dark:text-[#DEA584]' },
+    mysql: { Icon: SiMysql, className: 'text-[#4479A1]' },
+    luau: { Icon: SiRoblox, className: 'text-neutral-900 dark:text-neutral-100' },
 };
 
 const AboutPage = () => {
     const { t } = useI18n();
 
     const renderSkill = (skill: { name: string; icon: string }) => {
-        const Icon = iconMap[skill.icon] || Code;
+        const config = skillIconMap[skill.icon];
+        const Icon = config?.Icon ?? SiReact;
+        const iconClass = config?.className ?? 'text-neutral-600 dark:text-neutral-300';
+
         return (
             <div key={skill.name} className="flex items-center gap-4 rounded-2xl border border-neutral-200/80 bg-neutral-100/80 p-4 backdrop-blur-sm dark:border-neutral-800 dark:bg-neutral-900/70">
-                <div className="w-10 h-10 rounded-xl bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center">
-                    <Icon className="h-6 w-6 text-neutral-600 dark:text-neutral-300" />
+                <div className="w-10 h-10 rounded-xl bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center shrink-0">
+                    <Icon className={`h-6 w-6 ${iconClass}`} aria-hidden />
                 </div>
                 <h3 className="font-semibold text-neutral-800 dark:text-neutral-100 text-base">{skill.name}</h3>
             </div>
-        )
+        );
     };
 
     return (
