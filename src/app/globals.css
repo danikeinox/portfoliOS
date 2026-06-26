@@ -66,3 +66,37 @@
 .home-carousel.home-carousel--editing > .overflow-hidden {
     touch-action: none;
 }
+
+/* CV route: allow text selection and scrolling */
+.cv-route {
+    -webkit-overflow-scrolling: touch;
+}
+
+.cv-route * {
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+@media print {
+    body {
+        overflow: visible !important;
+        height: auto !important;
+        background: white !important;
+        color: black !important;
+    }
+
+    .cv-route {
+        position: static !important;
+        overflow: visible !important;
+        height: auto !important;
+    }
+
+    .cv-document a {
+        color: #0A84FF !important;
+        text-decoration: underline;
+    }
+
+    .cv-document {
+        break-inside: avoid;
+    }
+}
