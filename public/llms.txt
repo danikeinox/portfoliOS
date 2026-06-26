@@ -1,0 +1,42 @@
+# Daniel Cabrera — Full-Stack Developer (Barcelona)
+
+> Interactive portfolio and professional profile. Production web apps, high-traffic platforms, automation bots, SaaS and cybersecurity-minded engineering.
+
+## About
+
+- Name: Daniel Cabrera
+- Role: Full-Stack Developer & Cybersecurity Enthusiast
+- Location: Barcelona, Spain
+- Experience: 5+ years
+- Email: admin@danielcabrera.es
+- GitHub: https://github.com/danikeinox
+- LinkedIn: https://www.linkedin.com/in/dcabreraa/
+
+## Core skills
+
+React, Next.js, TypeScript, Node.js, Firebase, Supabase, Tailwind CSS, Python, Rust, MySQL, cybersecurity, API integrations, Vercel, Cloudflare, Upstash rate limiting.
+
+## Production projects (client work)
+
+- Perfectos Desconocidos 2 — https://www.perfectosdesconoci2.com — Reality show voting platform (high concurrency) for influencer Natalia Palacios. Stack: Next.js, TypeScript, Supabase, Cloudflare, Upstash, Vercel.
+- Carliyoelbot — https://www.carliyoelbot.com — 24/7 TikTok automation bot and website for Carlos García (@carliyoelnervio). Stack: Next.js, Firebase, GitHub Actions, Resend, Cloudflare R2.
+
+## Personal / product projects
+
+- Tonet Browser — https://www.usetonet.com — Desktop browser built from scratch in Rust (privacy-minded, early MVP). GitHub: https://github.com/usetonet/tonet-browser
+- Businfy — SaaS for business registration in Spain (in development)
+- Resuma — AI resume analysis startup (in development)
+- Podgenius — AI podcast generator (in development)
+
+## Key URLs
+
+- Home / interactive portfolio: /
+- CV / resume (machine-readable): /cv
+- About: /app/about
+- Projects: /app/portfolio
+- Contact: /app/contact
+- Case studies: /proyectos/perfectos-desconocidos-2, /proyectos/carliyoelbot, /proyectos/tonet-browser
+
+## Sitemap
+
+https://danielcabrera.es/sitemap.xml

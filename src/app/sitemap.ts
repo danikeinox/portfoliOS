@@ -1,14 +1,14 @@
 import type { MetadataRoute } from 'next';
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+import { INDEXABLE_ROUTES } from '@/lib/seo/routes';
+import { getSiteUrl } from '@/lib/seo/site';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [
-    {
-      url: `${siteUrl}/`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 1,
-    },
-  ];
+  const siteUrl = getSiteUrl();
+
+  return INDEXABLE_ROUTES.map((route) => ({
+    url: `${siteUrl}${route.path}`,
+    lastModified: new Date(),
+    changeFrequency: route.changeFrequency,
+    priority: route.priority,
+  }));
 }

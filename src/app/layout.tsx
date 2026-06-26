@@ -10,71 +10,13 @@ import { HomeScreenProvider } from '@/hooks/use-home-screen';
 import { ThemeProvider } from '@/hooks/use-theme';
 import { GoogleCalendarProvider } from '@/hooks/use-google-calendar';
 import StartupExperience from '@/components/onboarding/StartupExperience';
+import SeoProfileSummary from '@/components/seo/SeoProfileSummary';
 import { headers } from 'next/headers';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
+import { getRootMetadata } from '@/lib/seo/routes';
+import { buildJsonLdGraph } from '@/lib/seo/json-ld';
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'),
-  title: {
-    default: 'Daniel Cabrera | Portfolio iOS',
-    template: '%s | Daniel Cabrera',
-  },
-  description: 'Portfolio interactivo de Daniel Cabrera con experiencia iOS: proyectos frontend, apps reales, integración Firebase, SEO técnico y contacto profesional.',
-  applicationName: 'Daniel Cabrera Portfolio',
-  keywords: ['Daniel Cabrera', 'portfolio', 'frontend', 'next.js', 'iOS web', 'web developer'],
-  authors: [{ name: 'Daniel Cabrera' }],
-  creator: 'Daniel Cabrera',
-  publisher: 'Daniel Cabrera',
-  other: {
-    'mobile-web-app-capable': 'yes',
-  },
-  manifest: '/manifest.webmanifest',
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-      'max-video-preview': -1,
-    },
-  },
-  alternates: {
-    canonical: '/',
-  },
-  openGraph: {
-    type: 'website',
-    locale: 'es_ES',
-    url: '/',
-    title: 'Daniel Cabrera | Portfolio iOS',
-    description: 'Portfolio interactivo de Daniel Cabrera con experiencia iOS: proyectos frontend, apps reales, integración Firebase, SEO técnico y contacto profesional.',
-    siteName: 'Daniel Cabrera Portfolio',
-    images: [
-      {
-        url: '/opengraph-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Daniel Cabrera Portfolio',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Daniel Cabrera | Portfolio iOS',
-    description: 'Portfolio interactivo de Daniel Cabrera con experiencia iOS: proyectos frontend, apps reales, integración Firebase, SEO técnico y contacto profesional.',
-    images: ['/opengraph-image.png'],
-  },
-  icons: {
-    icon: [{ url: '/favicon.ico' }],
-    apple: [{ url: '/favicon.ico' }],
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'black-translucent',
-    title: 'Daniel Cabrera',
-  },
-};
+export const metadata: Metadata = getRootMetadata();
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -90,23 +32,11 @@ export default async function RootLayout({
 }>) {
   const headersList = await headers();
   const nonce = headersList.get('x-nonce') || '';
-
-  const personJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Daniel Cabrera',
-    jobTitle: 'Frontend Developer',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com',
-    sameAs: [
-      'https://github.com/danikeinox',
-      'https://linkedin.com/in/dcabreraa/',
-    ],
-  };
+  const jsonLd = buildJsonLdGraph();
 
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
-        {/* Preconnect to GTM/GA — loaded afterInteractive but benefits from early connection */}
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.google-analytics.com" />
       </head>
@@ -115,8 +45,9 @@ export default async function RootLayout({
         <script
           nonce={nonce}
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <SeoProfileSummary />
         <SystemStateProvider>
           <ThemeProvider>
             <I18nProvider>

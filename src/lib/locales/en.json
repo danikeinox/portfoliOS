@@ -228,6 +228,38 @@
     "albums": "Albums",
     "search": "Search"
   },
+  "seo": {
+    "root": {
+      "title": "Daniel Cabrera | Full-Stack Developer — Next.js, TypeScript, Firebase",
+      "description": "Full-Stack developer based in Barcelona. Production web projects: high-traffic platforms, automated bots, SaaS and apps with Next.js, Supabase, Firebase and Rust. Interactive portfolio with case studies and professional contact."
+    },
+    "apps": {
+      "about": {
+        "title": "About Me",
+        "description": "Daniel Cabrera, Full-Stack developer and cybersecurity enthusiast in Barcelona. 5+ years of experience with React, Next.js, TypeScript, Firebase and Rust."
+      },
+      "portfolio": {
+        "title": "Projects",
+        "description": "Portfolio of production and personal web projects: Perfectos Desconocidos 2, Carliyoelbot, Tonet Browser, Businfy, Resuma and more. Stack: Next.js, TypeScript, Supabase and Firebase."
+      },
+      "contact": {
+        "title": "Contact",
+        "description": "Contact Daniel Cabrera for web projects, Full-Stack development, API integrations and professional collaborations."
+      },
+      "blog": {
+        "title": "Blog",
+        "description": "Technical articles and notes by Daniel Cabrera on web development, Next.js, Firebase and cybersecurity."
+      },
+      "testimonials": {
+        "title": "Testimonials",
+        "description": "Recommendations and feedback on Daniel Cabrera's work as a Full-Stack developer."
+      },
+      "services": {
+        "title": "Services",
+        "description": "Custom web development, MVPs, integrations and automation for businesses and creators."
+      }
+    }
+  },
   "portfolio": {
     "title": "My Projects",
     "github": "GitHub",
