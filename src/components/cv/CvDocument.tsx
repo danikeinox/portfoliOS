@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getFeaturedProjects } from '@/lib/seo/content';
 import { getSiteUrl } from '@/lib/seo/site';
 import { CV_CONTENT, CV_EMAIL, CV_LINKS, type CvLocale } from '@/lib/cv-data';
 import CvPrintButton from './CvPrintButton';
@@ -12,10 +11,28 @@ type CvDocumentProps = {
 export default function CvDocument({ locale = 'es' }: CvDocumentProps) {
   const cv = CV_CONTENT[locale];
   const altLocale: CvLocale = locale === 'es' ? 'en' : 'es';
-  const projects = getFeaturedProjects(locale);
-  const clientProjects = projects.filter((p) => p.filterTags.includes('work'));
-  const otherProjects = projects.filter((p) => !p.filterTags.includes('work'));
   const siteUrl = getSiteUrl();
+
+  const itJobs = cv.experience.filter((job) => job.category !== 'logistics');
+  const parallelJobs = cv.experience.filter((job) => job.category === 'logistics');
+
+  const renderJobs = (jobs: typeof cv.experience) =>
+    jobs.map((job) => (
+      <div key={`${job.company}-${job.period}`} className="relative pl-4 border-l-2 border-[#0A84FF]/40">
+        <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+          <h3 className="text-base font-semibold">{job.role}</h3>
+          <span className="text-sm text-neutral-500 dark:text-neutral-400 shrink-0">{job.period}</span>
+        </div>
+        <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          {job.company} · {job.location}
+        </p>
+        <ul className="mt-2 space-y-1 text-sm text-neutral-600 dark:text-neutral-400 list-disc pl-4">
+          {job.highlights.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </div>
+    ));
 
   return (
     <main className="cv-document min-h-screen bg-[#f5f5f7] text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100 print:bg-white print:text-black">
@@ -128,6 +145,19 @@ export default function CvDocument({ locale = 'es' }: CvDocumentProps) {
                   ))}
                 </ul>
               </section>
+
+              {cv.other.length > 0 && (
+                <section>
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-3">
+                    {cv.sections.other}
+                  </h2>
+                  <ul className="space-y-1 text-sm text-neutral-600 dark:text-neutral-400">
+                    {cv.other.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+              )}
             </aside>
 
             {/* Main */}
@@ -136,25 +166,16 @@ export default function CvDocument({ locale = 'es' }: CvDocumentProps) {
                 <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-4">
                   {cv.sections.experience}
                 </h2>
-                <div className="space-y-6">
-                  {cv.experience.map((job) => (
-                    <div key={`${job.company}-${job.period}`} className="relative pl-4 border-l-2 border-[#0A84FF]/40">
-                      <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-                        <h3 className="text-base font-semibold">{job.role}</h3>
-                        <span className="text-sm text-neutral-500 dark:text-neutral-400 shrink-0">
-                          {job.period}
-                        </span>
-                      </div>
-                      <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                        {job.company} · {job.location}
-                      </p>
-                      <ul className="mt-2 space-y-1 text-sm text-neutral-600 dark:text-neutral-400 list-disc pl-4">
-                        {job.highlights.map((item) => (
-                          <li key={item}>{item}</li>
-                        ))}
-                      </ul>
+                <div className="space-y-8">
+                  <div>
+                    <div className="space-y-6">{renderJobs(itJobs)}</div>
+                  </div>
+                  {parallelJobs.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-semibold mb-4">{cv.sections.experienceParallel}</h3>
+                      <div className="space-y-6">{renderJobs(parallelJobs)}</div>
                     </div>
-                  ))}
+                  )}
                 </div>
               </section>
 
@@ -184,51 +205,26 @@ export default function CvDocument({ locale = 'es' }: CvDocumentProps) {
                 <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-4">
                   {cv.sections.projects}
                 </h2>
-
-                {clientProjects.length > 0 && (
-                  <div className="mb-6">
-                    <h3 className="text-sm font-semibold mb-3">{cv.sections.projectsClient}</h3>
-                    <div className="space-y-4">
-                      {clientProjects.map((project) => (
-                        <div
-                          key={project.id}
-                          className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 print:p-3"
-                        >
-                          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-                            <h4 className="font-semibold">{project.title}</h4>
-                            {project.liveUrl && (
-                              <a
-                                href={project.liveUrl}
-                                className="text-sm text-[#0A84FF] hover:underline break-all"
-                              >
-                                {project.liveUrl.replace(/^https?:\/\//, '')}
-                              </a>
-                            )}
-                          </div>
-                          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-                            {project.description}
-                          </p>
-                          <p className="mt-2 text-xs text-neutral-500">{project.tags.join(' · ')}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <h3 className="text-sm font-semibold mb-3">{cv.sections.projectsOther}</h3>
-                <div className="space-y-3">
-                  {otherProjects.slice(0, 6).map((project) => (
-                    <div key={project.id} className="text-sm">
-                      <span className="font-semibold">{project.title}</span>
-                      {project.liveUrl && (
-                        <>
-                          {' — '}
-                          <a href={project.liveUrl} className="text-[#0A84FF] hover:underline">
-                            {project.liveUrl.replace(/^https?:\/\//, '')}
+                <div className="space-y-4">
+                  {cv.projects.map((project) => (
+                    <div
+                      key={project.title}
+                      className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 print:p-3"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+                        <h3 className="font-semibold">{project.title}</h3>
+                        {project.url && (
+                          <a
+                            href={project.url}
+                            className="text-sm text-[#0A84FF] hover:underline break-all"
+                          >
+                            {project.url.replace(/^https?:\/\//, '')}
                           </a>
-                        </>
-                      )}
-                      <p className="text-neutral-600 dark:text-neutral-400 mt-0.5">{project.description}</p>
+                        )}
+                      </div>
+                      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+                        {project.description}
+                      </p>
                     </div>
                   ))}
                 </div>
