@@ -9,6 +9,10 @@ function getClientIp(request: NextRequest): string {
     return request.headers.get('x-real-ip')?.trim() || 'unknown';
 }
 
+export async function GET() {
+    return new NextResponse(null, { status: 204 });
+}
+
 export async function POST(request: NextRequest) {
     // Rate limit: max 20 reports per IP per minute
     const ip = getClientIp(request);

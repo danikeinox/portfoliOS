@@ -33,6 +33,16 @@ const nextConfig = {
   },
 
   // === HEADERS DE SEGURIDAD (mejorado) ===
+  async redirects() {
+    return [
+      {
+        source: '/opengraph-image.png',
+        destination: '/opengraph-image',
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {

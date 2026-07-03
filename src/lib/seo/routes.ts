@@ -69,6 +69,7 @@ export function getAppSeoMetadata(slug: string): Metadata {
     return {
       title: slug,
       alternates: { canonical: `${siteUrl}/app/${slug}` },
+      robots: { index: false, follow: true },
     };
   }
 
@@ -145,7 +146,7 @@ export function getRootMetadata(): Metadata {
       siteName: 'Daniel Cabrera',
       images: [
         {
-          url: '/opengraph-image.png',
+          url: '/opengraph-image',
           width: 1200,
           height: 630,
           alt: 'Daniel Cabrera — Desarrollador Full-Stack',
@@ -156,7 +157,7 @@ export function getRootMetadata(): Metadata {
       card: 'summary_large_image',
       title,
       description,
-      images: ['/opengraph-image.png'],
+      images: ['/opengraph-image'],
     },
     icons: {
       icon: [{ url: '/favicon.ico' }],
