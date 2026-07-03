@@ -25,9 +25,11 @@ export default function OpengraphImage() {
           fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
         }}
       >
-        <div style={{ fontSize: 30, opacity: 0.8, marginBottom: 12 }}>Portfolio</div>
+        <div style={{ fontSize: 30, opacity: 0.8, marginBottom: 12 }}>Desarrollador Full-Stack</div>
         <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1.05 }}>Daniel Cabrera</div>
-        <div style={{ fontSize: 28, opacity: 0.9, marginTop: 18 }}>Experiencia iOS en web, móvil y PWA opcional</div>
+        <div style={{ fontSize: 28, opacity: 0.9, marginTop: 18 }}>
+          Next.js · TypeScript · Firebase · Rust
+        </div>
       </div>
     ),
     size
