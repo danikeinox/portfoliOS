@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useI18n } from '@/hooks/use-i18n';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import VercelAnalytics from '@/components/analytics/VercelAnalytics';
+import WelcomeGreeting from '@/components/onboarding/WelcomeGreeting';
 
 type StartupStep = 'welcome' | 'consent' | 'legal';
 type LegalDoc = 'terms' | 'cookies';
@@ -131,10 +132,8 @@ export default function StartupExperience({ children }: { children: React.ReactN
                 <div className="w-full max-w-md h-full max-h-[860px] rounded-[36px] border border-white/50 dark:border-white/10 bg-white/55 dark:bg-[#0C0C0E]/70 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col">
                     {step === 'welcome' && (
                         <div className="h-full flex flex-col justify-between p-6">
-                            <div className="pt-4">
-                                <p className="text-6xl font-semibold lowercase tracking-tight text-white drop-shadow-sm text-center mt-20">
-                                    {t('startup.welcome')}
-                                </p>
+                            <div className="pt-4 flex justify-center">
+                                <WelcomeGreeting />
                             </div>
                             <Button
                                 className="h-14 rounded-full text-lg font-semibold bg-white/70 hover:bg-white text-black"

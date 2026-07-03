@@ -1,0 +1,21 @@
+/** iOS-style setup greetings — cycled on the welcome screen. */
+export const STARTUP_GREETINGS = [
+  'hello',
+  'bonjour',
+  'hola',
+  'hallo',
+  'ciao',
+  'olá',
+  'привет',
+  '你好',
+  'こんにちは',
+  '안녕하세요',
+  'שלום',
+  'مرحبا',
+  'hej',
+  'hei',
+  'salve',
+  'namaste',
+  'xin chào',
+  'sawubona',
+] as const;
