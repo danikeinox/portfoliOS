@@ -100,6 +100,11 @@
       "descriptionShort": "SaaS platform designed to automate the business registration process in Spain. It provides a simple way to submit forms, upload documents, and verify identity, with a freemium service for business management.",
       "descriptionLong": "Businfy is a comprehensive Software-as-a-Service platform designed to drastically simplify the bureaucratic process of registering a new business in Spain. The platform guides users through a step-by-step process, handling the submission of all necessary forms, secure document uploading, and identity verification. It integrates with government systems to streamline operations. After successful registration, Businfy transitions into a business management tool, offering a freemium tier with features like invoicing, client management, and basic accounting to help new entrepreneurs get started."
     },
+    "comomas": {
+      "title": "ComoMás (Startup)",
+      "descriptionShort": "Weekly meal menus adapted to your budget, allergies, and kitchen. Shopping list with real supermarket prices. Coming soon to the App Store and Google Play.",
+      "descriptionLong": "ComoMás plans breakfast, lunch, and dinner for the whole week based on budget, preferences, and kitchen equipment. It includes personalization (allergens, cuisine style), a multi-supermarket shopping list with real prices, nutrition/macros tracking, and a Premium plan. Landing at comomas.com; store launch imminent."
+    },
     "danielcabreraEsV2Portfolio": {
       "title": "danielcabrera.es V2 Portfolio",
       "descriptionShort": "Personal portfolio deployed in production at v2.danielcabrera.es. Deprecated version, replaced by this portfoliOS.",

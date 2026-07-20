@@ -100,6 +100,11 @@
       "descriptionShort": "Plataforma SaaS para automatizar el registro de empresas en España. Proporciona una forma simple de enviar formularios, subir documentos y verificar la identidad, con un servicio freemium para la gestión posterior.",
       "descriptionLong": "Businfy es una plataforma integral de Software como Servicio (SaaS) diseñada para simplificar drásticamente el proceso burocrático de registrar una nueva empresa en España. La plataforma guía a los usuarios a través de un proceso paso a paso, gestionando la presentación de todos los formularios necesarios, la carga segura de documentos y la verificación de identidad. Se integra con los sistemas gubernamentales para agilizar las operaciones. Tras el registro exitoso, Businfy se transforma en una herramienta de gestión empresarial, ofreciendo un nivel freemium con características como facturación, gestión de clientes y contabilidad básica para ayudar a los nuevos emprendedores a comenzar."
     },
+    "comomas": {
+      "title": "ComoMás (Startup)",
+      "descriptionShort": "App de menús semanales adaptados a presupuesto, alergias y cocina. Lista de la compra con precios reales de supermercados. Próximamente en App Store y Google Play.",
+      "descriptionLong": "ComoMás planifica desayuno, comida y cena de toda la semana según presupuesto, preferencias y equipamiento. Incluye personalización (alérgenos, tipo de cocina), lista de compra multi-supermercado con precios reales, seguimiento nutricional/macros y plan Premium. Landing en comomas.com; lanzamiento inminente en stores."
+    },
     "danielcabreraEsV2Portfolio": {
       "title": "danielcabrera.es V2 Portfolio",
       "descriptionShort": "Portafolio personal desplegado en producción en el subdominio v2.danielcabrera.es. Versión deprecada, sustituida por este portfoliOS.",
