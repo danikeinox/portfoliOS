@@ -37,3 +37,24 @@ export async function uploadToR2(
 
   return `https://${R2_PUBLIC_DOMAIN}/${key}`;
 }
+
+export async function uploadBufferToR2Key(
+  file: Buffer,
+  key: string,
+  contentType: string
+): Promise<string> {
+  if (!R2_ACCOUNT_ID || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY || !R2_BUCKET_NAME) {
+    throw new Error("R2 configuration is missing");
+  }
+
+  await s3Client.send(
+    new PutObjectCommand({
+      Bucket: R2_BUCKET_NAME,
+      Key: key,
+      Body: file,
+      ContentType: contentType,
+    })
+  );
+
+  return `https://${R2_PUBLIC_DOMAIN}/${key}`;
+}

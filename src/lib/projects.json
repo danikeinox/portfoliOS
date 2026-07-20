@@ -27,6 +27,57 @@
       "liveUrl": "#"
     },
     {
+      "id": "comomas",
+      "titleKey": "projects.comomas.title",
+      "descriptionShortKey": "projects.comomas.descriptionShort",
+      "descriptionLongKey": "projects.comomas.descriptionLong",
+      "filterTags": ["personalProject", "startupAttempt", "inDevelopment"],
+      "tags": [
+        "TypeScript",
+        "Expo",
+        "React Native",
+        "Node.js",
+        "Express",
+        "PostgreSQL",
+        "Drizzle",
+        "Zod",
+        "RevenueCat",
+        "EAS"
+      ],
+      "mainImage": {
+        "imageUrl": "https://cdn.danielcabrera.es/img/ComoMas_Project_Image.webp",
+        "imageHint": "comomas weekly meal planning app og"
+      },
+      "gallery": [
+        {
+          "imageUrl": "https://cdn.danielcabrera.es/img/ComoMas_Gallery_Landing.png",
+          "imageHint": "comomas landing page"
+        },
+        {
+          "imageUrl": "https://cdn.danielcabrera.es/img/ComoMas_Gallery_Planificador.png",
+          "imageHint": "weekly meal planner"
+        },
+        {
+          "imageUrl": "https://cdn.danielcabrera.es/img/ComoMas_Gallery_Compra.png",
+          "imageHint": "smart grocery list"
+        },
+        {
+          "imageUrl": "https://cdn.danielcabrera.es/img/ComoMas_Gallery_Ajustes.png",
+          "imageHint": "personalization allergens cuisine"
+        },
+        {
+          "imageUrl": "https://cdn.danielcabrera.es/img/ComoMas_Gallery_Nutricion.png",
+          "imageHint": "weekly macros nutrition"
+        },
+        {
+          "imageUrl": "https://cdn.danielcabrera.es/img/ComoMas_Gallery_Premium.png",
+          "imageHint": "premium subscription screen"
+        }
+      ],
+      "githubUrl": "https://github.com/danikeinox/comomas",
+      "liveUrl": "https://www.comomas.com"
+    },
+    {
       "id": "danielcabrera.es V2 Portfolio",
       "titleKey": "projects.danielcabreraEsV2Portfolio.title",
       "descriptionShortKey": "projects.danielcabreraEsV2Portfolio.descriptionShort",
