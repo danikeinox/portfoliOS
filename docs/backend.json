@@ -53,6 +53,15 @@
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "coverImage": {
+          "type": "string",
+          "description": "Optional CDN URL for the post cover image."
+        },
+        "images": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Optional gallery of CDN image URLs."
         }
       },
       "required": [
