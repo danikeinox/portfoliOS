@@ -5,7 +5,11 @@
       "titleKey": "projects.businfy.title",
       "descriptionShortKey": "projects.businfy.descriptionShort",
       "descriptionLongKey": "projects.businfy.descriptionLong",
-      "filterTags": ["personalProject", "startupAttempt", "inDevelopment"],
+      "filterTags": [
+        "personalProject",
+        "startupAttempt",
+        "inDevelopment"
+      ],
       "tags": [
         "Next.js",
         "React",
@@ -31,7 +35,11 @@
       "titleKey": "projects.danielcabreraEsV2Portfolio.title",
       "descriptionShortKey": "projects.danielcabreraEsV2Portfolio.descriptionShort",
       "descriptionLongKey": "projects.danielcabreraEsV2Portfolio.descriptionLong",
-      "filterTags": ["personalProject", "website", "deprecated"],
+      "filterTags": [
+        "personalProject",
+        "website",
+        "deprecated"
+      ],
       "tags": [
         "Next.js",
         "React",
@@ -45,7 +53,9 @@
         "imageUrl": "https://cdn.danielcabrera.es/img/Portfolio_V2_Project_Image.png",
         "imageHint": "personal portfolio website homepage"
       },
-      "gallery": ["https://cdn.danielcabrera.es/img/Portfolio_V2_Gallery.png"],
+      "gallery": [
+        "https://cdn.danielcabrera.es/img/Portfolio_V2_Gallery.png"
+      ],
       "githubUrl": null,
       "liveUrl": "https://v2.danielcabrera.es/"
     },
@@ -54,8 +64,14 @@
       "titleKey": "projects.bookManager.title",
       "descriptionShortKey": "projects.bookManager.descriptionShort",
       "descriptionLongKey": "projects.bookManager.descriptionLong",
-      "filterTags": ["studies"],
-      "tags": ["Python", "Tkinter", "MySQL"],
+      "filterTags": [
+        "studies"
+      ],
+      "tags": [
+        "Python",
+        "Tkinter",
+        "MySQL"
+      ],
       "mainImage": {
         "imageUrl": "https://cdn.danielcabrera.es/img/Book_Manager_Project_Image.webp",
         "imageHint": "desktop application interface"
@@ -69,7 +85,9 @@
       "titleKey": "projects.perfectosDesconocidos2.title",
       "descriptionShortKey": "projects.perfectosDesconocidos2.descriptionShort",
       "descriptionLongKey": "projects.perfectosDesconocidos2.descriptionLong",
-      "filterTags": ["work"],
+      "filterTags": [
+        "work"
+      ],
       "tags": [
         "Next.js",
         "TypeScript",
@@ -96,7 +114,11 @@
       "titleKey": "projects.aiPodcast.title",
       "descriptionShortKey": "projects.aiPodcast.descriptionShort",
       "descriptionLongKey": "projects.aiPodcast.descriptionLong",
-      "filterTags": ["personalProject", "startupAttempt", "inDevelopment"],
+      "filterTags": [
+        "personalProject",
+        "startupAttempt",
+        "inDevelopment"
+      ],
       "tags": [
         "TypeScript",
         "Next.js",
@@ -119,7 +141,11 @@
       "titleKey": "projects.resuma.title",
       "descriptionShortKey": "projects.resuma.descriptionShort",
       "descriptionLongKey": "projects.resuma.descriptionLong",
-      "filterTags": ["personalProject", "startupAttempt", "inDevelopment"],
+      "filterTags": [
+        "personalProject",
+        "startupAttempt",
+        "inDevelopment"
+      ],
       "tags": [
         "TypeScript",
         "Next.js",
@@ -142,8 +168,14 @@
       "titleKey": "projects.roblox.title",
       "descriptionShortKey": "projects.roblox.descriptionShort",
       "descriptionLongKey": "projects.roblox.descriptionLong",
-      "filterTags": ["games"],
-      "tags": ["TypeScript", "Luau", "Roblox DataStore"],
+      "filterTags": [
+        "games"
+      ],
+      "tags": [
+        "TypeScript",
+        "Luau",
+        "Roblox DataStore"
+      ],
       "mainImage": {
         "imageUrl": "https://cdn.danielcabrera.es/img/Roblox_Project_Image.png",
         "imageHint": "roblox pixel painting multiplayer game world"
@@ -162,7 +194,11 @@
       "titleKey": "projects.phanteum.title",
       "descriptionShortKey": "projects.phanteum.descriptionShort",
       "descriptionLongKey": "projects.phanteum.descriptionLong",
-      "filterTags": ["personalProject", "games", "deprecated"],
+      "filterTags": [
+        "personalProject",
+        "games",
+        "deprecated"
+      ],
       "tags": [
         "TypeScript",
         "Next.js",
@@ -187,7 +223,11 @@
       "titleKey": "projects.phanteumShop.title",
       "descriptionShortKey": "projects.phanteumShop.descriptionShort",
       "descriptionLongKey": "projects.phanteumShop.descriptionLong",
-      "filterTags": ["personalProject", "games", "deprecated"],
+      "filterTags": [
+        "personalProject",
+        "games",
+        "deprecated"
+      ],
       "tags": [
         "TypeScript",
         "Next.js",
@@ -212,7 +252,9 @@
       "titleKey": "projects.carliyoelbot.title",
       "descriptionShortKey": "projects.carliyoelbot.descriptionShort",
       "descriptionLongKey": "projects.carliyoelbot.descriptionLong",
-      "filterTags": ["work"],
+      "filterTags": [
+        "work"
+      ],
       "tags": [
         "Next.js",
         "TypeScript",
@@ -239,7 +281,10 @@
       "titleKey": "projects.tonetBrowser.title",
       "descriptionShortKey": "projects.tonetBrowser.descriptionShort",
       "descriptionLongKey": "projects.tonetBrowser.descriptionLong",
-      "filterTags": ["personalProject", "inDevelopment"],
+      "filterTags": [
+        "personalProject",
+        "inDevelopment"
+      ],
       "tags": [
         "Rust",
         "TypeScript",
