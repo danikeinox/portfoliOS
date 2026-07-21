@@ -180,6 +180,12 @@ export const CV_CONTENT: Record<CvLocale, CvContent> = {
     ],
     projects: [
       {
+        title: 'ComoMás',
+        description:
+          'App iOS y Android de menús semanales adaptados a presupuesto, alergias y cocina, con lista de la compra y precios reales de supermercados.',
+        url: 'https://www.comomas.com',
+      },
+      {
         title: 'Tonet Browser',
         description:
           'Navegador de escritorio en Rust construido desde cero (sin Chromium/WebKit). MVP activo.',
@@ -333,6 +339,12 @@ export const CV_CONTENT: Record<CvLocale, CvContent> = {
       },
     ],
     projects: [
+      {
+        title: 'ComoMás',
+        description:
+          'iOS and Android app for weekly meal plans adapted to budget, allergies, and kitchen setup, with a shopping list and real supermarket prices.',
+        url: 'https://www.comomas.com',
+      },
       {
         title: 'Tonet Browser',
         description: 'Desktop browser built from scratch in Rust (no Chromium/WebKit). Active MVP.',

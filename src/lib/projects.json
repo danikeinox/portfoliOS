@@ -31,7 +31,7 @@
       "titleKey": "projects.comomas.title",
       "descriptionShortKey": "projects.comomas.descriptionShort",
       "descriptionLongKey": "projects.comomas.descriptionLong",
-      "filterTags": ["personalProject", "startupAttempt", "inDevelopment"],
+      "filterTags": ["personalProject", "startupAttempt", "mobileApp", "inDevelopment"],
       "tags": [
         "TypeScript",
         "Expo",
